@@ -22,7 +22,7 @@ public interface PairDataProvider {
         throw new NotImplementedException();
     }
 
-    String[] getPairsApiSymbols(double minVolume, String counterCurrencySymbol) throws IOException;
+    String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws IOException;
     String[] getPairsApiSymbols() throws IOException;
 
 }

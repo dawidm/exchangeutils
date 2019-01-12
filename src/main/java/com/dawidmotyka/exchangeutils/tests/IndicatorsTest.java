@@ -8,6 +8,7 @@ import com.dawidmotyka.exchangeutils.chartutils.CandleMinMaxConsolidationFactor;
 import com.dawidmotyka.exchangeutils.exchangespecs.BinanceExchangeSpecs;
 import com.dawidmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
 import com.dawidmotyka.exchangeutils.pairdataprovider.PairDataProvider;
+import com.dawidmotyka.exchangeutils.pairdataprovider.PairSelectionCriteria;
 
 import java.util.Map;
 
@@ -16,7 +17,7 @@ public class IndicatorsTest {
         try {
             ExchangeSpecs exchangeSpecs = new BinanceExchangeSpecs();
             PairDataProvider pairDataProvider = PairDataProvider.forExchange(exchangeSpecs);
-            String[] pairs = pairDataProvider.getPairsApiSymbols(200,"BTC");
+            String[] pairs = pairDataProvider.getPairsApiSymbols(new PairSelectionCriteria[] {new PairSelectionCriteria("BTC",200)});
             ChartDataProvider chartDataProvider = new ChartDataProvider(exchangeSpecs, pairs,new int[] {300});
             chartDataProvider.subscribeChartCandles(chartCandlesMap -> {
                 for(Map.Entry<String,ChartCandle[]> entry : chartCandlesMap.entrySet()) {
