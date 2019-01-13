@@ -44,6 +44,11 @@ public class BittrexWebsocketTickerProvider implements TickerProvider {
 
     @Override
     public void disconnect() {
+        connectedAtomicBoolean.set(false);
+        disconnectBittrexExchange();
+    }
+
+    private void disconnectBittrexExchange() {
         logger.info("disconnecting ws");
         if(reconnectScheduledFuture!=null)
             reconnectScheduledFuture.cancel(true);
@@ -53,13 +58,13 @@ public class BittrexWebsocketTickerProvider implements TickerProvider {
     }
 
     private void reconnect() {
-        disconnect();
+        disconnectBittrexExchange();
         RepeatTillSuccess.planTask(this::startWebsocket,e->{logger.log(Level.WARNING,"when connecting websocket",e);},1000);
     }
 
     private void startWebsocket() throws IOException {
         if(bittrexExchange!=null)
-            disconnect();
+            disconnectBittrexExchange();
         else {
             ExchangeCredentials exchangeCredentials;
             try {
@@ -79,12 +84,10 @@ public class BittrexWebsocketTickerProvider implements TickerProvider {
             bittrexExchange.onWebsocketError(e -> logger.log(Level.WARNING, "websocket error", e));
             bittrexExchange.onWebsocketStateChange(connectionStateChange -> {
                 logger.info("websocket connection state: " + connectionStateChange.getNewState().name());
-                if(connectionStateChange.getNewState()==ConnectionState.Disconnected) {
-                    if(connectedAtomicBoolean.get()==false)
-                        return;
-                    if(reconnectScheduledFuture==null | reconnectScheduledFuture.isDone()) {
+                if(connectionStateChange.getNewState()==ConnectionState.Disconnected && connectedAtomicBoolean.get()==true) {
+                    if(reconnectScheduledFuture==null || reconnectScheduledFuture.isDone() || reconnectScheduledFuture.isCancelled()) {
                         logger.info("lost connection, reconnecting");
-                        scheduledExecutorService.schedule(this::reconnect,1,TimeUnit.SECONDS);
+                        reconnectScheduledFuture=scheduledExecutorService.schedule(this::reconnect,1,TimeUnit.SECONDS);
                     }
                 }
             });
