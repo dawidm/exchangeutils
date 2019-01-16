@@ -44,7 +44,7 @@ public class BinanceTransactionsWebSocket implements TickerProvider {
     }
 
     @Override
-    public void connect() throws IOException {
+    public void connect(TickerProviderConnectionStateReceiver connectionStateReceiver) throws IOException {
         isConnectedAtomicBoolean.set(true);
         StringBuilder stringBuilder = new StringBuilder(WS_API_URL_COMBINED);
         for (String currentPair : pairsAtomicReference.get()) {
@@ -57,6 +57,7 @@ public class BinanceTransactionsWebSocket implements TickerProvider {
                 @Override
                 public void onOpen(ServerHandshake serverHandshake) {
                     logger.fine(String.format("connected websocket, handshake: %s",serverHandshake.getHttpStatusMessage()));
+                    connectionStateReceiver.connectionState(TickerProviderConnectionState.CONNECTED);
                 }
 
                 @Override
@@ -66,6 +67,7 @@ public class BinanceTransactionsWebSocket implements TickerProvider {
 
                 @Override
                 public void onClose(int code, String reason, boolean remote) {
+                    connectionStateReceiver.connectionState(TickerProviderConnectionState.DISCONNECTED);
                     if (isConnectedAtomicBoolean.get() == false)
                         return;
                     logger.fine("websocket closed, reconnecting...");
@@ -88,11 +90,6 @@ public class BinanceTransactionsWebSocket implements TickerProvider {
             logger.log(Level.WARNING, "", e);
             throw new IOException(e);
         }
-    }
-
-    private void reconnect() {
-        disconnect();
-        RepeatTillSuccess.planTask(this::connect,e->logger.log(Level.WARNING,"when connecting websocket",e),1000);
     }
 
     public void disconnect() {

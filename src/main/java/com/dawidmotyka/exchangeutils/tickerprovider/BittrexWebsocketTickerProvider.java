@@ -30,6 +30,7 @@ public class BittrexWebsocketTickerProvider implements TickerProvider {
     private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
     private ScheduledFuture reconnectScheduledFuture;
     private AtomicBoolean connectedAtomicBoolean=new AtomicBoolean(false);
+    TickerProviderConnectionStateReceiver connectionStateReceiver;
 
     public BittrexWebsocketTickerProvider(TickerReceiver tickerReceiver,String pairs[]) {
         this.pairs=pairs;
@@ -37,9 +38,10 @@ public class BittrexWebsocketTickerProvider implements TickerProvider {
     }
 
     @Override
-    public void connect() throws IOException {
+    public void connect(TickerProviderConnectionStateReceiver connectionStateReceiver) throws IOException {
         connectedAtomicBoolean.set(true);
         startWebsocket();
+        this.connectionStateReceiver=connectionStateReceiver;
     }
 
     @Override
@@ -83,6 +85,14 @@ public class BittrexWebsocketTickerProvider implements TickerProvider {
         bittrexExchange.onWebsocketError(e -> logger.log(Level.WARNING, "websocket error", e));
         bittrexExchange.onWebsocketStateChange(connectionStateChange -> {
             logger.info("websocket connection state: " + connectionStateChange.getNewState().name());
+            switch (connectionStateChange.getNewState()) {
+                case Connected:
+                    connectionStateReceiver.connectionState(TickerProviderConnectionState.CONNECTED);
+                    break;
+                case Disconnected:
+                    connectionStateReceiver.connectionState(TickerProviderConnectionState.DISCONNECTED);
+                    break;
+            }
             if(connectionStateChange.getNewState()==ConnectionState.Disconnected && connectedAtomicBoolean.get()==true) {
                 if(reconnectScheduledFuture==null || reconnectScheduledFuture.isDone() || reconnectScheduledFuture.isCancelled()) {
                     logger.info("lost connection, reconnecting");

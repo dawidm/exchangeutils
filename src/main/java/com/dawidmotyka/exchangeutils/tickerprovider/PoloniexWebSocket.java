@@ -55,7 +55,7 @@ public class PoloniexWebSocket implements TickerProvider {
     }
 
     @Override
-    public void connect() throws IOException {
+    public void connect(TickerProviderConnectionStateReceiver connectionStateReceiver) throws IOException {
         try {
             isConnectedAtomicBoolean.set(true);
             SSLContext sslContext;
@@ -72,12 +72,14 @@ public class PoloniexWebSocket implements TickerProvider {
                 @Override
                 public void onOpen(ServerHandshake handshake) {
                     makeWsSubscriptions();
+                    connectionStateReceiver.connectionState(TickerProviderConnectionState.CONNECTED);
                     if(transactionReceiver!=null)
                         transactionReceiver.wsConnected();
                 }
 
                 @Override
                 public void onClose(int code, String reason, boolean remote) {
+                    connectionStateReceiver.connectionState(TickerProviderConnectionState.DISCONNECTED);
                     if(transactionReceiver!=null)
                         transactionReceiver.wsDisconnected(code, reason, remote);
                     if(reconnectScheduledFuture==null || reconnectScheduledFuture.isDone()) {
@@ -116,11 +118,6 @@ public class PoloniexWebSocket implements TickerProvider {
             }
             webSocketClient=null;
         }
-    }
-
-    private void reconnect() {
-        disconnect();
-        RepeatTillSuccess.planTask(this::connect, e->logger.log(Level.WARNING,"when connecting websocket",e),1000);
     }
 
     public boolean isConnected() {

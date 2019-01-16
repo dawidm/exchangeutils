@@ -20,6 +20,6 @@ public interface TickerProvider {
         throw new Error("not implemented for "+exchangeSpecs.getName());
     };
 
-    void connect() throws IOException;
+    void connect(TickerProviderConnectionStateReceiver connectionStateReceiver) throws IOException;
     void disconnect();
 }
