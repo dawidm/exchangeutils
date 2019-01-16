@@ -34,6 +34,7 @@ public class XtbTickerProvider implements TickerProvider {
     private AskBidTickerReceiver askBidTickerReceiver;
     private ScheduledFuture keepAliveScheduledFuture;
     private ScheduledExecutorService scheduledExecutorService=Executors.newScheduledThreadPool(1);
+    private TickerProviderConnectionStateReceiver connectionStateReceiver;
 
     public XtbTickerProvider(TickerReceiver tickerReceiver, String[] pairs) {
         this.pairs=pairs;
@@ -41,9 +42,12 @@ public class XtbTickerProvider implements TickerProvider {
     }
 
     @Override
-    public void connect() {
+    public void connect(TickerProviderConnectionStateReceiver connectionStateReceiver) {
+        this.connectionStateReceiver=connectionStateReceiver;
         RepeatTillSuccess.planTask(this::connectXtbConnectionManager, (e) -> logger.log(Level.WARNING, "", e), CONNECT_RETRY_PERIOD_SECONDS * 1000);
         RepeatTillSuccess.planTask(this::makeSubscriptions,(e)->logger.log(Level.WARNING,"when making subscriptions",e),CONNECT_RETRY_PERIOD_SECONDS*1000);
+        //TODO send proper connection state
+        connectionStateReceiver.connectionState(TickerProviderConnectionState.CONNECTED);
     }
 
     @Override
@@ -51,6 +55,8 @@ public class XtbTickerProvider implements TickerProvider {
         if(keepAliveScheduledFuture!=null && !keepAliveScheduledFuture.isCancelled())
             keepAliveScheduledFuture.cancel(false);
         xtbConnectionManager.disconnect();
+        //TODO send proper connection state
+        connectionStateReceiver.connectionState(TickerProviderConnectionState.DISCONNECTED);
     }
 
     private void connectXtbConnectionManager() throws ExchangeCommunicationException {
@@ -110,7 +116,7 @@ public class XtbTickerProvider implements TickerProvider {
         if ((int)((System.currentTimeMillis()-keepAliveAtomicReference.get())/1000)>MAX_KEEP_ALIVE_DELAY_SECONDS) {
             logger.warning("keep alive not received restarting connection");
             disconnect();
-            connect();
+            connect(connectionStateReceiver);
         }
     }
 

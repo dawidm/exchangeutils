@@ -1,8 +1,6 @@
 package com.dawidmotyka.exchangeutils.bittrex;
 
-import com.dawidmotyka.exchangeutils.tickerprovider.Ticker;
-import com.dawidmotyka.exchangeutils.tickerprovider.TickerProvider;
-import com.dawidmotyka.exchangeutils.tickerprovider.TickerReceiver;
+import com.dawidmotyka.exchangeutils.tickerprovider.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -22,8 +20,8 @@ public class BittrexTickerProvider implements TickerProvider {
     private static final Logger logger = Logger.getLogger(BittrexTickerProvider.class.getName());
     private static final long DEFAULT_REFRESH_INTERVAL_MILLISECONDS = 1000;
 
-
     private final TickerReceiver tickerReceiver;
+    private TickerProviderConnectionStateReceiver connectionStateReceiver;
     private final ScheduledExecutorService scheduledExecutorService;
     private long refreshIntervalMillis;
     private final Set<String> pairsSet = new HashSet<>();
@@ -39,7 +37,9 @@ public class BittrexTickerProvider implements TickerProvider {
     }
 
     @Override
-    public void connect() {
+    public void connect(TickerProviderConnectionStateReceiver connectionStateReceiver) {
+        this.connectionStateReceiver=connectionStateReceiver;
+        connectionStateReceiver.connectionState(TickerProviderConnectionState.CONNECTED);
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             try {
                 logger.finest("getting tickers...");
@@ -55,6 +55,7 @@ public class BittrexTickerProvider implements TickerProvider {
     public void disconnect() {
         logger.fine("shutting down ScheduledExecutorService");
         scheduledExecutorService.shutdown();
+        connectionStateReceiver.connectionState(TickerProviderConnectionState.DISCONNECTED);
     }
 
     private void getAllTickers() {
