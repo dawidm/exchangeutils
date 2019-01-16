@@ -65,34 +65,31 @@ public class BittrexWebsocketTickerProvider implements TickerProvider {
     private void startWebsocket() throws IOException {
         if(bittrexExchange!=null)
             disconnectBittrexExchange();
-        else {
-            ExchangeCredentials exchangeCredentials;
-            try {
-                exchangeCredentials=CredentialsProvider.getCredentials(BittrexExchangeSpecs.class);
-            } catch (CredentialsNotAvailableException e) {
-                logger.severe(e.getLocalizedMessage());
-                throw new IOException(e.getLocalizedMessage());
-            }
-            bittrexExchange = new BittrexExchange(exchangeCredentials.getLogin(), exchangeCredentials.getPass());
-            bittrexExchange.onUpdateExchangeState(updateExchangeState -> {
-                if(updateExchangeState.getFills().length>0) {
-                    logger.finest(String.format("%d ticker for %s", updateExchangeState.getFills().length, updateExchangeState.getMarketName()));
-                    List<Ticker> tickers = Arrays.stream(updateExchangeState.getFills()).map(fill -> new Ticker(updateExchangeState.getMarketName(), fill.getPrice(), System.currentTimeMillis() / 1000)).collect(Collectors.toList());
-                    tickerReceiver.receiveTickers(tickers);
-                }
-            });
-            bittrexExchange.onWebsocketError(e -> logger.log(Level.WARNING, "websocket error", e));
-            bittrexExchange.onWebsocketStateChange(connectionStateChange -> {
-                logger.info("websocket connection state: " + connectionStateChange.getNewState().name());
-                if(connectionStateChange.getNewState()==ConnectionState.Disconnected && connectedAtomicBoolean.get()==true) {
-                    if(reconnectScheduledFuture==null || reconnectScheduledFuture.isDone() || reconnectScheduledFuture.isCancelled()) {
-                        logger.info("lost connection, reconnecting");
-                        reconnectScheduledFuture=scheduledExecutorService.schedule(this::reconnect,1,TimeUnit.SECONDS);
-                    }
-                }
-            });
-
+        ExchangeCredentials exchangeCredentials;
+        try {
+            exchangeCredentials=CredentialsProvider.getCredentials(BittrexExchangeSpecs.class);
+        } catch (CredentialsNotAvailableException e) {
+            logger.severe(e.getLocalizedMessage());
+            throw new IOException(e.getLocalizedMessage());
         }
+        bittrexExchange = new BittrexExchange(exchangeCredentials.getLogin(), exchangeCredentials.getPass());
+        bittrexExchange.onUpdateExchangeState(updateExchangeState -> {
+            if(updateExchangeState.getFills().length>0) {
+                logger.finest(String.format("%d ticker for %s", updateExchangeState.getFills().length, updateExchangeState.getMarketName()));
+                List<Ticker> tickers = Arrays.stream(updateExchangeState.getFills()).map(fill -> new Ticker(updateExchangeState.getMarketName(), fill.getPrice(), System.currentTimeMillis() / 1000)).collect(Collectors.toList());
+                tickerReceiver.receiveTickers(tickers);
+            }
+        });
+        bittrexExchange.onWebsocketError(e -> logger.log(Level.WARNING, "websocket error", e));
+        bittrexExchange.onWebsocketStateChange(connectionStateChange -> {
+            logger.info("websocket connection state: " + connectionStateChange.getNewState().name());
+            if(connectionStateChange.getNewState()==ConnectionState.Disconnected && connectedAtomicBoolean.get()==true) {
+                if(reconnectScheduledFuture==null || reconnectScheduledFuture.isDone() || reconnectScheduledFuture.isCancelled()) {
+                    logger.info("lost connection, reconnecting");
+                    reconnectScheduledFuture=scheduledExecutorService.schedule(this::reconnect,1,TimeUnit.SECONDS);
+                }
+            }
+        });
         logger.info("connecting ws");
         bittrexExchange.connectToWebSocket(() -> {
             logger.info("connected ws");
