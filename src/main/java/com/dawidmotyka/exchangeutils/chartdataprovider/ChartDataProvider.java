@@ -55,11 +55,15 @@ public class ChartDataProvider {
                 if(abortAtomicBoolean.get()==true)
                     return;
                 logger.fine("getting data for " + currentPair);
-                RepeatTillSuccess.planTask(()-> getChartData(currentPair,numCandlesAtomicInteger.get(),currentPeriod),
-                        (e) -> logger.log(Level.WARNING, "when getting data for "+currentPair, e),
+                RepeatTillSuccess.planTask(() -> {
+                            if (abortAtomicBoolean.get() == true)
+                                return;
+                            getChartData(currentPair, numCandlesAtomicInteger.get(), currentPeriod);
+                        },
+                        (e) -> logger.log(Level.WARNING, "when getting data for " + currentPair, e),
                         GET_CHART_DATA_DELAY_MS,
                         NUM_RETRIES_FOR_PAIR,
-                        ()-> logger.log(Level.WARNING,String.format("reached maximum retires for getting data for %s",currentPair)));
+                        () -> logger.log(Level.WARNING, String.format("reached maximum retires for getting data for %s", currentPair)));
                 //delay before next api call
                 ThreadPause.millis(GET_CHART_DATA_DELAY_MS);
             }
