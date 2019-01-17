@@ -5,5 +5,5 @@ import com.dawidmotyka.exchangeutils.chartinfo.ChartCandle;
 import java.util.Map;
 
 public interface ChartDataReceiver {
-    void onChartCandlesUpdate(Map<String,ChartCandle[]> chartCandlesMap);
+    void onChartCandlesUpdate(Map<CurrencyPairTimePeriod,ChartCandle[]> chartCandlesMap);
 }
