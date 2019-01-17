@@ -14,7 +14,7 @@ public class BittrexExchangeSpecs extends ExchangeSpecs {
     private static final String COLOR_HEX = "2184ff";
 
     public BittrexExchangeSpecs() {
-        super(EXCHANGE_NAME,MARKET_URL, BittrexExchange.class,0.0005, COLOR_HEX);
+        super(EXCHANGE_NAME,MARKET_URL, BittrexExchange.class,0.0005, COLOR_HEX,500);
     }
 
     @Override

@@ -14,7 +14,7 @@ public class BinanceExchangeSpecs extends ExchangeSpecs {
     private static final String COLOR_HEX = "eaaf00";
 
     public BinanceExchangeSpecs() {
-        super(EXCHANGE_NAME,MARKET_URL, BinanceExchange.class,0.0005, COLOR_HEX);
+        super(EXCHANGE_NAME,MARKET_URL, BinanceExchange.class,0.0005, COLOR_HEX,200);
     }
 
     @Override

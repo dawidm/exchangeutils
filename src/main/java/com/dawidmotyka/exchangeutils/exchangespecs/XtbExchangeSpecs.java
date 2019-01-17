@@ -9,7 +9,7 @@ public class XtbExchangeSpecs extends ExchangeSpecs {
     private static final String COLOR_HEX = "000000";
 
     public XtbExchangeSpecs() {
-        super(EXCHANGE_NAME,MARKET_URL, null,0, COLOR_HEX);
+        super(EXCHANGE_NAME,MARKET_URL, null,0, COLOR_HEX,200);
     }
 
     @Override

@@ -14,7 +14,7 @@ public class PoloniexExchangeSpecs extends ExchangeSpecs {
     private static final String COLOR_HEX = "0a6970";
 
     public PoloniexExchangeSpecs() {
-        super(EXCHANGE_NAME,MARKET_URL, PoloniexExchange.class,0.0001, COLOR_HEX);
+        super(EXCHANGE_NAME,MARKET_URL, PoloniexExchange.class,0.0001, COLOR_HEX,500);
     }
 
     @Override

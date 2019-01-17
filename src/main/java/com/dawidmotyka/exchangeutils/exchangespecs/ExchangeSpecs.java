@@ -16,13 +16,20 @@ public abstract class ExchangeSpecs {
     private final String marketUrl;
     private final Class<? extends Exchange> xchangeExchange;
     private final String colorHex;
+    private final int DELAY_BETWEEN_CHART_DATA_REQUESTS_MS;
 
-    public ExchangeSpecs(String name, String marketUrl, @Nullable Class<? extends Exchange> xchangeExchange, double MIN_TOTAL_ORDER_VALUE, String colorHex) {
+    public ExchangeSpecs(String name,
+                         String marketUrl,
+                         @Nullable Class<? extends Exchange> xchangeExchange,
+                         double MIN_TOTAL_ORDER_VALUE,
+                         String colorHex,
+                         int DELAY_BETWEEN_CHART_DATA_REQUESTS_MS) {
         this.name = name;
         this.marketUrl = marketUrl;
         this.xchangeExchange=xchangeExchange;
         this.MIN_TOTAL_ORDER_VALUE=MIN_TOTAL_ORDER_VALUE;
         this.colorHex=colorHex;
+        this.DELAY_BETWEEN_CHART_DATA_REQUESTS_MS = DELAY_BETWEEN_CHART_DATA_REQUESTS_MS;
     }
 
     public abstract ExchangeChartInfo getChartInfo();
@@ -41,6 +48,10 @@ public abstract class ExchangeSpecs {
 
     public String getColorHash() {
         return colorHex;
+    }
+
+    public int getDelayBetweenChartDataRequestsMs() {
+        return DELAY_BETWEEN_CHART_DATA_REQUESTS_MS;
     }
 
     @Override
