@@ -6,7 +6,6 @@ import org.knowm.xchange.binance.BinanceAdapters;
 import org.knowm.xchange.binance.BinanceExchange;
 import org.knowm.xchange.binance.dto.marketdata.BinanceTicker24h;
 import org.knowm.xchange.binance.service.BinanceMarketDataService;
-import org.knowm.xchange.currency.CurrencyPair;
 
 import java.io.IOException;
 import java.util.*;
@@ -21,19 +20,25 @@ public class BinancePairDataProvider implements PairDataProvider {
         BinanceMarketDataService binanceMarketDataService = new BinanceMarketDataService(ExchangeFactory.INSTANCE.createExchange(new ExchangeSpecification(BinanceExchange.class)));
         Map<String,Double> criteriaMap = new HashMap<>();
         Arrays.stream(pairSelectionCriteria).forEach(criterium->criteriaMap.put(criterium.getCounterCurrencySymbol(),criterium.getMinVolume()));
-        CurrencyPair[] pairs = binanceMarketDataService.tickerAllPrices().stream().
-                map(binanceSymbolPrice -> binanceSymbolPrice.getCurrencyPair()).
-                filter(currencyPair -> criteriaMap.containsKey(currencyPair.counter.getSymbol())).toArray(CurrencyPair[]::new);
+        String[] pairs = Arrays.stream(binanceMarketDataService.getExchangeInfo().getSymbols()).
+                filter(symbol -> symbol.getStatus().equals("TRADING")).
+                map(symbol -> BinanceAdapters.adaptSymbol(symbol.getSymbol())).
+                filter(pair -> criteriaMap.containsKey(pair.counter.getSymbol())).
+                map(pair -> BinanceAdapters.toSymbol(pair)).
+                toArray(String[]::new);
         ArrayList<String> filteredPairs = new ArrayList<>(pairs.length);
         logger.fine("filtering currency pairs...");
-        for(CurrencyPair currentCurrencyPair : pairs) {
-            BinanceTicker24h binanceTicker24h = binanceMarketDataService.ticker24h(currentCurrencyPair);
-            if(binanceTicker24h==null) {
-                logger.warning("binanceTicker24h for " + currentCurrencyPair.toString() + " is null");
+        List<BinanceTicker24h> binanceTicker24hList = binanceMarketDataService.ticker24h();
+        Map<String,Double> dailyVolumesMap = new HashMap<>();
+        binanceTicker24hList.stream().forEach(
+                binanceTicker -> dailyVolumesMap.put(binanceTicker.getSymbol(),binanceTicker.getQuoteVolume().doubleValue()));
+        for(String currentPair : pairs) {
+            if(dailyVolumesMap.get(currentPair)==null) {
+                logger.warning("no daily volume data for: "+ currentPair);
                 continue;
             }
-            if (binanceTicker24h.getQuoteVolume().doubleValue() > criteriaMap.get(currentCurrencyPair.counter.getSymbol()))
-                filteredPairs.add(BinanceAdapters.toSymbol(currentCurrencyPair));
+            if (dailyVolumesMap.get(currentPair) > criteriaMap.get(BinanceAdapters.adaptSymbol(currentPair).counter.getSymbol()))
+                filteredPairs.add(currentPair);
         }
         return filteredPairs.toArray(new String[filteredPairs.size()]);
     }
