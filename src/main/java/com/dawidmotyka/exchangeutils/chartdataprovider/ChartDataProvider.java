@@ -4,6 +4,7 @@ import com.dawidmotyka.dmutils.RepeatTillSuccess;
 import com.dawidmotyka.dmutils.ThreadPause;
 import com.dawidmotyka.exchangeutils.ExchangeCommunicationException;
 import com.dawidmotyka.exchangeutils.chartinfo.ChartCandle;
+import com.dawidmotyka.exchangeutils.chartinfo.ChartTimePeriod;
 import com.dawidmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import com.dawidmotyka.exchangeutils.chartinfo.NoSuchTimePeriodException;
 import com.dawidmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
@@ -29,7 +30,7 @@ public class ChartDataProvider {
     private ExchangeChartInfo exchangeChartInfo;
     private final Map<CurrencyPairTimePeriod,ChartCandle[]> chartCandlesMap = Collections.synchronizedMap(new HashMap<>());
     private final Map<String,List<Ticker>> tickersMap = new HashMap<>();
-    private long lastCandlesGenerationTimestampSeconds=System.currentTimeMillis()/1000;
+    private final Map<Integer,Integer> lastGeneratedCandlesTimestamps = new HashMap<>();
     private AtomicBoolean abortAtomicBoolean=new AtomicBoolean(false);
     private final Set<ChartDataReceiver> chartDataReceivers = new HashSet<>();
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
@@ -41,7 +42,16 @@ public class ChartDataProvider {
         this.periodsNumCandles = periodsNumCandles;
         Arrays.sort(this.periodsNumCandles);
         exchangeChartInfo = ExchangeChartInfo.forExchange(exchangeSpecs);
+        for(PeriodNumCandles periodNumCandles : periodsNumCandles) {
+            int periodSeconds = periodNumCandles.getPeriodSeconds();
+            int timestampSnapshot = (int)(System.currentTimeMillis()/1000);
+            lastGeneratedCandlesTimestamps.put(periodNumCandles.getPeriodSeconds(),timestampSnapshot-timestampSnapshot%periodSeconds-periodSeconds);
+        }
     }
+
+    public static ChartTimePeriod[] getAvailableTimePeriods(ExchangeSpecs exchangeSpecs) {
+        return ExchangeChartInfo.forExchange(exchangeSpecs).getAvailablePeriods();
+    };
 
     public synchronized void refreshData() {
         logger.info("refreshing ChartDataProvider data");
@@ -65,7 +75,6 @@ public class ChartDataProvider {
             }
         }
         notifyChartDataReceivers();
-        lastCandlesGenerationTimestampSeconds= System.currentTimeMillis()/1000-(System.currentTimeMillis()/1000)% periodsNumCandles[0].getPeriodSeconds();
         isRefreshingChartData.set(false);
         logger.info("finished refreshing data");
     }
@@ -134,19 +143,21 @@ public class ChartDataProvider {
     private synchronized void chartCandlesGenerator() {
         if(isRefreshingChartData.get())
             return;
-        long currentTimestampSnapshot=System.currentTimeMillis()/1000;
+        int currentTimestampSnapshot=(int)(System.currentTimeMillis()/1000);
         boolean longestPeriodUpdated=false;
         boolean anyPeriodUpdated=false;
         int longestTimePeriod=periodsNumCandles[periodsNumCandles.length-1].getPeriodSeconds();
         for(PeriodNumCandles periodNumCandles : periodsNumCandles) {
-            if(currentTimestampSnapshot-currentTimestampSnapshot%periodNumCandles.getPeriodSeconds() > lastCandlesGenerationTimestampSeconds) {
-                logger.fine("generating candles for period " + periodNumCandles.getPeriodSeconds() + "s");
+            int periodSeconds = periodNumCandles.getPeriodSeconds();
+            if(currentTimestampSnapshot-currentTimestampSnapshot%periodSeconds > lastGeneratedCandlesTimestamps.get(periodSeconds)) {
+                logger.fine("generating candles for period " + periodSeconds + "s");
+                lastGeneratedCandlesTimestamps.put(periodSeconds,currentTimestampSnapshot-currentTimestampSnapshot%periodSeconds);
                 for(String currentPair : pairs) {
-                    logger.fine(String.format("generating candles for period %d for %s",periodNumCandles.getPeriodSeconds(),currentPair));
-                    generateCandles(currentPair, periodNumCandles.getPeriodSeconds());
+                    logger.finer(String.format("generating candles for period %d for %s",periodSeconds,currentPair));
+                    generateCandles(currentPair, periodSeconds);
                 }
                 anyPeriodUpdated=true;
-                if(periodNumCandles.getPeriodSeconds()==longestTimePeriod)
+                if(periodSeconds==longestTimePeriod)
                     longestPeriodUpdated=true;
             }
         }
