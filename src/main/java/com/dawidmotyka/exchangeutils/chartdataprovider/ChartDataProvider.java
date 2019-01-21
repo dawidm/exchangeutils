@@ -158,7 +158,7 @@ public class ChartDataProvider {
         int longestTimePeriod=periodsNumCandles[periodsNumCandles.length-1].getPeriodSeconds();
         for(PeriodNumCandles periodNumCandles : periodsNumCandles) {
             int periodSeconds = periodNumCandles.getPeriodSeconds();
-            if(currentTimestampSnapshot-currentTimestampSnapshot%periodSeconds > lastGeneratedCandlesTimestamps.get(periodSeconds)) {
+            if(currentTimestampSnapshot-currentTimestampSnapshot%periodSeconds-periodSeconds > lastGeneratedCandlesTimestamps.get(periodSeconds)) {
                 logger.fine("generating candles for period " + periodSeconds + "s");
                 lastGeneratedCandlesTimestamps.put(periodSeconds,currentTimestampSnapshot-currentTimestampSnapshot%periodSeconds);
                 for(String currentPair : pairs) {
