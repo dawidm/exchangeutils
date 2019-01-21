@@ -49,8 +49,8 @@ public class BinanceChartInfo implements ExchangeChartInfo {
     public ChartTimePeriod[] getAvailablePeriods() {
         //TODO add missing
         return new ChartTimePeriod[] {
-                new ChartTimePeriod("m1",5*60,null),
-                new ChartTimePeriod("m5",15*60,null),
+                new ChartTimePeriod("m1",60,null),
+                new ChartTimePeriod("m5",5*60,null),
                 new ChartTimePeriod("m15",15*60,null),
                 new ChartTimePeriod("m30",30*60,null),
                 new ChartTimePeriod("h1",60*60,null),
