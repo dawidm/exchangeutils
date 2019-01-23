@@ -18,8 +18,9 @@ public class PairSymbolConverter {
             return new CurrencyPair(apiSymbol.split("-")[1],apiSymbol.split("-")[0]).toString();
         if(exchangeSpecs instanceof BinanceExchangeSpecs)
             return BinanceAdapters.adaptSymbol(apiSymbol).toString();
-        if(exchangeSpecs instanceof BitfinexExchangeSpecs)
-            return BitfinexAdapters.adaptCurrencyPair(apiSymbol).toString();
+        if(exchangeSpecs instanceof BitfinexExchangeSpecs) {
+            return String.format("%s/%s",apiSymbol.substring(1,apiSymbol.length()-3),apiSymbol.substring(apiSymbol.length()-3));
+        }
         logger.severe(("cannot api symbol to string: " + exchangeSpecs.getName()));
         return apiSymbol;
     }
@@ -31,7 +32,7 @@ public class PairSymbolConverter {
         if(exchangeSpecs instanceof BinanceExchangeSpecs)
             return BinanceAdapters.toSymbol(currencyPair);
         if(exchangeSpecs instanceof  BitfinexExchangeSpecs)
-            return BitfinexAdapters.adaptCurrencyPair(currencyPair);
+            return String.format("t"+currencyPair.base.getSymbol()+currencyPair.counter.getSymbol());
         logger.severe(("cannot convert currency pairs to api symbol for: " + exchangeSpecs.getName()));
         return null;
     }
