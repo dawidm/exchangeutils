@@ -2,7 +2,6 @@ package com.dawidmotyka.exchangeutils.pairsymbolconverter;
 
 import com.dawidmotyka.exchangeutils.exchangespecs.*;
 import org.knowm.xchange.binance.BinanceAdapters;
-import org.knowm.xchange.bitfinex.v1.BitfinexAdapters;
 import org.knowm.xchange.currency.CurrencyPair;
 
 import java.util.logging.Logger;
@@ -46,8 +45,7 @@ public class PairSymbolConverter {
             return adaptedSymbol.base.getSymbol()+"_"+adaptedSymbol.counter.getSymbol();
         }
         if(exchangeSpecs instanceof BitfinexExchangeSpecs) {
-            CurrencyPair adaptedSymbol = BitfinexAdapters.adaptCurrencyPair(apiSymbol);
-            return adaptedSymbol.base.getSymbol()+":"+adaptedSymbol.counter.getSymbol();
+            return String.format("%s:%s",apiSymbol.substring(1,apiSymbol.length()-3),apiSymbol.substring(apiSymbol.length()-3));
         }
         logger.severe(("cannot api symbol to char url symbol: " + exchangeSpecs.getName()));
         return null;
