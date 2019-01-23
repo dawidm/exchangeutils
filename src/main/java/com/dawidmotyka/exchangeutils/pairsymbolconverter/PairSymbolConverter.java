@@ -1,15 +1,9 @@
 package com.dawidmotyka.exchangeutils.pairsymbolconverter;
 
-import com.dawidmotyka.exchangeutils.NotImplementedException;
-import com.dawidmotyka.exchangeutils.exchangespecs.BinanceExchangeSpecs;
-import com.dawidmotyka.exchangeutils.exchangespecs.BittrexExchangeSpecs;
-import com.dawidmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
-import com.dawidmotyka.exchangeutils.exchangespecs.PoloniexExchangeSpecs;
-import org.knowm.xchange.Exchange;
+import com.dawidmotyka.exchangeutils.exchangespecs.*;
 import org.knowm.xchange.binance.BinanceAdapters;
-import org.knowm.xchange.bittrex.BittrexAdapters;
+import org.knowm.xchange.bitfinex.v1.BitfinexAdapters;
 import org.knowm.xchange.currency.CurrencyPair;
-import org.knowm.xchange.poloniex.PoloniexAdapters;
 
 import java.util.logging.Logger;
 
@@ -24,6 +18,9 @@ public class PairSymbolConverter {
             return new CurrencyPair(apiSymbol.split("-")[1],apiSymbol.split("-")[0]).toString();
         if(exchangeSpecs instanceof BinanceExchangeSpecs)
             return BinanceAdapters.adaptSymbol(apiSymbol).toString();
+        if(exchangeSpecs instanceof BitfinexExchangeSpecs)
+            return BitfinexAdapters.adaptCurrencyPair(apiSymbol).toString();
+        logger.severe(("cannot api symbol to string: " + exchangeSpecs.getName()));
         return apiSymbol;
     }
     public static String toApiSymbol(ExchangeSpecs exchangeSpecs, CurrencyPair currencyPair) {
@@ -33,8 +30,26 @@ public class PairSymbolConverter {
             return currencyPair.counter.getSymbol()+"-"+currencyPair.base.getSymbol();
         if(exchangeSpecs instanceof BinanceExchangeSpecs)
             return BinanceAdapters.toSymbol(currencyPair);
+        if(exchangeSpecs instanceof  BitfinexExchangeSpecs)
+            return BitfinexAdapters.adaptCurrencyPair(currencyPair);
         logger.severe(("cannot convert currency pairs to api symbol for: " + exchangeSpecs.getName()));
-        return currencyPair.toString();
+        return null;
+    }
+    public static String apiSymbolToChartUrlSymbol(ExchangeSpecs exchangeSpecs, String apiSymbol) {
+        if(exchangeSpecs instanceof PoloniexExchangeSpecs)
+            return apiSymbol;
+        if(exchangeSpecs instanceof BittrexExchangeSpecs)
+            return apiSymbol;
+        if(exchangeSpecs instanceof BinanceExchangeSpecs) {
+            CurrencyPair adaptedSymbol = BinanceAdapters.adaptSymbol(apiSymbol);
+            return adaptedSymbol.base.getSymbol()+"_"+adaptedSymbol.counter.getSymbol();
+        }
+        if(exchangeSpecs instanceof BitfinexExchangeSpecs) {
+            CurrencyPair adaptedSymbol = BitfinexAdapters.adaptCurrencyPair(apiSymbol);
+            return adaptedSymbol.base.getSymbol()+":"+adaptedSymbol.counter.getSymbol();
+        }
+        logger.severe(("cannot api symbol to char url symbol: " + exchangeSpecs.getName()));
+        return null;
     }
 
 }

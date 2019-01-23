@@ -19,6 +19,8 @@ public interface ExchangeChartInfo {
         }
         if(exchangeSpecs instanceof XtbExchangeSpecs)
             return new XtbChartInfo();
+        if(exchangeSpecs instanceof BitfinexExchangeSpecs)
+            return new BitfinexChartInfo();
         throw new Error("not implemented for "+exchangeSpecs.getName());
     };
     ChartCandle[] getCandles(String symbol, long timePeriodSeconds, long beginTimestampSeconds, long endTimestampSeconds) throws NoSuchTimePeriodException, ExchangeCommunicationException;

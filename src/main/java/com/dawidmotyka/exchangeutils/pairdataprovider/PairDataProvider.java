@@ -19,6 +19,8 @@ public interface PairDataProvider {
         if(exchangeSpecs instanceof XtbExchangeSpecs) {
             return new XtbPairDataProvider();
         }
+        if(exchangeSpecs instanceof BitfinexExchangeSpecs)
+            return new BitfinexPairDataProvider();
         throw new NotImplementedException();
     }
 
