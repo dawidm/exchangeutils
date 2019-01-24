@@ -9,9 +9,9 @@ class BitfinexChartInfoTest {
 
     @Test
     void getCandles() throws ExchangeCommunicationException,NoSuchTimePeriodException {
-        int beginTimestamp = (int)(System.currentTimeMillis()/1000) - 50*60;
+        int beginTimestamp = (int)(System.currentTimeMillis()/1000) - 50*1800;
         int endTimestamp = (int)(System.currentTimeMillis()/1000);
-        ChartCandle[] chartCandles = new BitfinexChartInfo().getCandles("tBTCUSD",60,beginTimestamp,endTimestamp);
+        ChartCandle[] chartCandles = new BitfinexChartInfo().getCandles("tBTCUSD",1800,beginTimestamp,endTimestamp);
         assertTrue(chartCandles.length>0);
         for(ChartCandle chartCandle : chartCandles) {
             assertTrue(chartCandle.timestampSeconds!=0);
