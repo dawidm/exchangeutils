@@ -32,6 +32,8 @@ public class BitfinexPairDataProvider implements PairDataProvider {
         List<MarketQuoteVolume> marketQuoteVolumes = new ArrayList<>(symbolsJsonNode.size());
         for(JsonNode symbolJsonNode : symbolsJsonNode) {
             String marketSymbol = symbolJsonNode.get(0).asText();
+            if(marketSymbol.startsWith("f"))
+                continue;
             double volume = symbolJsonNode.get(8).asDouble(0);
             double lastPrice = symbolJsonNode.get(7).asDouble(0);
             marketQuoteVolumes.add(new MarketQuoteVolume(marketSymbol,volume*lastPrice));
