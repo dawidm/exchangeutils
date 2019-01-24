@@ -1,5 +1,5 @@
 package com.dawidmotyka.exchangeutils.tickerprovider;
 
 public enum TickerProviderConnectionState {
-    CONNECTED, DISCONNECTED
+    CONNECTED, DISCONNECTED, RECONNECTING
 }

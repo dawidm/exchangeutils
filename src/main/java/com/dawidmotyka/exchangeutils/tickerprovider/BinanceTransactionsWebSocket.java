@@ -1,6 +1,5 @@
 package com.dawidmotyka.exchangeutils.tickerprovider;
 
-import com.dawidmotyka.dmutils.RepeatTillSuccess;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -36,6 +35,7 @@ public class BinanceTransactionsWebSocket implements TickerProvider {
     private AtomicBoolean isConnectedAtomicBoolean=new AtomicBoolean(false);
     private WebSocketClient webSocketClient;
     private TickerReceiver tickerReceiver;
+    private TickerProviderConnectionStateReceiver connectionStateReceiver;
     private AtomicReference<Set<String>> pairsAtomicReference = new AtomicReference<>();
 
     public BinanceTransactionsWebSocket(TickerReceiver tickerReceiver, String[] pairs) {
@@ -45,6 +45,7 @@ public class BinanceTransactionsWebSocket implements TickerProvider {
 
     @Override
     public void connect(TickerProviderConnectionStateReceiver connectionStateReceiver) throws IOException {
+        this.connectionStateReceiver=connectionStateReceiver;
         isConnectedAtomicBoolean.set(true);
         StringBuilder stringBuilder = new StringBuilder(WS_API_URL_COMBINED);
         for (String currentPair : pairsAtomicReference.get()) {
@@ -67,12 +68,12 @@ public class BinanceTransactionsWebSocket implements TickerProvider {
 
                 @Override
                 public void onClose(int code, String reason, boolean remote) {
-                    connectionStateReceiver.connectionState(TickerProviderConnectionState.DISCONNECTED);
                     if (isConnectedAtomicBoolean.get() == false)
                         return;
                     logger.fine("websocket closed, reconnecting...");
+                    connectionStateReceiver.connectionState(TickerProviderConnectionState.RECONNECTING);
                     if (reconnectScheduledFuture == null || reconnectScheduledFuture.isDone()) {
-                        reconnectScheduledFuture = scheduledExecutorService.schedule(this::reconnect, 1, TimeUnit.SECONDS);
+                        reconnectScheduledFuture = scheduledExecutorService.schedule(this::reconnect, 5, TimeUnit.SECONDS);
                     }
                 }
                 @Override
@@ -108,6 +109,7 @@ public class BinanceTransactionsWebSocket implements TickerProvider {
         } catch (InterruptedException e) {
             logger.warning("interruptedException when closeBlocking webSocketClient");
         }
+        connectionStateReceiver.connectionState(TickerProviderConnectionState.DISCONNECTED);
     }
 
     private void handleMessage(String message) {

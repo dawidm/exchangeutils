@@ -16,7 +16,7 @@ public class PairSymbolConverter {
         if(exchangeSpecs instanceof BittrexExchangeSpecs)
             return new CurrencyPair(apiSymbol.split("-")[1],apiSymbol.split("-")[0]).toString();
         if(exchangeSpecs instanceof BinanceExchangeSpecs)
-            return BinanceAdapters.adaptSymbol(apiSymbol).toString();
+            return String.format("%s/%s",apiSymbolToBaseCurrencySymbol(exchangeSpecs,apiSymbol),apiSymbolToCounterCurrencySymbol(exchangeSpecs,apiSymbol));
         if(exchangeSpecs instanceof BitfinexExchangeSpecs) {
             return String.format("%s/%s",apiSymbol.substring(1,apiSymbol.length()-3),apiSymbol.substring(apiSymbol.length()-3));
         }
@@ -29,7 +29,7 @@ public class PairSymbolConverter {
         if(exchangeSpecs instanceof BittrexExchangeSpecs)
             return currencyPair.counter.getSymbol()+"-"+currencyPair.base.getSymbol();
         if(exchangeSpecs instanceof BinanceExchangeSpecs)
-            return BinanceAdapters.toSymbol(currencyPair);
+            return currencyPair.base.getCurrencyCode() + currencyPair.counter.getCurrencyCode();
         if(exchangeSpecs instanceof  BitfinexExchangeSpecs)
             return String.format("t"+currencyPair.base.getSymbol()+currencyPair.counter.getSymbol());
         logger.severe(("cannot convert currency pairs to api symbol for: " + exchangeSpecs.getName()));
@@ -49,6 +49,39 @@ public class PairSymbolConverter {
         }
         logger.severe(("cannot api symbol to char url symbol: " + exchangeSpecs.getName()));
         return null;
+    }
+
+    public static String apiSymbolToCounterCurrencySymbol(ExchangeSpecs exchangeSpecs, String apiSymbol) {
+        if(exchangeSpecs instanceof PoloniexExchangeSpecs)
+            return apiSymbol.split("_")[0];
+        if(exchangeSpecs instanceof BittrexExchangeSpecs)
+            return apiSymbol.split("-")[0];
+        if(exchangeSpecs instanceof BinanceExchangeSpecs) {
+            if (apiSymbol.endsWith("USDT") || apiSymbol.endsWith("TUSD") || apiSymbol.endsWith("USDC"))
+                return apiSymbol.substring(apiSymbol.length() - 4);
+            return apiSymbol.substring(apiSymbol.length() - 3);
+        }
+        if(exchangeSpecs instanceof BitfinexExchangeSpecs) {
+            return apiSymbol.substring(apiSymbol.length()-3);
+        }
+        logger.severe(("cannot api symbol to counter currency symbol: " + exchangeSpecs.getName()));
+        return apiSymbol;
+    }
+    public static String apiSymbolToBaseCurrencySymbol(ExchangeSpecs exchangeSpecs, String apiSymbol) {
+        if(exchangeSpecs instanceof PoloniexExchangeSpecs)
+            return apiSymbol.split("_")[1];
+        if(exchangeSpecs instanceof BittrexExchangeSpecs)
+            return apiSymbol.split("-")[1];
+        if(exchangeSpecs instanceof BinanceExchangeSpecs) {
+            if (apiSymbol.endsWith("USDT") || apiSymbol.endsWith("TUSD") || apiSymbol.endsWith("USDC"))
+                return apiSymbol.substring(0,apiSymbol.length()-4);
+            return apiSymbol.substring(0,apiSymbol.length()-3);
+        }
+        if(exchangeSpecs instanceof BitfinexExchangeSpecs) {
+            return apiSymbol.substring(1,apiSymbol.length()-3);
+        }
+        logger.severe(("cannot api symbol to base currency symbol: " + exchangeSpecs.getName()));
+        return apiSymbol;
     }
 
 }
