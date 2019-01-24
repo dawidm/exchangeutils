@@ -71,7 +71,8 @@ public class BinanceTransactionsWebSocket implements TickerProvider {
                     if (isConnectedAtomicBoolean.get() == false)
                         return;
                     logger.fine("websocket closed, reconnecting...");
-                    connectionStateReceiver.connectionState(TickerProviderConnectionState.RECONNECTING);
+                    if(code!=-1)
+                        connectionStateReceiver.connectionState(TickerProviderConnectionState.RECONNECTING);
                     if (reconnectScheduledFuture == null || reconnectScheduledFuture.isDone()) {
                         reconnectScheduledFuture = scheduledExecutorService.schedule(this::reconnect, 5, TimeUnit.SECONDS);
                     }

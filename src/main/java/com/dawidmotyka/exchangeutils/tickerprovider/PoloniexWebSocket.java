@@ -1,6 +1,5 @@
 package com.dawidmotyka.exchangeutils.tickerprovider;
 
-import com.dawidmotyka.dmutils.RepeatTillSuccess;
 import com.dawidmotyka.exchangeutils.hitbtc.TransactionReceiver;
 import com.dawidmotyka.exchangeutils.poloniex.Transaction;
 import org.java_websocket.client.WebSocketClient;
@@ -23,7 +22,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class PoloniexWebSocket implements TickerProvider {
@@ -37,6 +35,7 @@ public class PoloniexWebSocket implements TickerProvider {
     private HashMap<String, String> wsCurrencyPairMap;
     private TransactionReceiver transactionReceiver;
     private TickerReceiver tickerReceiver;
+    private TickerProviderConnectionStateReceiver connectionStateReceiver;
     private ScheduledExecutorService scheduledExecutorService= Executors.newScheduledThreadPool(1);
     private ScheduledFuture reconnectScheduledFuture;
     private AtomicBoolean isConnectedAtomicBoolean=new AtomicBoolean(false);
@@ -56,6 +55,7 @@ public class PoloniexWebSocket implements TickerProvider {
 
     @Override
     public void connect(TickerProviderConnectionStateReceiver connectionStateReceiver) throws IOException {
+        this.connectionStateReceiver=connectionStateReceiver;
         try {
             isConnectedAtomicBoolean.set(true);
             SSLContext sslContext;
@@ -79,9 +79,10 @@ public class PoloniexWebSocket implements TickerProvider {
 
                 @Override
                 public void onClose(int code, String reason, boolean remote) {
-                    connectionStateReceiver.connectionState(TickerProviderConnectionState.DISCONNECTED);
                     if(transactionReceiver!=null)
                         transactionReceiver.wsDisconnected(code, reason, remote);
+                    if(code!=-1)
+                        connectionStateReceiver.connectionState(TickerProviderConnectionState.RECONNECTING);
                     if(reconnectScheduledFuture==null || reconnectScheduledFuture.isDone()) {
                         reconnectScheduledFuture=scheduledExecutorService.schedule(this::reconnect,1,TimeUnit.SECONDS);
                     }
@@ -118,6 +119,7 @@ public class PoloniexWebSocket implements TickerProvider {
             }
             webSocketClient=null;
         }
+        connectionStateReceiver.connectionState(TickerProviderConnectionState.DISCONNECTED);
     }
 
     public boolean isConnected() {

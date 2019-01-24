@@ -30,6 +30,7 @@ public class GenericTickerWebsocket implements TickerProvider {
     private AtomicBoolean isConnectedAtomicBoolean=new AtomicBoolean(false);
     private WebSocketClient webSocketClient;
     private TickerReceiver tickerReceiver;
+    private TickerProviderConnectionStateReceiver connectionStateReceiver;
     private GenericTickerWebsocketExchangeMethods genericTickerWebsocketExchangeMethods;
     private String[] pairs;
 
@@ -41,6 +42,7 @@ public class GenericTickerWebsocket implements TickerProvider {
 
     @Override
     public void connect(TickerProviderConnectionStateReceiver connectionStateReceiver) throws IOException {
+        this.connectionStateReceiver=connectionStateReceiver;
         isConnectedAtomicBoolean.set(true);
         logger.fine(String.format("connecting websocket, url: %s", genericTickerWebsocketExchangeMethods.getWsUrl(pairs)));
         try {
@@ -69,9 +71,10 @@ public class GenericTickerWebsocket implements TickerProvider {
 
                 @Override
                 public void onClose(int code, String reason, boolean remote) {
-                    connectionStateReceiver.connectionState(TickerProviderConnectionState.DISCONNECTED);
                     if (isConnectedAtomicBoolean.get() == false)
                         return;
+                    if(code!=-1)
+                        connectionStateReceiver.connectionState(TickerProviderConnectionState.RECONNECTING);
                     logger.fine("websocket closed, reconnecting...");
                     if (reconnectScheduledFuture == null || reconnectScheduledFuture.isDone()) {
                         reconnectScheduledFuture = scheduledExecutorService.schedule(this::reconnect, 1, TimeUnit.SECONDS);
@@ -107,6 +110,7 @@ public class GenericTickerWebsocket implements TickerProvider {
         try {
             isConnectedAtomicBoolean.set(false);
             webSocketClient.closeBlocking();
+            connectionStateReceiver.connectionState(TickerProviderConnectionState.DISCONNECTED);
         } catch (InterruptedException e) {
             logger.warning("interruptedException when closeBlocking webSocketClient");
         }
