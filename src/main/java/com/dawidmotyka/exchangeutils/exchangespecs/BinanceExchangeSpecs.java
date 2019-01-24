@@ -11,7 +11,7 @@ public class BinanceExchangeSpecs extends ExchangeSpecs {
 
     private static final String EXCHANGE_NAME = "Binance";
     private static final String MARKET_URL = "https://www.binance.com/tradeDetail.html?symbol=";
-    private static final String COLOR_HEX = "eaaf00";
+    private static final String COLOR_HEX = "cc9900";
 
     public BinanceExchangeSpecs() {
         super(EXCHANGE_NAME,MARKET_URL, BinanceExchange.class,0.0005, COLOR_HEX,200);
