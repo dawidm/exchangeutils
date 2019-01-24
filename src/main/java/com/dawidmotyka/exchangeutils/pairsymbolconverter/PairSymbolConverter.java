@@ -1,7 +1,6 @@
 package com.dawidmotyka.exchangeutils.pairsymbolconverter;
 
 import com.dawidmotyka.exchangeutils.exchangespecs.*;
-import org.knowm.xchange.binance.BinanceAdapters;
 import org.knowm.xchange.currency.CurrencyPair;
 
 import java.util.logging.Logger;
@@ -31,7 +30,7 @@ public class PairSymbolConverter {
         if(exchangeSpecs instanceof BinanceExchangeSpecs)
             return currencyPair.base.getCurrencyCode() + currencyPair.counter.getCurrencyCode();
         if(exchangeSpecs instanceof  BitfinexExchangeSpecs)
-            return String.format("t"+currencyPair.base.getSymbol()+currencyPair.counter.getSymbol());
+            return String.format("t"+currencyPair.base.getCurrencyCode()+currencyPair.counter.getCurrencyCode());
         logger.severe(("cannot convert currency pairs to api symbol for: " + exchangeSpecs.getName()));
         return null;
     }
@@ -41,8 +40,7 @@ public class PairSymbolConverter {
         if(exchangeSpecs instanceof BittrexExchangeSpecs)
             return apiSymbol;
         if(exchangeSpecs instanceof BinanceExchangeSpecs) {
-            CurrencyPair adaptedSymbol = BinanceAdapters.adaptSymbol(apiSymbol);
-            return adaptedSymbol.base.getSymbol()+"_"+adaptedSymbol.counter.getSymbol();
+            return apiSymbolToBaseCurrencySymbol(exchangeSpecs,apiSymbol)+"_"+apiSymbolToCounterCurrencySymbol(exchangeSpecs,apiSymbol);
         }
         if(exchangeSpecs instanceof BitfinexExchangeSpecs) {
             return String.format("%s:%s",apiSymbol.substring(1,apiSymbol.length()-3),apiSymbol.substring(apiSymbol.length()-3));
