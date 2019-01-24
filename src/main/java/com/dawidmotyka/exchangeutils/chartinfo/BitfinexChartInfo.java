@@ -44,8 +44,8 @@ public class BitfinexChartInfo  implements ExchangeChartInfo {
         return new ChartTimePeriod[] {
                 new ChartTimePeriod("1m",60,"1m"),
                 new ChartTimePeriod("5m", 300, "5m"),
-                new ChartTimePeriod("15m", 900, "5m"),
-                new ChartTimePeriod("30m", 1800, "5m"),
+                new ChartTimePeriod("15m", 900, "15m"),
+                new ChartTimePeriod("30m", 1800, "30m"),
                 new ChartTimePeriod("1h",60*60, "1h"),
                 new ChartTimePeriod("3h",3*60*60,"3h"),
                 new ChartTimePeriod("6h",6*60*60,"6h"),
