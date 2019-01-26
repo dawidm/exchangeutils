@@ -76,6 +76,7 @@ public abstract class ExchangeSpecs {
         switch (exchangeName.toLowerCase()) {
             case "poloniex": return new PoloniexExchangeSpecs();
             case "bittrex": return new BittrexExchangeSpecs();
+            case "bitfinex": return new BitfinexExchangeSpecs();
             case "binance": return new BinanceExchangeSpecs();
             case "xtb": return new XtbExchangeSpecs();
             case "hitbtc": return new HitBtcExchangeSpecs();
