@@ -1,6 +1,7 @@
 package com.dawidmotyka.exchangeutils.tickerprovider;
 
 import com.dawidmotyka.exchangeutils.exchangespecs.*;
+import com.dawidmotyka.exchangeutils.poloniex.PoloniexWebSocket;
 import com.dawidmotyka.exchangeutils.tickerprovider.generic.BitfinexExchangeMethods;
 import com.dawidmotyka.exchangeutils.tickerprovider.generic.GenericTickerWebsocket;
 
