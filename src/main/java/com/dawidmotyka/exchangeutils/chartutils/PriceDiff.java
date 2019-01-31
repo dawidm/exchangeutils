@@ -12,7 +12,7 @@ package com.dawidmotyka.exchangeutils.chartutils;
 
 import com.dawidmotyka.exchangeutils.chartinfo.ChartCandle;
 
-public class priceDiff implements SingleValueIndicator {
+public class PriceDiff implements SingleValueIndicator {
     @Override
     public double calcValue(ChartCandle[] chartCandles, int numCandles) {
         if(numCandles>chartCandles.length)
