@@ -13,14 +13,14 @@ public class BittrexPairDataProvider implements PairDataProvider {
         Map<String,Double> criteriaMap = new HashMap<>();
         Arrays.stream(pairSelectionCriteria).forEach(criterium->criteriaMap.put(criterium.getCounterCurrencySymbol(),criterium.getMinVolume()));
         return Arrays.stream(BittrexPairInfoProvider.getAllPairsInfos()).
-                filter(simplePairInfo->criteriaMap.containsKey(apiSymbolToCounterCurrency(simplePairInfo.getPairApiSymbol()))).
-                filter(simplePairInfo -> simplePairInfo.getVolume()>criteriaMap.get(apiSymbolToCounterCurrency(simplePairInfo.getPairApiSymbol()))).
-                map(simplePairInfo -> simplePairInfo.getPairApiSymbol()).
+                filter(marketQuoteVolume->criteriaMap.containsKey(apiSymbolToCounterCurrency(marketQuoteVolume.getPairApiSymbol()))).
+                filter(marketQuoteVolume -> marketQuoteVolume.getQuoteVolume()>criteriaMap.get(apiSymbolToCounterCurrency(marketQuoteVolume.getPairApiSymbol()))).
+                map(marketQuoteVolume -> marketQuoteVolume.getPairApiSymbol()).
                 toArray(String[]::new);
     }
     public String[] getPairsApiSymbols() throws IOException {
         return Arrays.stream(BittrexPairInfoProvider.getAllPairsInfos()).
-                map(simplePairInfo -> simplePairInfo.getPairApiSymbol()).
+                map(marketQuoteVolume -> marketQuoteVolume.getPairApiSymbol()).
                 toArray(String[]::new);
     }
     private static String apiSymbolToCounterCurrency(String apiSymbol) {

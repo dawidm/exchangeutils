@@ -1,7 +1,7 @@
 package com.dawidmotyka.exchangeutils.bittrex;
 
 import com.dawidmotyka.exchangeutils.ExchangeCommunicationException;
-import com.dawidmotyka.exchangeutils.SimplePairInfo;
+import com.dawidmotyka.exchangeutils.pairdataprovider.MarketQuoteVolume;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -17,19 +17,19 @@ public class BittrexPairInfoProvider {
     private static final String MARKET_SUMMARIES_URL = "https://bittrex.com/api/v1.1/public/getmarketsummaries";
     private static final String MARKES_URL = "https://bittrex.com/api/v1.1/public/getmarkets";
 
-    public static SimplePairInfo[] getAllPairsInfos() throws IOException {
+    public static MarketQuoteVolume[] getAllPairsInfos() throws IOException {
         URL url = new URL(MARKET_SUMMARIES_URL);
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readValue(url,JsonNode.class);
         JsonNode success = jsonNode.get("success");
         if (success != null && success.asBoolean() == true && jsonNode.get("result") != null) {
             JsonNode[] marketsJsonNode = objectMapper.readValue(jsonNode.get("result").toString(),JsonNode[].class);
-            SimplePairInfo[] simplePairInfos = Arrays.stream(marketsJsonNode).
+            MarketQuoteVolume[] marketQuoteVolumes = Arrays.stream(marketsJsonNode).
                     map(marketJsonNode ->
-                            new SimplePairInfo(marketJsonNode.get("MarketName").asText(),
+                            new MarketQuoteVolume(marketJsonNode.get("MarketName").asText(),
                                     marketJsonNode.get("Volume").asDouble()*marketJsonNode.get("Last").asDouble())).
-                    toArray(SimplePairInfo[]::new);
-            return simplePairInfos;
+                    toArray(MarketQuoteVolume[]::new);
+            return marketQuoteVolumes;
         } else
             throw new IOException("Unexpected server response when getting market summaries");
     }
