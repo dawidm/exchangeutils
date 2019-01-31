@@ -1,8 +1,14 @@
 package com.dawidmotyka.exchangeutils.chartinfo;
 
-import com.dawidmotyka.exchangeutils.ExchangeCommunicationException;
+import com.dawidmotyka.exchangeutils.binance.BinanceChartInfo;
+import com.dawidmotyka.exchangeutils.binance.BinanceExchangeSpecs;
+import com.dawidmotyka.exchangeutils.bitfinex.BitfinexExchangeSpecs;
 import com.dawidmotyka.exchangeutils.bittrex.BittrexChartInfo;
-import com.dawidmotyka.exchangeutils.exchangespecs.*;
+import com.dawidmotyka.exchangeutils.bittrex.BittrexExchangeSpecs;
+import com.dawidmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
+import com.dawidmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
+import com.dawidmotyka.exchangeutils.poloniex.PoloniexExchangeSpecs;
+import com.dawidmotyka.exchangeutils.xtb.XtbExchangeSpecs;
 
 /**
  * Created by dawid on 12/4/17.

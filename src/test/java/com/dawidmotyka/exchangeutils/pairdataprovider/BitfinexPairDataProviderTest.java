@@ -1,5 +1,6 @@
 package com.dawidmotyka.exchangeutils.pairdataprovider;
 
+import com.dawidmotyka.exchangeutils.bitfinex.BitfinexPairDataProvider;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

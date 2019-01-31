@@ -1,6 +1,11 @@
 package com.dawidmotyka.exchangeutils.exchangespecs;
 
+import com.dawidmotyka.exchangeutils.binance.BinanceExchangeSpecs;
+import com.dawidmotyka.exchangeutils.bitfinex.BitfinexExchangeSpecs;
+import com.dawidmotyka.exchangeutils.bittrex.BittrexExchangeSpecs;
 import com.dawidmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
+import com.dawidmotyka.exchangeutils.poloniex.PoloniexExchangeSpecs;
+import com.dawidmotyka.exchangeutils.xtb.XtbExchangeSpecs;
 import org.knowm.xchange.Exchange;
 
 import javax.annotation.Nullable;

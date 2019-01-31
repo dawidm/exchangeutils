@@ -13,6 +13,10 @@
 
 package com.dawidmotyka.exchangeutils.pairdataprovider;
 
+import com.dawidmotyka.exchangeutils.binance.BinancePairDataProvider;
+import com.dawidmotyka.exchangeutils.bittrex.BittrexPairDataProvider;
+import com.dawidmotyka.exchangeutils.poloniex.PoloniexPairDataProvider;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Collectors;

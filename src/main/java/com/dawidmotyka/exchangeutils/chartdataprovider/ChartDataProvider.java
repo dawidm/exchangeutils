@@ -1,11 +1,11 @@
 package com.dawidmotyka.exchangeutils.chartdataprovider;
 
 import com.dawidmotyka.dmutils.runtime.RepeatTillSuccess;
-import com.dawidmotyka.exchangeutils.ExchangeCommunicationException;
 import com.dawidmotyka.exchangeutils.chartinfo.ChartCandle;
 import com.dawidmotyka.exchangeutils.chartinfo.ChartTimePeriod;
 import com.dawidmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import com.dawidmotyka.exchangeutils.chartinfo.NoSuchTimePeriodException;
+import com.dawidmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import com.dawidmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
 import com.dawidmotyka.exchangeutils.tickerprovider.Ticker;
 

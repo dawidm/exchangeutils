@@ -3,20 +3,13 @@ package com.dawidmotyka.exchangeutils.bittrex;
 import com.dawidmotyka.exchangeutils.credentialsprovider.CredentialsNotAvailableException;
 import com.dawidmotyka.exchangeutils.credentialsprovider.CredentialsProvider;
 import com.dawidmotyka.exchangeutils.credentialsprovider.ExchangeCredentials;
-import com.dawidmotyka.exchangeutils.exchangespecs.BittrexExchangeSpecs;
-import com.dawidmotyka.exchangeutils.tickerprovider.Ticker;
 import com.github.ccob.bittrex4j.BittrexExchange;
-import com.github.signalr4j.client.ConnectionState;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class BittrexTest {
     public static final Logger logger = Logger.getLogger(BittrexTest.class.getName());

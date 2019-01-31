@@ -1,6 +1,6 @@
 package com.dawidmotyka.exchangeutils.bittrex;
 
-import com.dawidmotyka.exchangeutils.ExchangeCommunicationException;
+import com.dawidmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import com.dawidmotyka.exchangeutils.pairdataprovider.MarketQuoteVolume;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

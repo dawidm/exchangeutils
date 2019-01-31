@@ -1,10 +1,10 @@
 package com.dawidmotyka.exchangeutils.tickerprovider;
 
 import com.dawidmotyka.dmutils.runtime.RepeatTillSuccess;
+import com.dawidmotyka.exchangeutils.bittrex.BittrexExchangeSpecs;
 import com.dawidmotyka.exchangeutils.credentialsprovider.CredentialsNotAvailableException;
 import com.dawidmotyka.exchangeutils.credentialsprovider.CredentialsProvider;
 import com.dawidmotyka.exchangeutils.credentialsprovider.ExchangeCredentials;
-import com.dawidmotyka.exchangeutils.exchangespecs.BittrexExchangeSpecs;
 import com.github.ccob.bittrex4j.BittrexExchange;
 import com.github.signalr4j.client.ConnectionState;
 

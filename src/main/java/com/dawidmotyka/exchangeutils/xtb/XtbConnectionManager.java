@@ -1,10 +1,9 @@
 package com.dawidmotyka.exchangeutils.xtb;
 
-import com.dawidmotyka.exchangeutils.ExchangeCommunicationException;
 import com.dawidmotyka.exchangeutils.credentialsprovider.CredentialsNotAvailableException;
 import com.dawidmotyka.exchangeutils.credentialsprovider.CredentialsProvider;
 import com.dawidmotyka.exchangeutils.credentialsprovider.ExchangeCredentials;
-import com.dawidmotyka.exchangeutils.exchangespecs.XtbExchangeSpecs;
+import com.dawidmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pro.xstore.api.message.command.APICommandFactory;
 import pro.xstore.api.message.error.APICommandConstructionException;
 import pro.xstore.api.message.error.APICommunicationException;

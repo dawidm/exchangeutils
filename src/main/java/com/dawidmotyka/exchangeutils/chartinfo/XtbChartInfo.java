@@ -1,6 +1,6 @@
 package com.dawidmotyka.exchangeutils.chartinfo;
 
-import com.dawidmotyka.exchangeutils.ExchangeCommunicationException;
+import com.dawidmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import com.dawidmotyka.exchangeutils.xtb.XtbConnectionManager;
 import com.dawidmotyka.exchangeutils.xtb.XtbUtils;
 import pro.xstore.api.message.command.APICommandFactory;

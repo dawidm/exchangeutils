@@ -1,7 +1,17 @@
 package com.dawidmotyka.exchangeutils.pairdataprovider;
 
-import com.dawidmotyka.exchangeutils.NotImplementedException;
-import com.dawidmotyka.exchangeutils.exchangespecs.*;
+import com.dawidmotyka.exchangeutils.binance.BinanceExchangeSpecs;
+import com.dawidmotyka.exchangeutils.binance.BinancePairDataProvider;
+import com.dawidmotyka.exchangeutils.bitfinex.BitfinexExchangeSpecs;
+import com.dawidmotyka.exchangeutils.bitfinex.BitfinexPairDataProvider;
+import com.dawidmotyka.exchangeutils.bittrex.BittrexExchangeSpecs;
+import com.dawidmotyka.exchangeutils.bittrex.BittrexPairDataProvider;
+import com.dawidmotyka.exchangeutils.exceptions.NotImplementedException;
+import com.dawidmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
+import com.dawidmotyka.exchangeutils.poloniex.PoloniexExchangeSpecs;
+import com.dawidmotyka.exchangeutils.poloniex.PoloniexPairDataProvider;
+import com.dawidmotyka.exchangeutils.xtb.XtbExchangeSpecs;
+import com.dawidmotyka.exchangeutils.xtb.XtbPairDataProvider;
 
 import java.io.IOException;
 

@@ -1,6 +1,10 @@
 package com.dawidmotyka.exchangeutils.pairsymbolconverter;
 
-import com.dawidmotyka.exchangeutils.exchangespecs.*;
+import com.dawidmotyka.exchangeutils.binance.BinanceExchangeSpecs;
+import com.dawidmotyka.exchangeutils.bitfinex.BitfinexExchangeSpecs;
+import com.dawidmotyka.exchangeutils.bittrex.BittrexExchangeSpecs;
+import com.dawidmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
+import com.dawidmotyka.exchangeutils.poloniex.PoloniexExchangeSpecs;
 import org.knowm.xchange.currency.CurrencyPair;
 
 import java.util.logging.Logger;

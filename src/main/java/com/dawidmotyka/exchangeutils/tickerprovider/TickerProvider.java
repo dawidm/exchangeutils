@@ -1,9 +1,14 @@
 package com.dawidmotyka.exchangeutils.tickerprovider;
 
-import com.dawidmotyka.exchangeutils.exchangespecs.*;
+import com.dawidmotyka.exchangeutils.binance.BinanceExchangeSpecs;
+import com.dawidmotyka.exchangeutils.bitfinex.BitfinexExchangeSpecs;
+import com.dawidmotyka.exchangeutils.bittrex.BittrexExchangeSpecs;
+import com.dawidmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
+import com.dawidmotyka.exchangeutils.poloniex.PoloniexExchangeSpecs;
 import com.dawidmotyka.exchangeutils.poloniex.PoloniexWebSocket;
 import com.dawidmotyka.exchangeutils.tickerprovider.generic.BitfinexExchangeMethods;
 import com.dawidmotyka.exchangeutils.tickerprovider.generic.GenericTickerWebsocket;
+import com.dawidmotyka.exchangeutils.xtb.XtbExchangeSpecs;
 
 import java.io.IOException;
 
