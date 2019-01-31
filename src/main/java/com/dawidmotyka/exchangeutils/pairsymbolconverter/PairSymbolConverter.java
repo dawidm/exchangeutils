@@ -96,4 +96,11 @@ public class PairSymbolConverter {
         return apiSymbol;
     }
 
+    public static CurrencyPair apiSymbolToXchangeCurrencyPair(ExchangeSpecs exchangeSpecs,String apiSymbol) {
+        return new CurrencyPair(
+                apiSymbolToBaseCurrencySymbol(exchangeSpecs,apiSymbol),
+                apiSymbolToCounterCurrencySymbol(exchangeSpecs,apiSymbol)
+        );
+    }
+
 }
