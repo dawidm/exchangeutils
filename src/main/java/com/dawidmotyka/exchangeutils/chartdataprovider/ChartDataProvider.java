@@ -137,7 +137,7 @@ public class ChartDataProvider {
         return allDataMap;
     }
 
-    public ChartCandle[] getCandleData(CurrencyPairTimePeriod currencyPairTimePeriod) {
+    public synchronized ChartCandle[] getCandleData(CurrencyPairTimePeriod currencyPairTimePeriod) {
         ChartCandle[] oldArray = chartCandlesMap.get(currencyPairTimePeriod);
         return Arrays.copyOf(oldArray,oldArray.length);
     }
@@ -204,9 +204,12 @@ public class ChartDataProvider {
             logger.fine("no tickers for " + pair + " candle not generated");
             return;
         }
-        Ticker[] filteredTickers = tickerList.stream().
+        Ticker[] filteredTickers;
+        synchronized (tickerList) {
+            filteredTickers = tickerList.stream().
                     filter(ticker -> ticker.getTimestampSeconds() >= newCandleTimestamp && ticker.getTimestampSeconds() < newCandleTimestamp + timePeriodSeconds).
                     toArray(Ticker[]::new);
+        }
         if(filteredTickers.length==0) {
             logger.fine("no new tickers for " + " candle not generated");
             return;
