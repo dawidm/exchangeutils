@@ -14,16 +14,16 @@ class BitfinexChartInfoTest {
         ChartCandle[] chartCandles = new BitfinexChartInfo().getCandles("tBTCUSD",1800,beginTimestamp,endTimestamp);
         assertTrue(chartCandles.length>0);
         for(ChartCandle chartCandle : chartCandles) {
-            assertTrue(chartCandle.timestampSeconds!=0);
-            assertTrue(chartCandle.timestampSeconds>beginTimestamp);
-            assertTrue(chartCandle.timestampSeconds<endTimestamp);
+            assertTrue(chartCandle.getTimestampSeconds()!=0);
+            assertTrue(chartCandle.getTimestampSeconds()>beginTimestamp);
+            assertTrue(chartCandle.getTimestampSeconds()<endTimestamp);
         }
         chartCandles = new BitfinexChartInfo().getCandles("tETHUSD",300,beginTimestamp,endTimestamp);
         assertTrue(chartCandles.length>0);
         for(ChartCandle chartCandle : chartCandles) {
-            assertTrue(chartCandle.timestampSeconds!=0);
-            assertTrue(chartCandle.timestampSeconds>beginTimestamp);
-            assertTrue(chartCandle.timestampSeconds<endTimestamp);
+            assertTrue(chartCandle.getTimestampSeconds()!=0);
+            assertTrue(chartCandle.getTimestampSeconds()>beginTimestamp);
+            assertTrue(chartCandle.getTimestampSeconds()<endTimestamp);
         }
     }
 }

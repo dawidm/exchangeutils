@@ -84,7 +84,6 @@ public abstract class ExchangeSpecs {
             case "bitfinex": return new BitfinexExchangeSpecs();
             case "binance": return new BinanceExchangeSpecs();
             case "xtb": return new XtbExchangeSpecs();
-            case "hitbtc": return new HitBtcExchangeSpecs();
             default: throw new NoSuchExchangeException("when getting exchange from string: " + exchangeName);
         }
 
