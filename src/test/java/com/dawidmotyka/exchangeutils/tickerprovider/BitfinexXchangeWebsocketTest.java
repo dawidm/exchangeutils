@@ -1,6 +1,6 @@
 package com.dawidmotyka.exchangeutils.tickerprovider;
 
-import com.dawidmotyka.dmutils.ThreadPause;
+import com.dawidmotyka.dmutils.runtime.ThreadPause;
 import info.bitrich.xchangestream.bitfinex.BitfinexStreamingExchange;
 import info.bitrich.xchangestream.core.StreamingExchange;
 import info.bitrich.xchangestream.core.StreamingExchangeFactory;
@@ -8,12 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.bitfinex.v1.BitfinexExchange;
-import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 
 import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class BitfinexXchangeWebsocketTest {
     @Test

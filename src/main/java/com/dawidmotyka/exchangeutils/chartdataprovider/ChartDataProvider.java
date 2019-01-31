@@ -1,7 +1,6 @@
 package com.dawidmotyka.exchangeutils.chartdataprovider;
 
-import com.dawidmotyka.dmutils.RepeatTillSuccess;
-import com.dawidmotyka.dmutils.ThreadPause;
+import com.dawidmotyka.dmutils.runtime.RepeatTillSuccess;
 import com.dawidmotyka.exchangeutils.ExchangeCommunicationException;
 import com.dawidmotyka.exchangeutils.chartinfo.ChartCandle;
 import com.dawidmotyka.exchangeutils.chartinfo.ChartTimePeriod;
@@ -71,7 +70,7 @@ public class ChartDataProvider {
                         NUM_RETRIES_FOR_PAIR,
                         () -> logger.log(Level.WARNING, String.format("reached maximum retires for getting data for %s", currentPair)));
                 //delay before next api call
-                ThreadPause.millis(exchangeSpecs.getDelayBetweenChartDataRequestsMs());
+                try {Thread.sleep(exchangeSpecs.getDelayBetweenChartDataRequestsMs());} catch (InterruptedException e) {return;};
             }
         }
         notifyChartDataReceivers();

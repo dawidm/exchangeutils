@@ -1,6 +1,6 @@
 package com.dawidmotyka.exchangeutils.tickerprovider;
 
-import com.dawidmotyka.dmutils.RepeatTillSuccess;
+import com.dawidmotyka.dmutils.runtime.RepeatTillSuccess;
 import com.dawidmotyka.exchangeutils.ExchangeCommunicationException;
 import com.dawidmotyka.exchangeutils.xtb.XtbConnectionManager;
 import pro.xstore.api.message.error.APICommunicationException;

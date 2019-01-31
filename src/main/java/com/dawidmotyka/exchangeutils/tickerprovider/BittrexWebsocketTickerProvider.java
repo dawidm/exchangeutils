@@ -1,6 +1,6 @@
 package com.dawidmotyka.exchangeutils.tickerprovider;
 
-import com.dawidmotyka.dmutils.RepeatTillSuccess;
+import com.dawidmotyka.dmutils.runtime.RepeatTillSuccess;
 import com.dawidmotyka.exchangeutils.credentialsprovider.CredentialsNotAvailableException;
 import com.dawidmotyka.exchangeutils.credentialsprovider.CredentialsProvider;
 import com.dawidmotyka.exchangeutils.credentialsprovider.ExchangeCredentials;
@@ -61,7 +61,7 @@ public class BittrexWebsocketTickerProvider implements TickerProvider {
 
     private void reconnect() {
         disconnectBittrexExchange();
-        RepeatTillSuccess.planTask(this::startWebsocket,e->{logger.log(Level.WARNING,"when connecting websocket",e);},1000);
+        RepeatTillSuccess.planTask(this::startWebsocket, e->{logger.log(Level.WARNING,"when connecting websocket",e);},1000);
     }
 
     private void startWebsocket() throws IOException {

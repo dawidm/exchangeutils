@@ -1,6 +1,5 @@
 package com.dawidmotyka.exchangeutils.tickerprovider.generic;
 
-import com.dawidmotyka.dmutils.ThreadPause;
 import com.dawidmotyka.exchangeutils.tickerprovider.*;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -55,7 +54,7 @@ public class GenericTickerWebsocket implements TickerProvider {
                         logger.fine(String.format("making subscriptions"));
                         String[] messages = genericTickerWebsocketExchangeMethods.subscriptionsMessages(pairs);
                         for(String message : messages) {
-                            ThreadPause.millis(PAUSE_BETWEEN_SUBSCRIPTIONS_MILLIS);
+                            try { Thread.sleep(PAUSE_BETWEEN_SUBSCRIPTIONS_MILLIS); } catch (InterruptedException e) {break;}
                             logger.finer("sending to ws: " + message);
                             webSocketClient.send(message);
                         }
