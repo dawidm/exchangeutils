@@ -1,5 +1,6 @@
 package com.dawidmotyka.exchangeutils.xtb;
 
+import com.dawidmotyka.exchangeutils.ExchangeCommunicationException;
 import com.dawidmotyka.exchangeutils.credentialsprovider.CredentialsNotAvailableException;
 import com.dawidmotyka.exchangeutils.credentialsprovider.CredentialsProvider;
 import com.dawidmotyka.exchangeutils.credentialsprovider.ExchangeCredentials;
@@ -31,7 +32,7 @@ public class XtbConnectionManager {
 
     private SyncAPIConnector connector;
     private Object connectorLock=new Object();
-    private ServerData.ServerEnum serverEnum;
+    private final ServerData.ServerEnum serverEnum;
     private ExchangeCredentials exchangeCredentials;
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
     private ScheduledFuture pingApiScheduledFuture;
@@ -47,36 +48,44 @@ public class XtbConnectionManager {
         this.exchangeCredentials=exchangeCredentials;
     }
 
-    public void connect() {
+    public void connect() throws ExchangeCommunicationException{
         try {
             synchronized (connectorLock) {
                 connector = new SyncAPIConnector(serverEnum);
                 if(exchangeCredentials==null) {
                     exchangeCredentials = CredentialsProvider.getCredentials(XtbExchangeSpecs.class);
                 }
-                Credentials credentials = new Credentials(exchangeCredentials.getLogin(), exchangeCredentials.getPass(), "XtbTest");
+                Credentials credentials = new Credentials(exchangeCredentials.getLogin(), exchangeCredentials.getPass(), "exchangeutils");
                 LoginResponse loginResponse = APICommandFactory.executeLoginCommand(
                         connector,
                         credentials);
                 logger.info(loginResponse.toString());
-                pingApiScheduledFuture=scheduledExecutorService.scheduleAtFixedRate(this::pingAPIExecutor,PING_API_PERIOD_SECONDS,PING_API_PERIOD_SECONDS,TimeUnit.SECONDS);
+                if(loginResponse.getStatus()==true) {
+                    connected.set(true);
+                    pingApiScheduledFuture = scheduledExecutorService.scheduleAtFixedRate(this::pingAPIExecutor, PING_API_PERIOD_SECONDS, PING_API_PERIOD_SECONDS, TimeUnit.SECONDS);
+                } else {
+                    throw new ExchangeCommunicationException("login failed");
+                }
             }
-            connected.set(true);
         } catch (IOException | APIReplyParseException | APICommunicationException | APICommandConstructionException | APIErrorResponse | CredentialsNotAvailableException e) {
             logger.log(Level.SEVERE,"when connecting to xtb",e);
+            throw new ExchangeCommunicationException(e.getClass().getName()+e.getMessage());
         }
     }
 
-    public void disconnect() {
+    public void disconnect() throws ExchangeCommunicationException {
         if(pingApiScheduledFuture!=null)
-            pingApiScheduledFuture.cancel(false);
-        if (connector != null) {
-            logger.info("disconnecting SyncAPIConnector stream");
-            connector.disconnectStream();
-            try {
-                connector.close();
-            } catch (APICommunicationException e) {
-                logger.log(Level.WARNING,"when disconnecting SyncAPIConnector",e);
+            pingApiScheduledFuture.cancel(true);
+        synchronized (connectorLock) {
+            if (connector != null) {
+                logger.info("disconnecting SyncAPIConnector stream");
+                connector.disconnectStream();
+                try {
+                    connector.close();
+                } catch (APICommunicationException e) {
+                    logger.log(Level.WARNING, "when disconnecting SyncAPIConnector", e);
+                    throw new ExchangeCommunicationException(e.getClass().getName()+e.getLocalizedMessage());
+                }
             }
         }
     }
@@ -89,8 +98,12 @@ public class XtbConnectionManager {
             } catch (APICommunicationException e) {
                 logger.log(Level.WARNING,"when pinging api",e);
                 connected.set(false);
-                disconnect();
-                connect();
+                try {
+                    disconnect();
+                    connect();
+                } catch (ExchangeCommunicationException e1) {
+                    logger.warning("when reconnecting "+e1.getMessage() + e1.getMessage());
+                }
             } catch (APICommandConstructionException | APIErrorResponse | APIReplyParseException e) {
                 logger.log(Level.WARNING,"when pinging api",e);
             }

@@ -46,7 +46,7 @@ public class XtbTickerProvider implements TickerProvider {
         this.connectionStateReceiver=connectionStateReceiver;
         RepeatTillSuccess.planTask(this::connectXtbConnectionManager, (e) -> logger.log(Level.WARNING, "", e), CONNECT_RETRY_PERIOD_SECONDS * 1000);
         RepeatTillSuccess.planTask(this::makeSubscriptions,(e)->logger.log(Level.WARNING,"when making subscriptions",e),CONNECT_RETRY_PERIOD_SECONDS*1000);
-        //TODO send proper connection state
+        RepeatTillSuccess.planTask(this::makeSubscriptions,(e)->logger.log(Level.WARNING,"when making subscriptions",e),CONNECT_RETRY_PERIOD_SECONDS*1000);
         connectionStateReceiver.connectionState(TickerProviderConnectionState.CONNECTED);
     }
 
@@ -54,9 +54,12 @@ public class XtbTickerProvider implements TickerProvider {
     public void disconnect() {
         if(keepAliveScheduledFuture!=null && !keepAliveScheduledFuture.isCancelled())
             keepAliveScheduledFuture.cancel(false);
-        xtbConnectionManager.disconnect();
-        //TODO send proper connection state
         connectionStateReceiver.connectionState(TickerProviderConnectionState.DISCONNECTED);
+        try {
+            xtbConnectionManager.disconnect();
+        } catch (ExchangeCommunicationException e) {
+            logger.warning("when disconnecting xtbConnectionManager: " + e.getClass().getName() + e.getMessage());
+        }
     }
 
     private void connectXtbConnectionManager() throws ExchangeCommunicationException {
