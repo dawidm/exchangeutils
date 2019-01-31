@@ -1,9 +1,12 @@
 package com.dawidmotyka.exchangeutils.chartinfo;
 
-import com.dawidmotyka.exchangeutils.CurrencyPairConverter;
 import com.dawidmotyka.exchangeutils.ExchangeCommunicationException;
+import com.dawidmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
+import com.dawidmotyka.exchangeutils.exchangespecs.PoloniexExchangeSpecs;
+import com.dawidmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
+import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.poloniex.PoloniexExchange;
 import org.knowm.xchange.poloniex.dto.marketdata.PoloniexChartData;
 import org.knowm.xchange.poloniex.service.PoloniexChartDataPeriodType;
@@ -22,7 +25,8 @@ public class PoloniexChartInfo implements ExchangeChartInfo {
     private static final Logger logger = Logger.getLogger(PoloniexChartInfo.class.getName());
 
     private Exchange poloniex;
-    private  PoloniexMarketDataService poloniexMarketDataService;
+    private PoloniexMarketDataService poloniexMarketDataService;
+    private final ExchangeSpecs exchangeSpecs = new PoloniexExchangeSpecs();
 
     @Override
     public ChartCandle[] getCandles(String symbol, long timePeriodSeconds, long beginTimestampSeconds, long endTimestampSeconds) throws ExchangeCommunicationException {
@@ -34,7 +38,9 @@ public class PoloniexChartInfo implements ExchangeChartInfo {
             PoloniexChartDataPeriodType poloniexChartDataPeriodType = periodSecondsToPoloniexPeriodType((int)timePeriodSeconds);
             if(poloniexChartDataPeriodType==null)
                 throw new ExchangeCommunicationException("error getting PoloniexChartDataPeriodType for " + timePeriodSeconds);
-            PoloniexChartData poloniexChartData[] = poloniexMarketDataService.getPoloniexChartData(CurrencyPairConverter.poloPairToCurrencyPair(symbol),
+
+            PoloniexChartData poloniexChartData[] = poloniexMarketDataService.getPoloniexChartData(
+                    new CurrencyPair(PairSymbolConverter.apiSymbolToBaseCurrencySymbol(exchangeSpecs,symbol),PairSymbolConverter.apiSymbolToCounterCurrencySymbol(exchangeSpecs,symbol)),
                     new Long(beginTimestampSeconds),
                     new Long(endTimestampSeconds),
                     poloniexChartDataPeriodType);
