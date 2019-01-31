@@ -2,11 +2,11 @@ package com.dawidmotyka.exchangeutils.chartinfo;
 
 import com.dawidmotyka.exchangeutils.CurrencyPairConverter;
 import com.dawidmotyka.exchangeutils.ExchangeCommunicationException;
-import com.dawidmotyka.exchangeutils.poloniex.PoloniexTimePeriods;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.poloniex.PoloniexExchange;
 import org.knowm.xchange.poloniex.dto.marketdata.PoloniexChartData;
+import org.knowm.xchange.poloniex.service.PoloniexChartDataPeriodType;
 import org.knowm.xchange.poloniex.service.PoloniexMarketDataService;
 
 import java.io.IOException;
@@ -31,10 +31,13 @@ public class PoloniexChartInfo implements ExchangeChartInfo {
             poloniexMarketDataService = (PoloniexMarketDataService) poloniex.getMarketDataService();
         }
         try {
+            PoloniexChartDataPeriodType poloniexChartDataPeriodType = periodSecondsToPoloniexPeriodType((int)timePeriodSeconds);
+            if(poloniexChartDataPeriodType==null)
+                throw new ExchangeCommunicationException("error getting PoloniexChartDataPeriodType for " + timePeriodSeconds);
             PoloniexChartData poloniexChartData[] = poloniexMarketDataService.getPoloniexChartData(CurrencyPairConverter.poloPairToCurrencyPair(symbol),
                     new Long(beginTimestampSeconds),
                     new Long(endTimestampSeconds),
-                    PoloniexTimePeriods.mapPeriodSecondsToPoloniexPeriodType(new Long(timePeriodSeconds)));
+                    poloniexChartDataPeriodType);
             return Arrays.stream(poloniexChartData).map(poloniexChartCandle -> new ChartCandle(poloniexChartCandle.getHigh().doubleValue(),
                     poloniexChartCandle.getLow().doubleValue(),
                     poloniexChartCandle.getOpen().doubleValue(),
@@ -46,6 +49,13 @@ public class PoloniexChartInfo implements ExchangeChartInfo {
         }
     }
 
+    private PoloniexChartDataPeriodType periodSecondsToPoloniexPeriodType(int periodSeconds) {
+        for (PoloniexChartDataPeriodType poloniexChartDataPeriodType : PoloniexChartDataPeriodType.values()) {
+            if(poloniexChartDataPeriodType.getPeriod()==periodSeconds)
+                return poloniexChartDataPeriodType;
+        }
+        return null;
+    };
 
     @Override
     public ChartTimePeriod[] getAvailablePeriods() {
