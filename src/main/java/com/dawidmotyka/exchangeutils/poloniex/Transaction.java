@@ -7,14 +7,6 @@ package com.dawidmotyka.exchangeutils.poloniex;
 
 import java.util.Date;
 
-/**
- *
- * @author dawid
- */
-
-//[{data: {tradeID: '364476',rate: '0.00300888',amount: '0.03580906',date: '2014-10-07 21:51:20',total: '0.00010775',type: 'sell'},type: 'newTrade'}]
-
-
 public class Transaction {
 
     private String pairName;
