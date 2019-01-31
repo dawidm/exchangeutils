@@ -1,6 +1,7 @@
 package com.dawidmotyka.exchangeutils.chartinfo;
 
 import com.dawidmotyka.exchangeutils.ExchangeCommunicationException;
+import com.dawidmotyka.exchangeutils.bittrex.BittrexChartInfo;
 import com.dawidmotyka.exchangeutils.exchangespecs.*;
 
 /**

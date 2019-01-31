@@ -1,6 +1,23 @@
-package com.dawidmotyka.exchangeutils.chartinfo;
+/*
+ * Cryptonose2
+ *
+ * Copyright © 2019 Dawid Motyka
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+
+package com.dawidmotyka.exchangeutils.bittrex;
 
 import com.dawidmotyka.exchangeutils.ExchangeCommunicationException;
+import com.dawidmotyka.exchangeutils.chartinfo.ChartCandle;
+import com.dawidmotyka.exchangeutils.chartinfo.ChartTimePeriod;
+import com.dawidmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
+import com.dawidmotyka.exchangeutils.chartinfo.NoSuchTimePeriodException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -55,9 +72,6 @@ public class BittrexChartInfo implements ExchangeChartInfo {
                 }
             }
             ChartCandle[] chartCandles = candlesArrayList.toArray(new ChartCandle[0]);
-            if(timePeriodSeconds==900) {
-                return mapToHigherTimePeriod(chartCandles,3);
-            }
             return chartCandles;
         } catch (IOException e) {
             logger.log(Level.WARNING,"when getting bittrex candles for: "+symbol);
@@ -67,50 +81,14 @@ public class BittrexChartInfo implements ExchangeChartInfo {
 
     @Override
     public ChartTimePeriod[] getAvailablePeriods() {
-        //sorted by time in seconds!
         return new ChartTimePeriod[] {
                 new ChartTimePeriod("1m",60,"oneMin"),
                 new ChartTimePeriod("5m",300,"fiveMin"),
-                new ChartTimePeriod("15m",900,"fiveMin"),
                 new ChartTimePeriod("30m",1800,"thirtyMin"),
                 new ChartTimePeriod("1h",3600,"hour"),
                 new ChartTimePeriod("1d",86400,"day")
         };
     }
-
-    private ChartCandle[] mapToHigherTimePeriod(ChartCandle inputCandles[], int multiplier) {
-        int numOutputCandles=inputCandles.length/multiplier;
-        if(inputCandles.length%multiplier>0)
-            numOutputCandles++;
-        ChartCandle[] outputCandles = new ChartCandle[numOutputCandles];
-        for(int i=0;i<inputCandles.length;i++) {
-            if(i%multiplier==0) {
-                outputCandles[i/multiplier]=new ChartCandle(inputCandles[i].getHigh(),inputCandles[i].getLow(),inputCandles[i].getOpen(),inputCandles[i].getClose(),inputCandles[i].getTimestampSeconds());
-            } else {
-                if (i%multiplier==multiplier-1)
-                    outputCandles[i/multiplier].setClose(inputCandles[i].getClose());
-                outputCandles[i/multiplier].setHigh(Math.max(outputCandles[i/multiplier].getHigh(),inputCandles[i].getHigh()));
-                outputCandles[i/multiplier].setLow(Math.min(outputCandles[i/multiplier].getLow(),inputCandles[i].getLow()));
-            }
-        }
-
-//        for(int i=0;i<numOutputCandles;i++) {
-//            double open = inputCandles[i*multiplier].getOpen();
-//            //different for last output candle
-//            double close = inputCandles[i*multiplier+multiplier-1].getClose();
-//            double high=Double.MAX_VALUE;
-//            double low=0;
-//            for (int j=i*multiplier;j<i*multiplier+multiplier;j++) {
-//                if(inputCandles[j].getHigh()>high)
-//                    high=inputCandles[j].getHigh();
-//                if(inputCandles[j].getLow()<low)
-//                    low=inputCandles[j].getLow();
-//            }
-//            outputCandles[i]=new ChartCandle(high,low,open,close,inputCandles[i*multiplier].getTimestampSeconds());
-//        }
-        return outputCandles;
-    }
-
 
     private ChartTimePeriod getChartTimePeriodForSeconds(long timePeriodSeconds) throws NoSuchTimePeriodException {
         for(ChartTimePeriod chartTimePeriod : getAvailablePeriods()) {

@@ -1,22 +1,12 @@
 package com.dawidmotyka.exchangeutils.chartinfo;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/**
- *
- * @author dawid
- */
 public class ChartCandle {
 
-    protected double high;
-    protected double low;
-    protected double open;
-    protected double close;
-    protected long timestampSeconds;
+    private double high;
+    private double low;
+    private double open;
+    private double close;
+    private long timestampSeconds;
 
     public ChartCandle(double high, double low, double open, double close, long timestampSeconds) {
         this.timestampSeconds=timestampSeconds;
@@ -66,19 +56,19 @@ public class ChartCandle {
         return timestampSeconds;
     }
 
-    void setHigh(double high) {
+    protected void setHigh(double high) {
         this.high = high;
     }
 
-    void setLow(double low) {
+    protected void setLow(double low) {
         this.low = low;
     }
 
-    void setOpen(double open) {
+    protected void setOpen(double open) {
         this.open = open;
     }
 
-    void setClose(double close) {
+    protected void setClose(double close) {
         this.close = close;
     }
 }

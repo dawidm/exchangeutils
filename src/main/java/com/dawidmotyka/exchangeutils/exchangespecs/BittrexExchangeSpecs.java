@@ -1,6 +1,6 @@
 package com.dawidmotyka.exchangeutils.exchangespecs;
 
-import com.dawidmotyka.exchangeutils.chartinfo.BittrexChartInfo;
+import com.dawidmotyka.exchangeutils.bittrex.BittrexChartInfo;
 import com.dawidmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import org.knowm.xchange.bittrex.BittrexExchange;
 
