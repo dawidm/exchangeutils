@@ -12,6 +12,9 @@ package com.dawidmotyka.exchangeutils.binance;
 
 import com.dawidmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import com.dawidmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
+import com.dawidmotyka.exchangeutils.pairdataprovider.PairDataProvider;
+import org.knowm.xchange.Exchange;
+import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.binance.BinanceExchange;
 
 /**
@@ -22,13 +25,31 @@ public class BinanceExchangeSpecs extends ExchangeSpecs {
     private static final String EXCHANGE_NAME = "Binance";
     private static final String MARKET_URL = "https://www.binance.com/tradeDetail.html?symbol=";
     private static final String COLOR_HEX = "cc9900";
+    public static final int DELAY_BETWEEN_REQUESTS_MS=200;
 
     public BinanceExchangeSpecs() {
-        super(EXCHANGE_NAME,MARKET_URL, BinanceExchange.class,0.0005, COLOR_HEX,200);
+        super(EXCHANGE_NAME);
     }
 
     @Override
     public ExchangeChartInfo getChartInfo() {
         return new BinanceChartInfo();
     }
+
+    @Override
+    public PairDataProvider getPairDataProvider() {
+        return new BinancePairDataProvider();
+    }
+
+    @Override
+    public String getMarketUrl() { return MARKET_URL; }
+
+    @Override
+    public Exchange getXchangeExchange() { return ExchangeFactory.INSTANCE.createExchange(BinanceExchange.class); }
+
+    @Override
+    public String getColorHash() { return COLOR_HEX; }
+
+    @Override
+    public int getDelayBetweenChartDataRequestsMs() { return DELAY_BETWEEN_REQUESTS_MS; };
 }

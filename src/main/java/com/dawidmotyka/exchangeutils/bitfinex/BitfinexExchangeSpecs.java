@@ -13,6 +13,9 @@ package com.dawidmotyka.exchangeutils.bitfinex;
 import com.dawidmotyka.exchangeutils.chartinfo.BitfinexChartInfo;
 import com.dawidmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import com.dawidmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
+import com.dawidmotyka.exchangeutils.pairdataprovider.PairDataProvider;
+import org.knowm.xchange.Exchange;
+import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.bitfinex.v2.BitfinexExchange;
 
 /**
@@ -23,13 +26,32 @@ public class BitfinexExchangeSpecs extends ExchangeSpecs {
     private static final String EXCHANGE_NAME = "Bitfinex";
     private static final String MARKET_URL = "https://www.bitfinex.com/t/";
     private static final String COLOR_HEX = "32CD32";
+    private static final int DELAY_BETWEEN_REQUESTS_MS=6000;
 
     public BitfinexExchangeSpecs() {
-        super(EXCHANGE_NAME,MARKET_URL, BitfinexExchange.class,0.0005, COLOR_HEX,6000);
+        super(EXCHANGE_NAME);
     }
 
     @Override
     public ExchangeChartInfo getChartInfo() {
         return new BitfinexChartInfo();
     }
+
+    @Override
+    public PairDataProvider getPairDataProvider() {
+        return new BitfinexPairDataProvider();
+    }
+
+    @Override
+    public String getMarketUrl() { return MARKET_URL; }
+
+    @Override
+    public Exchange getXchangeExchange() { return ExchangeFactory.INSTANCE.createExchange(BitfinexExchange.class); }
+
+    @Override
+    public String getColorHash() { return COLOR_HEX; }
+
+    @Override
+    public int getDelayBetweenChartDataRequestsMs() { return DELAY_BETWEEN_REQUESTS_MS; };
+
 }

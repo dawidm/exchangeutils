@@ -12,6 +12,9 @@ package com.dawidmotyka.exchangeutils.bittrex;
 
 import com.dawidmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import com.dawidmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
+import com.dawidmotyka.exchangeutils.pairdataprovider.PairDataProvider;
+import org.knowm.xchange.Exchange;
+import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.bittrex.BittrexExchange;
 
 /**
@@ -22,13 +25,33 @@ public class BittrexExchangeSpecs extends ExchangeSpecs {
     private static final String EXCHANGE_NAME = "Bittrex";
     private static final String MARKET_URL = "https://bittrex.com/Market/Index?MarketName=";
     private static final String COLOR_HEX = "2184ff";
+    private static final int DELAY_BETWEEN_REQUESTS_MS=500;
 
     public BittrexExchangeSpecs() {
-        super(EXCHANGE_NAME,MARKET_URL, BittrexExchange.class,0.0005, COLOR_HEX,500);
+        super(EXCHANGE_NAME);
     }
 
     @Override
-    public ExchangeChartInfo getChartInfo() {
-        return new BittrexChartInfo();
+    public ExchangeChartInfo getChartInfo() { return new BittrexChartInfo(); }
+
+    @Override
+    public PairDataProvider getPairDataProvider() {
+        return new BittrexPairDataProvider();
+    }
+
+    @Override
+    public String getMarketUrl() { return MARKET_URL; }
+
+    @Override
+    public Exchange getXchangeExchange() { return ExchangeFactory.INSTANCE.createExchange(BittrexExchange.class); }
+
+    @Override
+    public String getColorHash() {
+        return COLOR_HEX;
+    }
+
+    @Override
+    public int getDelayBetweenChartDataRequestsMs() {
+        return DELAY_BETWEEN_REQUESTS_MS;
     }
 }

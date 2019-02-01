@@ -13,19 +13,39 @@ package com.dawidmotyka.exchangeutils.xtb;
 import com.dawidmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import com.dawidmotyka.exchangeutils.chartinfo.XtbChartInfo;
 import com.dawidmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
+import com.dawidmotyka.exchangeutils.pairdataprovider.PairDataProvider;
+import org.knowm.xchange.Exchange;
 
 public class XtbExchangeSpecs extends ExchangeSpecs {
     private static final String EXCHANGE_NAME = "Xtb";
     private static final String MARKET_URL = "";
     private static final String COLOR_HEX = "000000";
+    public static final int DELAY_BETWEEN_REQUESTS_MS=200;
 
     public XtbExchangeSpecs() {
-        super(EXCHANGE_NAME,MARKET_URL, null,0, COLOR_HEX,200);
+        super(EXCHANGE_NAME);
     }
 
     @Override
     public ExchangeChartInfo getChartInfo() {
         return new XtbChartInfo();
     }
+
+    @Override
+    public PairDataProvider getPairDataProvider() {
+        return new XtbPairDataProvider();
+    }
+
+    @Override
+    public String getMarketUrl() { return MARKET_URL; }
+
+    @Override
+    public Exchange getXchangeExchange() { return null; }
+
+    @Override
+    public String getColorHash() { return COLOR_HEX; }
+
+    @Override
+    public int getDelayBetweenChartDataRequestsMs() { return DELAY_BETWEEN_REQUESTS_MS; };
 
 }
