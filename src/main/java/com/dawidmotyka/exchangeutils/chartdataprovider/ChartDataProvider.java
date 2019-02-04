@@ -50,7 +50,7 @@ public class ChartDataProvider {
         this.pairs=pairs;
         this.periodsNumCandles = periodsNumCandles;
         Arrays.sort(this.periodsNumCandles);
-        exchangeChartInfo = ExchangeChartInfo.forExchange(exchangeSpecs);
+        exchangeChartInfo = exchangeSpecs.getChartInfo();
         for(PeriodNumCandles periodNumCandles : periodsNumCandles) {
             int periodSeconds = periodNumCandles.getPeriodSeconds();
             int timestampSnapshot = (int)(System.currentTimeMillis()/1000);
@@ -59,7 +59,7 @@ public class ChartDataProvider {
     }
 
     public static ChartTimePeriod[] getAvailableTimePeriods(ExchangeSpecs exchangeSpecs) {
-        return ExchangeChartInfo.forExchange(exchangeSpecs).getAvailablePeriods();
+        return exchangeSpecs.getChartInfo().getAvailablePeriods();
     };
 
     public synchronized void refreshData() {
