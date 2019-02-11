@@ -29,11 +29,6 @@ public class ChartCandle {
         this.close=close;
     }
 
-    public ChartCandle(double open, long timestamp) {
-        this.open=open;
-        this.timestampSeconds=timestamp;
-    }
-
     /**
      * @return the high
      */
@@ -69,19 +64,4 @@ public class ChartCandle {
         return timestampSeconds;
     }
 
-    protected void setHigh(double high) {
-        this.high = high;
-    }
-
-    protected void setLow(double low) {
-        this.low = low;
-    }
-
-    protected void setOpen(double open) {
-        this.open = open;
-    }
-
-    protected void setClose(double close) {
-        this.close = close;
-    }
 }
