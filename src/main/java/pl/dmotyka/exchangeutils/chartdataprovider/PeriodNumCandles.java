@@ -14,15 +14,15 @@
 package pl.dmotyka.exchangeutils.chartdataprovider;
 
 public class PeriodNumCandles implements Comparable<PeriodNumCandles> {
-    private final int periodSeconds;
+    private final long periodSeconds;
     private final int numCandles;
 
-    public PeriodNumCandles(int periodSeconds, int numCandles) {
+    public PeriodNumCandles(long periodSeconds, int numCandles) {
         this.periodSeconds = periodSeconds;
         this.numCandles = numCandles;
     }
 
-    public int getPeriodSeconds() {
+    public long getPeriodSeconds() {
         return periodSeconds;
     }
 
@@ -32,6 +32,6 @@ public class PeriodNumCandles implements Comparable<PeriodNumCandles> {
 
     @Override
     public int compareTo(PeriodNumCandles other) {
-        return Integer.compare(this.periodSeconds,other.periodSeconds);
+        return Long.compare(this.periodSeconds,other.periodSeconds);
     }
 }

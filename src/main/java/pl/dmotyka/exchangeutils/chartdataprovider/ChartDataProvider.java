@@ -52,7 +52,7 @@ public class ChartDataProvider {
     private ExchangeChartInfo exchangeChartInfo;
     private final Map<CurrencyPairTimePeriod, ChartCandle[]> chartCandlesMap = Collections.synchronizedMap(new HashMap<>());
     private final Map<String,List<Ticker>> tickersMap = new HashMap<>();
-    private final Map<Integer,Integer> lastGeneratedCandlesTimestamps = new HashMap<>();
+    private final Map<Long,Long> lastGeneratedCandlesTimestamps = new HashMap<>();
     private AtomicBoolean abortAtomicBoolean=new AtomicBoolean(false);
     private final Set<ChartDataReceiver> chartDataReceivers = new HashSet<>();
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
@@ -65,8 +65,8 @@ public class ChartDataProvider {
         Arrays.sort(this.periodsNumCandles);
         exchangeChartInfo = exchangeSpecs.getChartInfo();
         for(PeriodNumCandles periodNumCandles : periodsNumCandles) {
-            int periodSeconds = periodNumCandles.getPeriodSeconds();
-            int timestampSnapshot = (int)(System.currentTimeMillis()/1000);
+            long periodSeconds = periodNumCandles.getPeriodSeconds();
+            long timestampSnapshot = System.currentTimeMillis()/1000;
             lastGeneratedCandlesTimestamps.put(periodNumCandles.getPeriodSeconds(),timestampSnapshot-timestampSnapshot%periodSeconds-periodSeconds);
         }
     }
@@ -141,7 +141,7 @@ public class ChartDataProvider {
         return allDataMap;
     }
 
-    public Map<CurrencyPairTimePeriod, ChartCandle[]> getAllCandleDataForPeriod(int timePeriodSeconds) {
+    public Map<CurrencyPairTimePeriod, ChartCandle[]> getAllCandleDataForPeriod(long timePeriodSeconds) {
         Map<CurrencyPairTimePeriod,ChartCandle[]> allDataMap = new HashMap<>();
         for(Map.Entry<CurrencyPairTimePeriod,ChartCandle[]> oldMapEntry : chartCandlesMap.entrySet()) {
             if(oldMapEntry.getKey().getTimePeriodSeconds()==timePeriodSeconds)
@@ -177,9 +177,9 @@ public class ChartDataProvider {
         int currentTimestampSnapshot=(int)(System.currentTimeMillis()/1000);
         boolean longestPeriodUpdated=false;
         boolean anyPeriodUpdated=false;
-        int longestTimePeriod=periodsNumCandles[periodsNumCandles.length-1].getPeriodSeconds();
+        long longestTimePeriod=periodsNumCandles[periodsNumCandles.length-1].getPeriodSeconds();
         for(PeriodNumCandles periodNumCandles : periodsNumCandles) {
-            int periodSeconds = periodNumCandles.getPeriodSeconds();
+            long periodSeconds = periodNumCandles.getPeriodSeconds();
             if(currentTimestampSnapshot-currentTimestampSnapshot%periodSeconds-periodSeconds > lastGeneratedCandlesTimestamps.get(periodSeconds)) {
                 logger.fine("generating candles for period " + periodSeconds + "s");
                 lastGeneratedCandlesTimestamps.put(periodSeconds,currentTimestampSnapshot-currentTimestampSnapshot%periodSeconds);
