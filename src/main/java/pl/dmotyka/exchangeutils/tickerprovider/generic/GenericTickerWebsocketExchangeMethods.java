@@ -15,10 +15,9 @@ package pl.dmotyka.exchangeutils.tickerprovider.generic;
 
 import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
 
-import javax.annotation.Nullable;
 
 public interface GenericTickerWebsocketExchangeMethods {
-    String getWsUrl(@Nullable String[] pairsSymbols);
+    String getWsUrl(String[] pairsSymbols);
     boolean isMakingSubscriptions();
     String[] subscriptionsMessages(String[] pairsSymbols);
     Ticker handleMessage(String message);

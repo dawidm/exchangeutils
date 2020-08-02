@@ -13,17 +13,16 @@
 
 package pl.dmotyka.exchangeutils.tickerprovider.generic;
 
-import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
 
 public class BitfinexExchangeMethods implements GenericTickerWebsocketExchangeMethods {
 
@@ -36,7 +35,7 @@ public class BitfinexExchangeMethods implements GenericTickerWebsocketExchangeMe
     Map<String,String> subscriptionsSymbols = new HashMap<>();
 
     @Override
-    public String getWsUrl(@Nullable String[] pairsSymbols) {
+    public String getWsUrl(String[] pairsSymbols) {
         return BITFINEX_WS_API_V2_URL;
     }
 
