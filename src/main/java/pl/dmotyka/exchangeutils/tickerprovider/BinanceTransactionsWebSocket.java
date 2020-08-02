@@ -13,12 +13,6 @@
 
 package pl.dmotyka.exchangeutils.tickerprovider;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.handshake.ServerHandshake;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,12 +28,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
 
 public class BinanceTransactionsWebSocket implements TickerProvider {
 
     private static final Logger logger = Logger.getLogger(BinanceTransactionsWebSocket.class.getName());
 
-    private static final String WS_API_URL_COMBINED = "wss://stream.binance.com:9443/stream?streams=";
+    private static final String WS_API_URL_COMBINED = "wss://stream.binance.com/stream?streams=";
     private static final String TRADE_STREAM_NAME = "%s@aggTrade";
     private static final int CONNECTION_LOST_TIMEOUT_SECONDS=10;
 
@@ -60,11 +62,9 @@ public class BinanceTransactionsWebSocket implements TickerProvider {
     public void connect(TickerProviderConnectionStateReceiver connectionStateReceiver) throws IOException {
         this.connectionStateReceiver=connectionStateReceiver;
         isConnectedAtomicBoolean.set(true);
-        StringBuilder stringBuilder = new StringBuilder(WS_API_URL_COMBINED);
-        for (String currentPair : pairsAtomicReference.get()) {
-            stringBuilder.append(String.format(TRADE_STREAM_NAME+"/",currentPair.toLowerCase()));
-        }
-        String websocketUrl = stringBuilder.toString();
+        String websocketUrl = WS_API_URL_COMBINED + pairsAtomicReference.get().stream().
+                map(pair -> String.format(TRADE_STREAM_NAME,pair.toLowerCase())).
+                collect(Collectors.joining("/"));
         logger.fine(String.format("connecting websocket, url: %s",websocketUrl));
         try {
             webSocketClient = new WebSocketClient(new URI(websocketUrl)) {
@@ -81,7 +81,7 @@ public class BinanceTransactionsWebSocket implements TickerProvider {
 
                 @Override
                 public void onClose(int code, String reason, boolean remote) {
-                    if (isConnectedAtomicBoolean.get() == false)
+                    if (!isConnectedAtomicBoolean.get())
                         return;
                     logger.fine("websocket closed, reconnecting...");
                     if(code!=-1)
@@ -98,10 +98,10 @@ public class BinanceTransactionsWebSocket implements TickerProvider {
             SSLContext sslContext;
             sslContext = SSLContext.getDefault();
             SSLSocketFactory factory = sslContext.getSocketFactory();
-            webSocketClient.setSocket(factory.createSocket());
-            webSocketClient.setConnectionLostTimeout(CONNECTION_LOST_TIMEOUT_SECONDS);
+            webSocketClient.setSocketFactory(factory);
+            //webSocketClient.setConnectionLostTimeout(CONNECTION_LOST_TIMEOUT_SECONDS);
             webSocketClient.connect();
-        } catch (URISyntaxException |NoSuchAlgorithmException e) {
+        } catch (URISyntaxException | NoSuchAlgorithmException e) {
             logger.log(Level.WARNING, "", e);
             throw new IOException(e);
         }
@@ -129,12 +129,12 @@ public class BinanceTransactionsWebSocket implements TickerProvider {
     private void handleMessage(String message) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            message=objectMapper.readTree(message).get("data").toString();
+            message = objectMapper.readTree(message).get("data").toString();
             String[] splitMsg = message.split(",");
             String pair=splitMsg[2].split(":")[1].replace("\"","");
             double price = Double.parseDouble(splitMsg[4].split(":")[1].replace("\"",""));
             long timestampSeconds = Long.parseLong(splitMsg[1].split(":")[1].replace("\"",""))/1000;
-            tickerReceiver.receiveTicker(new Ticker(pair,price,timestampSeconds));
+            tickerReceiver.receiveTicker(new Ticker(pair, price, timestampSeconds));
         } catch (IOException e) {
             logger.log(Level.WARNING,"when reading websocket aggTrade message",e);
         }

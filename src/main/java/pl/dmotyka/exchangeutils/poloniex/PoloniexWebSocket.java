@@ -13,14 +13,6 @@
 
 package pl.dmotyka.exchangeutils.poloniex;
 
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.handshake.ServerHandshake;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import pl.dmotyka.exchangeutils.tickerprovider.*;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -35,6 +27,19 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerProvider;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerProviderConnectionState;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerProviderConnectionStateReceiver;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
 
 public class PoloniexWebSocket implements TickerProvider {
 
@@ -140,7 +145,7 @@ public class PoloniexWebSocket implements TickerProvider {
         if (webSocketClient==null)
             return false;
         else
-            return webSocketClient.isOpen() || webSocketClient.isConnecting();
+            return webSocketClient.isOpen();
     }
 
     private void handleMessage(String message) {
