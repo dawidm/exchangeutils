@@ -13,12 +13,6 @@
 
 package pl.dmotyka.exchangeutils.tickerprovider.generic;
 
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.handshake.ServerHandshake;
-import pl.dmotyka.exchangeutils.tickerprovider.*;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,7 +25,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GenericTickerWebsocket implements TickerProvider {
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
+import pl.dmotyka.exchangeutils.tickerprovider.BinanceTransactionsWebSocket;
+import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerProvider;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerProviderConnectionState;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerProviderConnectionStateReceiver;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
+
+public class GenericWebsocketTickerProvider implements TickerProvider {
 
     private static final Logger logger = Logger.getLogger(BinanceTransactionsWebSocket.class.getName());
     public static final int CONNECTION_LOST_TIMEOUT_SECONDS=60;
@@ -46,7 +52,7 @@ public class GenericTickerWebsocket implements TickerProvider {
     private GenericTickerWebsocketExchangeMethods genericTickerWebsocketExchangeMethods;
     private String[] pairs;
 
-    public GenericTickerWebsocket(TickerReceiver tickerReceiver, String[] pairs, GenericTickerWebsocketExchangeMethods genericTickerWebsocketExchangeMethods) {
+    public GenericWebsocketTickerProvider(TickerReceiver tickerReceiver, String[] pairs, GenericTickerWebsocketExchangeMethods genericTickerWebsocketExchangeMethods) {
         this.tickerReceiver = tickerReceiver;
         this.pairs=pairs;
         this.genericTickerWebsocketExchangeMethods = genericTickerWebsocketExchangeMethods;

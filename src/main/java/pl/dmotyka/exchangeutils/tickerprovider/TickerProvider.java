@@ -13,6 +13,8 @@
 
 package pl.dmotyka.exchangeutils.tickerprovider;
 
+import java.io.IOException;
+
 import pl.dmotyka.exchangeutils.binance.BinanceExchangeSpecs;
 import pl.dmotyka.exchangeutils.bitfinex.BitfinexExchangeSpecs;
 import pl.dmotyka.exchangeutils.bittrex.BittrexExchangeSpecs;
@@ -20,10 +22,8 @@ import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
 import pl.dmotyka.exchangeutils.poloniex.PoloniexExchangeSpecs;
 import pl.dmotyka.exchangeutils.poloniex.PoloniexWebSocket;
 import pl.dmotyka.exchangeutils.tickerprovider.generic.BitfinexExchangeMethods;
-import pl.dmotyka.exchangeutils.tickerprovider.generic.GenericTickerWebsocket;
+import pl.dmotyka.exchangeutils.tickerprovider.generic.GenericWebsocketTickerProvider;
 import pl.dmotyka.exchangeutils.xtb.XtbExchangeSpecs;
-
-import java.io.IOException;
 
 public interface TickerProvider {
     static TickerProvider forExchange(ExchangeSpecs exchangeSpecs, TickerReceiver tickerReceiver, String[] pairs) {
@@ -39,7 +39,7 @@ public interface TickerProvider {
         if(exchangeSpecs instanceof XtbExchangeSpecs)
             return new XtbTickerProvider(tickerReceiver,pairs);
         if(exchangeSpecs instanceof BitfinexExchangeSpecs)
-            return new GenericTickerWebsocket(tickerReceiver,pairs,new BitfinexExchangeMethods());
+            return new GenericWebsocketTickerProvider(tickerReceiver,pairs,new BitfinexExchangeMethods());
         throw new Error("not implemented for "+exchangeSpecs.getName());
     };
 
