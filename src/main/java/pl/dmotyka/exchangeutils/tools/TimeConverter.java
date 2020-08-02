@@ -15,11 +15,11 @@ package pl.dmotyka.exchangeutils.tools;
 
 public class TimeConverter {
 
-    public static final int SECONDS_IN_MINUTE=60;
-    public static final int SECONDS_IN_HOUR=SECONDS_IN_MINUTE*60;
-    public static final int SECONDS_IN_DAY=SECONDS_IN_HOUR*24;
+    public static final long SECONDS_IN_MINUTE=60;
+    public static final long SECONDS_IN_HOUR=SECONDS_IN_MINUTE*60;
+    public static final long SECONDS_IN_DAY=SECONDS_IN_HOUR*24;
 
-    public static String secondsToFullMinutesHoursDays(int seconds) {
+    public static String secondsToFullMinutesHoursDays(long seconds) {
         if(seconds>SECONDS_IN_DAY && seconds%SECONDS_IN_DAY==0)
             return seconds/SECONDS_IN_DAY+"d";
         if(seconds>SECONDS_IN_HOUR && seconds%SECONDS_IN_HOUR==0)
