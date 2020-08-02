@@ -13,6 +13,24 @@
 
 package pl.dmotyka.exchangeutils.chartdataprovider;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.dawidmotyka.dmutils.runtime.RepeatTillSuccess;
 import pl.dmotyka.exchangeutils.chartinfo.ChartCandle;
 import pl.dmotyka.exchangeutils.chartinfo.ChartTimePeriod;
@@ -21,14 +39,6 @@ import pl.dmotyka.exchangeutils.chartinfo.NoSuchTimePeriodException;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
 import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
-
-import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ChartDataProvider {
 
@@ -193,9 +203,9 @@ public class ChartDataProvider {
             notifyChartDataReceivers();
     }
 
-    private synchronized void generateCandles(String pair, int timePeriodSeconds) {
-        int currentTimestampSnapshot=(int)(System.currentTimeMillis()/1000);
-        int newCandleTimestamp = (currentTimestampSnapshot-currentTimestampSnapshot%timePeriodSeconds) - timePeriodSeconds;
+    private synchronized void generateCandles(String pair, long timePeriodSeconds) {
+        long currentTimestampSnapshot=(System.currentTimeMillis()/1000);
+        long newCandleTimestamp = (currentTimestampSnapshot-currentTimestampSnapshot%timePeriodSeconds) - timePeriodSeconds;
         ChartCandle newChartCandle;
         List<Ticker> tickerList = tickersMap.get(pair);
         ChartCandle[] oldChartCandles = chartCandlesMap.get(new CurrencyPairTimePeriod(pair,timePeriodSeconds));
@@ -236,7 +246,7 @@ public class ChartDataProvider {
                     newCandleTimestamp);
             logger.finer("inserting new last candle, removing outdated candle for "+pair+timePeriodSeconds);
             PeriodNumCandles periodNumCandles=Arrays.stream(periodsNumCandles).filter(o -> o.getPeriodSeconds()==timePeriodSeconds).findAny().get();
-            int minValidTimestampSeconds=currentTimestampSnapshot-timePeriodSeconds*periodNumCandles.getNumCandles();
+            long minValidTimestampSeconds=currentTimestampSnapshot-timePeriodSeconds*periodNumCandles.getNumCandles();
             List<ChartCandle> newChartCandles = new ArrayList<>(oldChartCandles.length+1);
             newChartCandles.addAll(Arrays.asList(oldChartCandles));
             newChartCandles.add(newChartCandle);
@@ -245,7 +255,7 @@ public class ChartDataProvider {
         }
     }
 
-    private void getChartData(String pair, long numCandles, int periodSeconds) throws ExchangeCommunicationException {
+    private void getChartData(String pair, int numCandles, long periodSeconds) throws ExchangeCommunicationException {
         try {
             long startTime = (System.currentTimeMillis() / 1000) - (numCandles * periodSeconds);
             long endTime = (System.currentTimeMillis() / 1000);

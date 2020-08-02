@@ -15,9 +15,9 @@ package pl.dmotyka.exchangeutils.chartdataprovider;
 
 public class CurrencyPairTimePeriod {
     private final String currencyPairSymbol;
-    private final int timePeriodSeconds;
+    private final long timePeriodSeconds;
 
-    public CurrencyPairTimePeriod(String currencyPairSymbol, int timePeriodSeconds) {
+    public CurrencyPairTimePeriod(String currencyPairSymbol, long timePeriodSeconds) {
         this.currencyPairSymbol = currencyPairSymbol;
         this.timePeriodSeconds = timePeriodSeconds;
     }
@@ -26,7 +26,7 @@ public class CurrencyPairTimePeriod {
         return currencyPairSymbol;
     }
 
-    public int getTimePeriodSeconds() {
+    public long getTimePeriodSeconds() {
         return timePeriodSeconds;
     }
 
