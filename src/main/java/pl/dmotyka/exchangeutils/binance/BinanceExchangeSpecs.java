@@ -13,12 +13,12 @@
 
 package pl.dmotyka.exchangeutils.binance;
 
-import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
-import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
-import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.binance.BinanceExchange;
+import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
+import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
+import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
 
 /**
  * Created by dawid on 8/20/17.
@@ -26,7 +26,7 @@ import org.knowm.xchange.binance.BinanceExchange;
 public class BinanceExchangeSpecs extends ExchangeSpecs {
 
     private static final String EXCHANGE_NAME = "Binance";
-    private static final String MARKET_URL = "https://www.binance.com/tradeDetail.html?symbol=";
+    private static final String MARKET_URL = "https://www.binance.com/en/trade/";
     private static final String COLOR_HEX = "cc9900";
     public static final int DELAY_BETWEEN_REQUESTS_MS=200;
 
