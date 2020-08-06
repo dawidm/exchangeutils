@@ -100,7 +100,7 @@ public class PoloniexWebSocket implements TickerProvider {
                     logger.info(String.format("onClose, code: %d, reason: %s, remote: %b", code, reason, remote));
                     if (transactionReceiver != null)
                         transactionReceiver.wsDisconnected(code, reason, remote);
-                    if (remote) {
+                    if (isConnectedAtomicBoolean.get()) {
                         if (reconnectScheduledFuture == null || reconnectScheduledFuture.isDone()) {
                             connectionStateReceiver.connectionState(TickerProviderConnectionState.RECONNECTING);
                             logger.info("reconnecting in 1 second...");
@@ -133,6 +133,7 @@ public class PoloniexWebSocket implements TickerProvider {
 
     @Override
     public void disconnect() {
+        isConnectedAtomicBoolean.set(false);
         if(reconnectScheduledFuture!=null)
             reconnectScheduledFuture.cancel(true);
         if (webSocketClient != null) {
