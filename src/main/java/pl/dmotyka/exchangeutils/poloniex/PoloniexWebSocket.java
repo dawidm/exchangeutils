@@ -1,7 +1,7 @@
 /*
  * Cryptonose2
  *
- * Copyright © 2019 Dawid Motyka
+ * Copyright © 2019-2020 Dawid Motyka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
@@ -88,6 +88,7 @@ public class PoloniexWebSocket implements TickerProvider {
 
                 @Override
                 public void onOpen(ServerHandshake handshake) {
+                    logger.info("onOpen");
                     makeWsSubscriptions();
                     connectionStateReceiver.connectionState(TickerProviderConnectionState.CONNECTED);
                     if(transactionReceiver!=null)
@@ -96,17 +97,21 @@ public class PoloniexWebSocket implements TickerProvider {
 
                 @Override
                 public void onClose(int code, String reason, boolean remote) {
-                    if(transactionReceiver!=null)
+                    logger.info(String.format("onClose, code: %d, reason: %s, remote: %b", code, reason, remote));
+                    if (transactionReceiver != null)
                         transactionReceiver.wsDisconnected(code, reason, remote);
-                    if(code!=-1)
-                        connectionStateReceiver.connectionState(TickerProviderConnectionState.RECONNECTING);
-                    if(reconnectScheduledFuture==null || reconnectScheduledFuture.isDone()) {
-                        reconnectScheduledFuture=scheduledExecutorService.schedule(this::reconnect,1,TimeUnit.SECONDS);
+                    if (remote) {
+                        if (reconnectScheduledFuture == null || reconnectScheduledFuture.isDone()) {
+                            connectionStateReceiver.connectionState(TickerProviderConnectionState.RECONNECTING);
+                            logger.info("reconnecting in 1 second...");
+                            reconnectScheduledFuture = scheduledExecutorService.schedule(this::reconnect, 1, TimeUnit.SECONDS);
+                        }
                     }
                 }
 
                 @Override
                 public void onError(Exception e) {
+                    logger.warning("error: " + e.getMessage());
                     if(tickerReceiver!=null)
                         tickerReceiver.error(e);
                     if(transactionReceiver!=null)
