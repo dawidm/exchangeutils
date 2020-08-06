@@ -26,6 +26,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.net.ssl.SSLContext;
@@ -47,19 +48,22 @@ public class PoloniexWebSocket implements TickerProvider {
 
     private static final String WS_API_URL = "wss://api2.poloniex.com";
 
-    private String[] pairs;
-    private WebSocketClient webSocketClient;
-    private HashMap<String, String> wsCurrencyPairMap;
+    private static final int WS_TIMEOUT_SEC = 10;
+
+    private final String[] pairs;
+    private final HashMap<String, String> wsCurrencyPairMap;
     private TransactionReceiver transactionReceiver;
     private TickerReceiver tickerReceiver;
     private TickerProviderConnectionStateReceiver connectionStateReceiver;
-    private ScheduledExecutorService scheduledExecutorService= Executors.newScheduledThreadPool(1);
-    private ScheduledFuture reconnectScheduledFuture;
-    private AtomicBoolean isConnectedAtomicBoolean=new AtomicBoolean(false);
+
+    private WebSocketClient webSocketClient;
+    private ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+    private ScheduledFuture<?> reconnectScheduledFuture;
+    private final AtomicBoolean isConnectedAtomicBoolean = new AtomicBoolean(false);
 
     public PoloniexWebSocket(TransactionReceiver transactionReceiver,String[] pairs) {
         this.transactionReceiver = transactionReceiver;
-        this.pairs=pairs;
+        this.pairs = pairs;
         wsCurrencyPairMap = new HashMap<>();
     }
 
@@ -102,23 +106,25 @@ public class PoloniexWebSocket implements TickerProvider {
                         transactionReceiver.wsDisconnected(code, reason, remote);
                     if (isConnectedAtomicBoolean.get()) {
                         if (reconnectScheduledFuture == null || reconnectScheduledFuture.isDone()) {
-                            connectionStateReceiver.connectionState(TickerProviderConnectionState.RECONNECTING);
+                            if (code != -1)
+                                connectionStateReceiver.connectionState(TickerProviderConnectionState.RECONNECTING);
                             logger.info("reconnecting in 1 second...");
-                            reconnectScheduledFuture = scheduledExecutorService.schedule(this::reconnect, 1, TimeUnit.SECONDS);
+                            reconnectScheduledFuture = scheduledExecutorService.schedule(this::reconnectBlocking, 1, TimeUnit.SECONDS);
                         }
                     }
                 }
 
                 @Override
                 public void onError(Exception e) {
-                    logger.warning("error: " + e.getMessage());
+                    logger.log(Level.WARNING, "websocket error", e);
                     if(tickerReceiver!=null)
                         tickerReceiver.error(e);
                     if(transactionReceiver!=null)
                         transactionReceiver.wsException(e);
                 }
             };
-            webSocketClient.setSocket(factory.createSocket());
+            webSocketClient.setConnectionLostTimeout(WS_TIMEOUT_SEC);
+            webSocketClient.setSocketFactory(factory);
             webSocketClient.connect();
         } catch (NoSuchAlgorithmException|URISyntaxException e) {
             throw new IOException(e);
@@ -201,7 +207,7 @@ public class PoloniexWebSocket implements TickerProvider {
                 }
             }
         }
-        if(currentPairTickersList!=null)
+        if(currentPairTickersList!=null && tickerReceiver!=null)
             tickerReceiver.receiveTickers(currentPairTickersList);
     }
 }
