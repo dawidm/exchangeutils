@@ -250,6 +250,7 @@ public class ChartDataProvider {
             List<ChartCandle> newChartCandles = new ArrayList<>(oldChartCandles.length+1);
             newChartCandles.addAll(Arrays.asList(oldChartCandles));
             newChartCandles.add(newChartCandle);
+            logger.fine(String.format("Number of candles in array: %d.", newChartCandles.size()));
             chartCandlesMap.put(new CurrencyPairTimePeriod(pair,timePeriodSeconds),
                     newChartCandles.stream().filter(chartCandle -> chartCandle.getTimestampSeconds()>=minValidTimestampSeconds).toArray(ChartCandle[]::new));
         }
