@@ -121,6 +121,7 @@ public class ChartDataProvider {
     //generate subsequent candles from tickers that should be provided using insertTicker method
     //automatic candle generation occurs at the end of every time period
     public void enableCandlesGenerator() {
+        logger.fine("enabling candles generator");
         scheduledExecutorService.scheduleAtFixedRate(this::chartCandlesGeneratorExecutor,1,1,TimeUnit.SECONDS);
     }
 
@@ -182,7 +183,7 @@ public class ChartDataProvider {
             long periodSeconds = periodNumCandles.getPeriodSeconds();
             if(currentTimestampSnapshot-currentTimestampSnapshot%periodSeconds-periodSeconds > lastGeneratedCandlesTimestamps.get(periodSeconds)) {
                 logger.fine("generating candles for period " + periodSeconds + "s");
-                lastGeneratedCandlesTimestamps.put(periodSeconds,currentTimestampSnapshot-currentTimestampSnapshot%periodSeconds);
+                lastGeneratedCandlesTimestamps.put(periodSeconds,currentTimestampSnapshot-currentTimestampSnapshot%periodSeconds-periodSeconds);
                 for(String currentPair : pairs) {
                     logger.finer(String.format("generating candles for period %d for %s",periodSeconds,currentPair));
                     generateCandles(currentPair, periodSeconds);
@@ -246,7 +247,7 @@ public class ChartDataProvider {
                     newCandleTimestamp);
             logger.finer("inserting new last candle, removing outdated candle for "+pair+timePeriodSeconds);
             PeriodNumCandles periodNumCandles=Arrays.stream(periodsNumCandles).filter(o -> o.getPeriodSeconds()==timePeriodSeconds).findAny().get();
-            long minValidTimestampSeconds=currentTimestampSnapshot-timePeriodSeconds*periodNumCandles.getNumCandles();
+            long minValidTimestampSeconds=currentTimestampSnapshot-timePeriodSeconds*periodNumCandles.getNumCandles()-currentTimestampSnapshot%periodNumCandles.getPeriodSeconds();
             List<ChartCandle> newChartCandles = new ArrayList<>(oldChartCandles.length+1);
             newChartCandles.addAll(Arrays.asList(oldChartCandles));
             newChartCandles.add(newChartCandle);
