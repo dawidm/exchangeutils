@@ -224,12 +224,18 @@ public class ChartDataProvider {
                     filter(ticker -> ticker.getTimestampSeconds() >= newCandleTimestamp && ticker.getTimestampSeconds() < newCandleTimestamp + timePeriodSeconds).
                     toArray(Ticker[]::new);
         }
+        double maxTicker = 0;
+        double minTicker = 0;
+        double firstTicker = 0;
+        double lastTicker = 0;
         if(filteredTickers.length==0) {
-            logger.fine("no new tickers for " + " candle not generated");
-            return;
+            logger.finer("no new tickers for %s, generating empty candle");
+        } else {
+            maxTicker = Arrays.stream(filteredTickers).max(Comparator.comparingDouble(Ticker::getValue)).get().getValue();
+            minTicker = Arrays.stream(filteredTickers).min(Comparator.comparingDouble(Ticker::getValue)).get().getValue();
+            firstTicker = filteredTickers[0].getValue();
+            lastTicker = filteredTickers[filteredTickers.length-1].getValue();
         }
-        double maxTicker=Arrays.stream(filteredTickers).max(Comparator.comparingDouble(Ticker::getValue)).get().getValue();
-        double minTicker=Arrays.stream(filteredTickers).min(Comparator.comparingDouble(Ticker::getValue)).get().getValue();
         if(oldChartCandles[oldChartCandles.length-1].getTimestampSeconds()==newCandleTimestamp) {
             logger.finer("modifying last candle with new data for "+pair+timePeriodSeconds);
             ChartCandle oldLastChartCandle=oldChartCandles[oldChartCandles.length-1];
@@ -239,12 +245,7 @@ public class ChartDataProvider {
                     filteredTickers[filteredTickers.length-1].getValue(),
                     newCandleTimestamp);
         } else {
-            newChartCandle = new ChartCandle(
-                    maxTicker,
-                    minTicker,
-                    filteredTickers[0].getValue(),
-                    filteredTickers[filteredTickers.length-1].getValue(),
-                    newCandleTimestamp);
+            newChartCandle = new ChartCandle(maxTicker, minTicker, firstTicker, lastTicker, newCandleTimestamp);
             logger.finer("inserting new last candle, removing outdated candle for "+pair+timePeriodSeconds);
             PeriodNumCandles periodNumCandles=Arrays.stream(periodsNumCandles).filter(o -> o.getPeriodSeconds()==timePeriodSeconds).findAny().get();
             long minValidTimestampSeconds=currentTimestampSnapshot-timePeriodSeconds*periodNumCandles.getNumCandles()-currentTimestampSnapshot%periodNumCandles.getPeriodSeconds();
