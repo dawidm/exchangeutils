@@ -131,7 +131,9 @@ public class ChartDataProvider {
             tickerList = Collections.synchronizedList(new LinkedList<>());
             tickersMap.put(ticker.getPair(), tickerList);
         }
-        tickerList.add(ticker);
+        synchronized (tickerList) {
+            tickerList.add(ticker);
+        }
     }
 
     public Map<CurrencyPairTimePeriod, ChartCandle[]> getAllCandleData() {
