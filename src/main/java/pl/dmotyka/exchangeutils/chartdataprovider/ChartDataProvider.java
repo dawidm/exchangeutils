@@ -224,19 +224,20 @@ public class ChartDataProvider {
                     filter(ticker -> ticker.getTimestampSeconds() >= newCandleTimestamp && ticker.getTimestampSeconds() < newCandleTimestamp + timePeriodSeconds).
                     toArray(Ticker[]::new);
         }
-        double maxTicker = 0;
-        double minTicker = 0;
-        double firstTicker = 0;
-        double lastTicker = 0;
+        double lastClose = oldChartCandles[oldChartCandles.length-1].getClose();
+        double maxTicker = lastClose;
+        double minTicker = lastClose;
+        double firstTicker = lastClose;
+        double lastTicker = lastClose;
         if(filteredTickers.length==0) {
-            logger.finer("no new tickers for %s, generating empty candle");
+            logger.finer("no new tickers for %s, generating candle with previous close price");
         } else {
             maxTicker = Arrays.stream(filteredTickers).max(Comparator.comparingDouble(Ticker::getValue)).get().getValue();
             minTicker = Arrays.stream(filteredTickers).min(Comparator.comparingDouble(Ticker::getValue)).get().getValue();
             firstTicker = filteredTickers[0].getValue();
             lastTicker = filteredTickers[filteredTickers.length-1].getValue();
         }
-        if(oldChartCandles[oldChartCandles.length-1].getTimestampSeconds()==newCandleTimestamp) {
+        if(oldChartCandles[oldChartCandles.length-1].getTimestampSeconds()==newCandleTimestamp && filteredTickers.length>0) {
             logger.finer("modifying last candle with new data for "+pair+timePeriodSeconds);
             ChartCandle oldLastChartCandle=oldChartCandles[oldChartCandles.length-1];
             oldChartCandles[oldChartCandles.length-1]=new ChartCandle(Math.max(maxTicker,oldLastChartCandle.getHigh()),
