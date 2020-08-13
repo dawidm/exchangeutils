@@ -210,13 +210,18 @@ public class ChartDataProvider {
         ChartCandle newChartCandle;
         List<Ticker> tickerList = tickersMap.get(pair);
         ChartCandle[] oldChartCandles = chartCandlesMap.get(new CurrencyPairTimePeriod(pair,timePeriodSeconds));
-        if(oldChartCandles==null || oldChartCandles.length<1) {
+        //TODO implement generating even if no previous candles?
+        if(oldChartCandles==null || oldChartCandles.length==0) {
             logger.fine("no previous candles for " + pair + "," + timePeriodSeconds + "candle not generated");
             return;
         }
-        if(tickerList==null || tickerList.size()==0) {
-            logger.fine("no tickers for " + pair + " candle not generated");
-            return;
+        double lastClose = oldChartCandles[oldChartCandles.length-1].getClose();
+        double maxTicker = lastClose;
+        double minTicker = lastClose;
+        double firstTicker = lastClose;
+        double lastTicker = lastClose;
+        if(tickerList==null) {
+            tickerList = new ArrayList<Ticker>();
         }
         Ticker[] filteredTickers;
         synchronized (tickerList) {
@@ -224,11 +229,6 @@ public class ChartDataProvider {
                     filter(ticker -> ticker.getTimestampSeconds() >= newCandleTimestamp && ticker.getTimestampSeconds() < newCandleTimestamp + timePeriodSeconds).
                     toArray(Ticker[]::new);
         }
-        double lastClose = oldChartCandles[oldChartCandles.length-1].getClose();
-        double maxTicker = lastClose;
-        double minTicker = lastClose;
-        double firstTicker = lastClose;
-        double lastTicker = lastClose;
         if(filteredTickers.length==0) {
             logger.finer("no new tickers for %s, generating candle with previous close price");
         } else {
