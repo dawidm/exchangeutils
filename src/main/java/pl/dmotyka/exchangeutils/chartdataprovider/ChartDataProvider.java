@@ -232,7 +232,7 @@ public class ChartDataProvider {
                     toArray(Ticker[]::new);
         }
         if(filteredTickers.length==0) {
-            logger.finer("no new tickers for %s, generating candle with previous close price");
+            logger.finer(String.format("no new tickers for %s, generating candle with previous close price", pair));
         } else {
             maxTicker = Arrays.stream(filteredTickers).max(Comparator.comparingDouble(Ticker::getValue)).get().getValue();
             minTicker = Arrays.stream(filteredTickers).min(Comparator.comparingDouble(Ticker::getValue)).get().getValue();
