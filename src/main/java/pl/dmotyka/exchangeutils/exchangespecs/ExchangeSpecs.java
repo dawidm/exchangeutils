@@ -13,6 +13,7 @@
 
 package pl.dmotyka.exchangeutils.exchangespecs;
 
+import org.knowm.xchange.Exchange;
 import pl.dmotyka.exchangeutils.binance.BinanceExchangeSpecs;
 import pl.dmotyka.exchangeutils.bitfinex.BitfinexExchangeSpecs;
 import pl.dmotyka.exchangeutils.bittrex.BittrexExchangeSpecs;
@@ -20,7 +21,6 @@ import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
 import pl.dmotyka.exchangeutils.poloniex.PoloniexExchangeSpecs;
 import pl.dmotyka.exchangeutils.xtb.XtbExchangeSpecs;
-import org.knowm.xchange.Exchange;
 
 /**
  * Created by dawid on 8/20/17.
@@ -49,7 +49,8 @@ public abstract class ExchangeSpecs {
 
     public abstract int getDelayBetweenChartDataRequestsMs();
 
-    //get instance of ExchangeSpecs subclass for exchange string name, not case-sensitive
+    // get instance of ExchangeSpecs subclass for exchange string name, not case-sensitive
+    // available exchanges: poloniex, bittrex, bitfinex, binance, xtb
     public static ExchangeSpecs fromStringName(String exchangeName) throws NoSuchExchangeException{
         switch (exchangeName.toLowerCase()) {
             case "poloniex": return new PoloniexExchangeSpecs();
