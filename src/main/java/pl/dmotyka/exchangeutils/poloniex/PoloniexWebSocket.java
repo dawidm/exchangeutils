@@ -109,7 +109,7 @@ public class PoloniexWebSocket implements TickerProvider {
                             if (code != -1)
                                 connectionStateReceiver.connectionState(TickerProviderConnectionState.RECONNECTING);
                             logger.info("reconnecting in 1 second...");
-                            reconnectScheduledFuture = scheduledExecutorService.schedule(this::reconnectBlocking, 1, TimeUnit.SECONDS);
+                            reconnectScheduledFuture = scheduledExecutorService.schedule(this::reconnect, 1, TimeUnit.SECONDS);
                         }
                     }
                 }
