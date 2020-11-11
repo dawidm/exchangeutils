@@ -11,7 +11,7 @@
  *
  */
 
-package pl.dmotyka.exchangeutils.tickerprovider.generic;
+package pl.dmotyka.exchangeutils.tickerprovider;
 
 import java.io.IOException;
 import java.net.URI;
@@ -30,16 +30,10 @@ import javax.net.ssl.SSLSocketFactory;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
-import pl.dmotyka.exchangeutils.tickerprovider.BinanceTransactionsWebSocket;
-import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
-import pl.dmotyka.exchangeutils.tickerprovider.TickerProvider;
-import pl.dmotyka.exchangeutils.tickerprovider.TickerProviderConnectionState;
-import pl.dmotyka.exchangeutils.tickerprovider.TickerProviderConnectionStateReceiver;
-import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
 
 public class GenericWebsocketTickerProvider implements TickerProvider {
 
-    private static final Logger logger = Logger.getLogger(BinanceTransactionsWebSocket.class.getName());
+    private static final Logger logger = Logger.getLogger(GenericWebsocketTickerProvider.class.getName());
     public static final int CONNECTION_LOST_TIMEOUT_SECONDS=60;
     public static final int PAUSE_BETWEEN_SUBSCRIPTIONS_MILLIS=200;
 

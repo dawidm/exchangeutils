@@ -1,7 +1,7 @@
 /*
  * Cryptonose2
  *
- * Copyright © 2019 Dawid Motyka
+ * Copyright © 2019-2020 Dawid Motyka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
@@ -11,16 +11,7 @@
  *
  */
 
-package pl.dmotyka.exchangeutils.tickerprovider;
-
-import com.dawidmotyka.dmutils.runtime.RepeatTillSuccess;
-import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
-import pl.dmotyka.exchangeutils.xtb.XtbConnectionManager;
-import pro.xstore.api.message.error.APICommunicationException;
-import pro.xstore.api.message.records.SKeepAliveRecord;
-import pro.xstore.api.message.records.STickRecord;
-import pro.xstore.api.streaming.StreamingListener;
-import pro.xstore.api.sync.ServerData;
+package pl.dmotyka.exchangeutils.xtb;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,6 +23,21 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.dawidmotyka.dmutils.runtime.RepeatTillSuccess;
+import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
+import pl.dmotyka.exchangeutils.tickerprovider.AskBidTicker;
+import pl.dmotyka.exchangeutils.tickerprovider.AskBidTickerReceiver;
+import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerProvider;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerProviderConnectionState;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerProviderConnectionStateReceiver;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
+import pro.xstore.api.message.error.APICommunicationException;
+import pro.xstore.api.message.records.SKeepAliveRecord;
+import pro.xstore.api.message.records.STickRecord;
+import pro.xstore.api.streaming.StreamingListener;
+import pro.xstore.api.sync.ServerData;
 
 public class XtbTickerProvider implements TickerProvider {
 

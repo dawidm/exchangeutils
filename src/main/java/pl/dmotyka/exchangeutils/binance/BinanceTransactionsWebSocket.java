@@ -1,7 +1,7 @@
 /*
  * Cryptonose2
  *
- * Copyright © 2019 Dawid Motyka
+ * Copyright © 2019-2020 Dawid Motyka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
@@ -11,7 +11,7 @@
  *
  */
 
-package pl.dmotyka.exchangeutils.tickerprovider;
+package pl.dmotyka.exchangeutils.binance;
 
 import java.io.IOException;
 import java.net.URI;
@@ -36,6 +36,11 @@ import javax.net.ssl.SSLSocketFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
+import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerProvider;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerProviderConnectionState;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerProviderConnectionStateReceiver;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
 
 public class BinanceTransactionsWebSocket implements TickerProvider {
 
