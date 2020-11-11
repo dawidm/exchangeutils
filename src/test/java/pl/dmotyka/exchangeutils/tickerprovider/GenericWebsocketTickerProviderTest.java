@@ -15,17 +15,18 @@ package pl.dmotyka.exchangeutils.tickerprovider;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import pl.dmotyka.exchangeutils.binance.BinanceExchangeMethods;
 import pl.dmotyka.exchangeutils.bitfinex.BitfinexExchangeMethods;
+import pl.dmotyka.exchangeutils.poloniex.PoloniexExchangeMethods;
 
 class GenericWebsocketTickerProviderTest {
 
     @Test
     public synchronized void connect() throws IOException, InterruptedException {
+        testConnect(new PoloniexExchangeMethods(), new String[] {"USDT_BTC", "USDT_ETH"});
         testConnect(new BitfinexExchangeMethods(), new String[] {"tBTCUSD","tETHUSD"});
         testConnect(new BinanceExchangeMethods(), new String[] {"BTCUSDT","ETHBTC"});
     }
@@ -44,8 +45,9 @@ class GenericWebsocketTickerProviderTest {
             }
 
             @Override
-            public void receiveTickers(List<Ticker> tickers) {
-
+            public void receiveTickers(Ticker[] tickers) {
+                for (Ticker ticker : tickers)
+                    receiveTicker(ticker);
             }
 
             @Override

@@ -50,14 +50,14 @@ public class BinanceExchangeMethods implements GenericTickerWebsocketExchangeMet
     }
 
     @Override
-    public Ticker handleMessage(String message) {
+    public Ticker[] handleMessage(String message) {
         try {
             message = objectMapper.readTree(message).get("data").toString();
             String[] splitMsg = message.split(",");
             String pair=splitMsg[2].split(":")[1].replace("\"","");
             double price = Double.parseDouble(splitMsg[4].split(":")[1].replace("\"",""));
             long timestampSeconds = Long.parseLong(splitMsg[1].split(":")[1].replace("\"",""))/1000;
-            return  new Ticker(pair, price, timestampSeconds);
+            return new Ticker[] {new Ticker(pair, price, timestampSeconds)};
         } catch (IOException e) {
             logger.log(Level.WARNING,"when reading websocket aggTrade message",e);
         }

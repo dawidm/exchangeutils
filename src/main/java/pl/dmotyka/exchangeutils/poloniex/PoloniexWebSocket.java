@@ -208,6 +208,6 @@ public class PoloniexWebSocket implements TickerProvider {
             }
         }
         if(currentPairTickersList!=null && tickerReceiver!=null)
-            tickerReceiver.receiveTickers(currentPairTickersList);
+            tickerReceiver.receiveTickers(currentPairTickersList.toArray(Ticker[]::new));
     }
 }

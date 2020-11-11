@@ -56,7 +56,7 @@ public class BitfinexExchangeMethods implements GenericTickerWebsocketExchangeMe
 
     //[3,"te","11943696-BTCUSD",1548198480,3641.2,0.00455376]
     @Override
-    public Ticker handleMessage(String message) {
+    public Ticker[] handleMessage(String message) {
         try {
             JsonNode messageNode = objectMapper.readValue(message, JsonNode.class);
             JsonNode eventNode=messageNode.get("event");
@@ -71,7 +71,7 @@ public class BitfinexExchangeMethods implements GenericTickerWebsocketExchangeMe
                 JsonNode detailsNode = messageNode.get(2);
                 int timestampSeconds=(int)(detailsNode.get(1).asLong()/1000);
                 double price=detailsNode.get(3).asDouble();
-                return new Ticker(subscriptionsSymbols.get(channelId),price,timestampSeconds);
+                return new Ticker[] { new Ticker(subscriptionsSymbols.get(channelId),price,timestampSeconds) };
             }
             return null;
         } catch (IOException e) {

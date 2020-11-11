@@ -76,9 +76,13 @@ public class GenericWebsocketTickerProvider implements TickerProvider {
 
                 @Override
                 public void onMessage(String message) {
-                    Ticker ticker = genericTickerWebsocketExchangeMethods.handleMessage(message);
-                    if(ticker!=null)
-                        tickerReceiver.receiveTicker(ticker);
+                    Ticker[] tickers = genericTickerWebsocketExchangeMethods.handleMessage(message);
+                    if(tickers!=null) {
+                        if (tickers.length==1)
+                            tickerReceiver.receiveTicker(tickers[0]);
+                        else if (tickers.length>1)
+                            tickerReceiver.receiveTickers(tickers);
+                    }
                 }
 
                 @Override

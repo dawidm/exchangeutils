@@ -21,6 +21,6 @@ public interface GenericTickerWebsocketExchangeMethods {
     boolean isMakingSubscriptions();
     // generate message sent to websocket to subscribe tickers data
     String[] subscriptionsMessages(String[] pairsSymbols);
-    // read websocket message and return Ticker when message contains ticker, otherwise null
-    Ticker handleMessage(String message);
+    // read websocket message and return Tickers when message contains any, otherwise null
+    Ticker[] handleMessage(String message);
 }

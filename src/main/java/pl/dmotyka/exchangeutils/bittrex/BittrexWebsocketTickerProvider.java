@@ -15,7 +15,6 @@ package pl.dmotyka.exchangeutils.bittrex;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -23,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import com.dawidmotyka.dmutils.runtime.RepeatTillSuccess;
 import com.github.ccob.bittrex4j.BittrexExchange;
@@ -95,7 +93,7 @@ public class BittrexWebsocketTickerProvider implements TickerProvider {
         bittrexExchange.onUpdateExchangeState(updateExchangeState -> {
             if(updateExchangeState.getFills().length>0) {
                 logger.finest(String.format("%d ticker for %s", updateExchangeState.getFills().length, updateExchangeState.getMarketName()));
-                List<Ticker> tickers = Arrays.stream(updateExchangeState.getFills()).map(fill -> new Ticker(updateExchangeState.getMarketName(), fill.getPrice(), System.currentTimeMillis() / 1000)).collect(Collectors.toList());
+                Ticker[] tickers = Arrays.stream(updateExchangeState.getFills()).map(fill -> new Ticker(updateExchangeState.getMarketName(), fill.getPrice(), System.currentTimeMillis() / 1000)).toArray(Ticker[]::new);
                 tickerReceiver.receiveTickers(tickers);
             }
         });

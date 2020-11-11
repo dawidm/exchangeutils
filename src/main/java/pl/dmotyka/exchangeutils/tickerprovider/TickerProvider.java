@@ -22,15 +22,15 @@ import pl.dmotyka.exchangeutils.bitfinex.BitfinexExchangeSpecs;
 import pl.dmotyka.exchangeutils.bittrex.BittrexExchangeSpecs;
 import pl.dmotyka.exchangeutils.bittrex.BittrexWebsocketTickerProvider;
 import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
+import pl.dmotyka.exchangeutils.poloniex.PoloniexExchangeMethods;
 import pl.dmotyka.exchangeutils.poloniex.PoloniexExchangeSpecs;
-import pl.dmotyka.exchangeutils.poloniex.PoloniexWebSocket;
 import pl.dmotyka.exchangeutils.xtb.XtbExchangeSpecs;
 import pl.dmotyka.exchangeutils.xtb.XtbTickerProvider;
 
 public interface TickerProvider {
     static TickerProvider forExchange(ExchangeSpecs exchangeSpecs, TickerReceiver tickerReceiver, String[] pairs) {
         if(exchangeSpecs instanceof PoloniexExchangeSpecs) {
-            return new PoloniexWebSocket(tickerReceiver,pairs);
+            return new GenericWebsocketTickerProvider(tickerReceiver, pairs, new PoloniexExchangeMethods());
         }
         if(exchangeSpecs instanceof BinanceExchangeSpecs) {
             return new GenericWebsocketTickerProvider(tickerReceiver, pairs, new BinanceExchangeMethods());
