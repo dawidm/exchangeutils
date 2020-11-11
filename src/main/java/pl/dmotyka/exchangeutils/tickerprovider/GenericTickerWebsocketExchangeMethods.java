@@ -14,8 +14,13 @@
 package pl.dmotyka.exchangeutils.tickerprovider;
 
 public interface GenericTickerWebsocketExchangeMethods {
+    // get websocket sddress
+    // pairsSymbols - arrays of symbols in a format correct for API
     String getWsUrl(String[] pairsSymbols);
+    // whether websocket for exchange needs making subscriptions for pairs
     boolean isMakingSubscriptions();
+    // generate message sent to websocket to subscribe tickers data
     String[] subscriptionsMessages(String[] pairsSymbols);
+    // read websocket message and return Ticker when message contains ticker, otherwise null
     Ticker handleMessage(String message);
 }

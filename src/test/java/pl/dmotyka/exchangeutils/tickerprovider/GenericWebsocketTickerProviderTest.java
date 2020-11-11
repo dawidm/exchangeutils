@@ -11,7 +11,7 @@
  *
  */
 
-package pl.dmotyka.exchangeutils.tickerprovider.generic;
+package pl.dmotyka.exchangeutils.tickerprovider;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -19,16 +19,18 @@ import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
+import pl.dmotyka.exchangeutils.binance.BinanceExchangeMethods;
 import pl.dmotyka.exchangeutils.bitfinex.BitfinexExchangeMethods;
-import pl.dmotyka.exchangeutils.tickerprovider.GenericWebsocketTickerProvider;
-import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
-import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
 
 class GenericWebsocketTickerProviderTest {
 
     @Test
     public synchronized void connect() throws IOException, InterruptedException {
-        String[] pairs = new String[] {"tBTCUSD","tETHUSD"};
+        testConnect(new BitfinexExchangeMethods(), new String[] {"tBTCUSD","tETHUSD"});
+        testConnect(new BinanceExchangeMethods(), new String[] {"BTCUSDT","ETHBTC"});
+    }
+
+    private void testConnect(GenericTickerWebsocketExchangeMethods exchangeMethods, String[] pairs) throws IOException, InterruptedException {
         Set<String> pairsSet= new HashSet<>();
         GenericWebsocketTickerProvider genericWebsocketTickerProvider = new GenericWebsocketTickerProvider(new TickerReceiver() {
             @Override
@@ -50,9 +52,10 @@ class GenericWebsocketTickerProviderTest {
             public void error(Throwable error) {
 
             }
-        },pairs,new BitfinexExchangeMethods());
+        }, pairs, exchangeMethods);
         genericWebsocketTickerProvider.connect(System.out::println);
         wait();
+        genericWebsocketTickerProvider.disconnect();
     }
 
 }
