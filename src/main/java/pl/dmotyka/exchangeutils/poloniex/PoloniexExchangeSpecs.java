@@ -19,6 +19,9 @@ import org.knowm.xchange.poloniex.PoloniexExchange;
 import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
+import pl.dmotyka.exchangeutils.tickerprovider.GenericWebsocketTickerProvider;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerProvider;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
 
 /**
  * Created by dawid on 8/20/17.
@@ -55,4 +58,9 @@ public class PoloniexExchangeSpecs extends ExchangeSpecs {
 
     @Override
     public int getDelayBetweenChartDataRequestsMs() { return DELAY_BETWEEN_REQUESTS_MS; };
+
+    @Override
+    public TickerProvider getTickerProvider(TickerReceiver tickerReceiver, String[] pairs) {
+        return new GenericWebsocketTickerProvider(tickerReceiver, pairs, new PoloniexExchangeMethods());
+    }
 }

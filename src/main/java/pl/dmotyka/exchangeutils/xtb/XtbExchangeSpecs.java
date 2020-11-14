@@ -17,6 +17,8 @@ import org.knowm.xchange.Exchange;
 import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerProvider;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
 
 public class XtbExchangeSpecs extends ExchangeSpecs {
     private static final String EXCHANGE_NAME = "Xtb";
@@ -50,4 +52,8 @@ public class XtbExchangeSpecs extends ExchangeSpecs {
     @Override
     public int getDelayBetweenChartDataRequestsMs() { return DELAY_BETWEEN_REQUESTS_MS; };
 
+    @Override
+    public TickerProvider getTickerProvider(TickerReceiver tickerReceiver, String[] pairs) {
+        return new XtbTickerProvider(tickerReceiver,pairs);
+    }
 }

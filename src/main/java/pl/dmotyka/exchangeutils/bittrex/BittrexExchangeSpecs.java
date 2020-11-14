@@ -1,7 +1,7 @@
 /*
  * Cryptonose2
  *
- * Copyright © 2019 Dawid Motyka
+ * Copyright © 2019-2020 Dawid Motyka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
@@ -13,12 +13,14 @@
 
 package pl.dmotyka.exchangeutils.bittrex;
 
-import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
-import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
-import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.bittrex.BittrexExchange;
+import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
+import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
+import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerProvider;
+import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
 
 /**
  * Created by dawid on 8/20/17.
@@ -56,5 +58,10 @@ public class BittrexExchangeSpecs extends ExchangeSpecs {
     @Override
     public int getDelayBetweenChartDataRequestsMs() {
         return DELAY_BETWEEN_REQUESTS_MS;
+    }
+
+    @Override
+    public TickerProvider getTickerProvider(TickerReceiver tickerReceiver, String[] pairs) {
+        return new BittrexWebsocketTickerProvider(tickerReceiver, pairs);
     }
 }
