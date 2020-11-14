@@ -20,12 +20,14 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import pl.dmotyka.exchangeutils.binance.BinanceExchangeMethods;
 import pl.dmotyka.exchangeutils.bitfinex.BitfinexExchangeMethods;
+import pl.dmotyka.exchangeutils.huobi.HuobiExchangeMethods;
 import pl.dmotyka.exchangeutils.poloniex.PoloniexExchangeMethods;
 
 class GenericWebsocketTickerProviderTest {
 
     @Test
     public synchronized void connect() throws IOException, InterruptedException {
+        testConnect(new HuobiExchangeMethods(), new String[] {"btcusdt"});
         testConnect(new PoloniexExchangeMethods(), new String[] {"USDT_BTC", "USDT_ETH"});
         testConnect(new BitfinexExchangeMethods(), new String[] {"tBTCUSD","tETHUSD"});
         testConnect(new BinanceExchangeMethods(), new String[] {"BTCUSDT","ETHBTC"});
