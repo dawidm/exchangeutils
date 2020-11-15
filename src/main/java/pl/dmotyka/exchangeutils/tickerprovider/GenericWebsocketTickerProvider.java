@@ -26,7 +26,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -103,8 +102,7 @@ public class GenericWebsocketTickerProvider implements TickerProvider {
             };
             SSLContext sslContext;
             sslContext = SSLContext.getDefault();
-            SSLSocketFactory factory = sslContext.getSocketFactory();
-            webSocketClient.setSocket(factory.createSocket());
+            webSocketClient.setSocketFactory(sslContext.getSocketFactory());
             webSocketClient.setConnectionLostTimeout(CONNECTION_LOST_TIMEOUT_SECONDS);
             webSocketClient.connect();
         } catch (URISyntaxException | NoSuchAlgorithmException e) {
