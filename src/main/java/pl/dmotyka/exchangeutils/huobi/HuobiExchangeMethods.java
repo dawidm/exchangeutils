@@ -32,7 +32,7 @@ public class HuobiExchangeMethods implements GenericTickerWebsocketExchangeMetho
         return true;
     }
 
-    @Override //TODO GZIP
+    @Override
     public String[] subscriptionsMessages(String[] pairsSymbols) {
         return Arrays.stream(pairsSymbols).map(symbol -> String.format("{ \"sub\": \"market.%s.trade.detail\", \"id\": \"1\" }", symbol)).toArray(String[]::new);
     }
