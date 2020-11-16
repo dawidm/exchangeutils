@@ -37,7 +37,7 @@ public class GenericWebsocketTickerProvider implements TickerProvider {
     public static final int PAUSE_BETWEEN_SUBSCRIPTIONS_MILLIS=200;
 
     private final ScheduledExecutorService scheduledExecutorService= Executors.newScheduledThreadPool(1);
-    private ScheduledFuture reconnectScheduledFuture;
+    private ScheduledFuture<?> reconnectScheduledFuture;
     private final AtomicBoolean isConnectedAtomicBoolean=new AtomicBoolean(false);
     private WebSocketClient webSocketClient;
     private final TickerReceiver tickerReceiver;
@@ -86,7 +86,7 @@ public class GenericWebsocketTickerProvider implements TickerProvider {
 
                 @Override
                 public void onClose(int code, String reason, boolean remote) {
-                    if (isConnectedAtomicBoolean.get() == false)
+                    if (!isConnectedAtomicBoolean.get())
                         return;
                     if(code!=-1)
                         connectionStateReceiver.connectionState(TickerProviderConnectionState.RECONNECTING);
