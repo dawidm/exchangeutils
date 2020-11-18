@@ -1,7 +1,7 @@
 /*
  * Cryptonose2
  *
- * Copyright © 2019 Dawid Motyka
+ * Copyright © 2019-2020 Dawid Motyka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
@@ -13,16 +13,17 @@
 
 package pl.dmotyka.exchangeutils.pairsymbolconverter;
 
+import java.util.logging.Logger;
+
+import org.knowm.xchange.currency.CurrencyPair;
 import pl.dmotyka.exchangeutils.binance.BinanceExchangeSpecs;
 import pl.dmotyka.exchangeutils.bitfinex.BitfinexExchangeSpecs;
 import pl.dmotyka.exchangeutils.bittrex.BittrexExchangeSpecs;
 import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
 import pl.dmotyka.exchangeutils.poloniex.PoloniexExchangeSpecs;
-import org.knowm.xchange.currency.CurrencyPair;
+import pl.dmotyka.exchangeutils.xtb.XtbExchangeSpecs;
 
-import java.util.logging.Logger;
-
-public class PairSymbolConverter {
+public class PairSymbolConverter { // TODO implementations should be in exchange-specific packages
 
     public static final Logger logger = Logger.getLogger(PairSymbolConverter.class.getName());
 
@@ -36,6 +37,13 @@ public class PairSymbolConverter {
         if(exchangeSpecs instanceof BitfinexExchangeSpecs) {
             return String.format("%s/%s",apiSymbol.substring(1,apiSymbol.length()-3),apiSymbol.substring(apiSymbol.length()-3));
         }
+        if(exchangeSpecs instanceof XtbExchangeSpecs) {
+            String[] symbolSplit = apiSymbol.split("__");
+            if (symbolSplit.length>1)
+                return String.format("%s/%s", symbolSplit[0], symbolSplit[1]);
+            else
+                return apiSymbol;
+        }
         logger.severe(("cannot api symbol to string: " + exchangeSpecs.getName()));
         return apiSymbol;
     }
@@ -48,6 +56,9 @@ public class PairSymbolConverter {
             return currencyPair.base.getCurrencyCode() + currencyPair.counter.getCurrencyCode();
         if(exchangeSpecs instanceof  BitfinexExchangeSpecs)
             return String.format("t"+currencyPair.base.getCurrencyCode()+currencyPair.counter.getCurrencyCode());
+        if(exchangeSpecs instanceof XtbExchangeSpecs) {
+            return currencyPair.base.getSymbol();
+        }
         logger.severe(("cannot convert currency pairs to api symbol for: " + exchangeSpecs.getName()));
         return null;
     }
@@ -79,6 +90,9 @@ public class PairSymbolConverter {
         if(exchangeSpecs instanceof BitfinexExchangeSpecs) {
             return apiSymbol.substring(apiSymbol.length()-3);
         }
+        if(exchangeSpecs instanceof XtbExchangeSpecs) {
+            return apiSymbol.split("__")[1];
+        }
         logger.severe(("cannot api symbol to counter currency symbol: " + exchangeSpecs.getName()));
         return apiSymbol;
     }
@@ -94,6 +108,9 @@ public class PairSymbolConverter {
         }
         if(exchangeSpecs instanceof BitfinexExchangeSpecs) {
             return apiSymbol.substring(1,apiSymbol.length()-3);
+        }
+        if(exchangeSpecs instanceof XtbExchangeSpecs) {
+            return apiSymbol.split("__")[0];
         }
         logger.severe(("cannot api symbol to base currency symbol: " + exchangeSpecs.getName()));
         return apiSymbol;
