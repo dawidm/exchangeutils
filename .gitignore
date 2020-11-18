@@ -3,4 +3,4 @@ target/
 *.iml
 logging.settings
 *.log
-
+XtbExchangeSpecs.settings
