@@ -63,6 +63,16 @@ public class XtbChartInfo implements ExchangeChartInfo {
 
     @Override
     public ChartTimePeriod[] getAvailablePeriods() {
-        return new ChartTimePeriod[0];
+        return new ChartTimePeriod[] {
+                new ChartTimePeriod("m1",60,null),
+                new ChartTimePeriod("m5",5*60,null),
+                new ChartTimePeriod("m15",15*60,null),
+                new ChartTimePeriod("m30",30*60,null),
+                new ChartTimePeriod("h1",60*60,null),
+                new ChartTimePeriod("h4",4*60*60,null),
+                new ChartTimePeriod("d1",24*60*60,null),
+                new ChartTimePeriod("w1",7*24*60*60,null),
+                new ChartTimePeriod("M1",30*24*60*60,null)
+        };
     }
 }
