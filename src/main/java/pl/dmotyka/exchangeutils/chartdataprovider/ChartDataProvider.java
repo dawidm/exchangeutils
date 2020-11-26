@@ -212,9 +212,9 @@ public class ChartDataProvider {
         ChartCandle newChartCandle;
         List<Ticker> tickerList = tickersMap.get(pair);
         ChartCandle[] oldChartCandles = chartCandlesMap.get(new CurrencyPairTimePeriod(pair,timePeriodSeconds));
-        //TODO implement generating even if no previous candles?
         if(oldChartCandles==null || oldChartCandles.length==0) {
-            logger.fine("no previous candles for " + pair + "," + timePeriodSeconds + "candle not generated");
+            //TODO it should happen?
+            logger.warning("no previous candles for " + pair + "," + timePeriodSeconds + "candle not generated");
             return;
         }
         double lastClose = oldChartCandles[oldChartCandles.length-1].getClose();
@@ -268,13 +268,44 @@ public class ChartDataProvider {
             ChartCandle[] chartCandles = exchangeChartInfo.getCandles(pair,periodSeconds,startTime,endTime);
             if(chartCandles.length==0)
                 throw new ExchangeCommunicationException("got 0 candles");
-            logger.fine(String.format("got %d chart candles for %s,%d",chartCandles.length,pair,periodSeconds));
+            logger.fine(String.format("got %d chart candles for %s,%d, inserting missing empty candles",chartCandles.length,pair,periodSeconds));
+            chartCandles = insertMissingCandles(chartCandles, startTime, endTime, periodSeconds);
             chartCandlesMap.put(new CurrencyPairTimePeriod(pair,periodSeconds),chartCandles);
         }
         catch (NoSuchTimePeriodException e) {
             logger.log(Level.WARNING,String.format("when getting data for %s, period: %s",pair,periodSeconds),e);
             throw new ExchangeCommunicationException("no such time period: " + e.getMessage());
         }
+    }
+
+    public static ChartCandle[] insertMissingCandles(ChartCandle[] candles, long startTimeSec, long endTimeSec, long periodSec) {
+        if (candles.length == 0)
+            throw new IllegalArgumentException("candles array must not be empty");
+        if (endTimeSec < startTimeSec)
+            throw new IllegalArgumentException("end time should be later than start time");
+        Map<Long, ChartCandle> candlesMap = new HashMap<>();
+        for (ChartCandle candle : candles)
+            candlesMap.put(candle.getTimestampSeconds(), candle);
+        long firstCandleTime = startTimeSec + (periodSec - startTimeSec % periodSec);
+        long lastCandleTime = endTimeSec - endTimeSec % periodSec;
+        long currentCandleTime = firstCandleTime;
+        long numNewCandles = (lastCandleTime - firstCandleTime)/periodSec + 1;
+        List<ChartCandle> newCandles = new ArrayList<>((int)numNewCandles);
+        while (currentCandleTime <= lastCandleTime) {
+            if (candlesMap.containsKey(currentCandleTime))
+                newCandles.add(candlesMap.get(currentCandleTime));
+            else {
+                if (newCandles.size() > 0) {
+                    double lastClose = newCandles.get(newCandles.size()-1).getClose();
+                    newCandles.add(new ChartCandle(lastClose, lastClose, lastClose, lastClose, currentCandleTime));
+                } else {
+                    double nextOpen = candles[0].getOpen();
+                    newCandles.add(new ChartCandle(nextOpen, nextOpen, nextOpen, nextOpen, currentCandleTime));
+                }
+            }
+            currentCandleTime += periodSec;
+        }
+        return newCandles.toArray(new ChartCandle[0]);
     }
 
  }
