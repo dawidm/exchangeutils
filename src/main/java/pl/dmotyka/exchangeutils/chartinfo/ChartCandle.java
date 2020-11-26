@@ -13,6 +13,8 @@
 
 package pl.dmotyka.exchangeutils.chartinfo;
 
+import java.util.Objects;
+
 public class ChartCandle {
 
     private final double high;
@@ -64,4 +66,27 @@ public class ChartCandle {
         return timestampSeconds;
     }
 
+    // returns true when price didn't change "within" this candle
+    public boolean isNoPriceChangeCandle() {
+        return (open == close && close == high && high == low);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        ChartCandle that = (ChartCandle) o;
+        return Double.compare(that.high, high) == 0 &&
+                Double.compare(that.low, low) == 0 &&
+                Double.compare(that.open, open) == 0 &&
+                Double.compare(that.close, close) == 0 &&
+                timestampSeconds == that.timestampSeconds;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(high, low, open, close, timestampSeconds);
+    }
 }
