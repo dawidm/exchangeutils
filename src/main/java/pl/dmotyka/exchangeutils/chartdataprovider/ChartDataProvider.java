@@ -46,14 +46,14 @@ public class ChartDataProvider {
 
     public static final int NUM_RETRIES_FOR_PAIR=2;
 
-    private ExchangeSpecs exchangeSpecs;
-    private String[] pairs;
-    private PeriodNumCandles[] periodsNumCandles;
-    private ExchangeChartInfo exchangeChartInfo;
+    private final ExchangeSpecs exchangeSpecs;
+    private final String[] pairs;
+    private final PeriodNumCandles[] periodsNumCandles;
+    private final ExchangeChartInfo exchangeChartInfo;
     private final Map<CurrencyPairTimePeriod, ChartCandle[]> chartCandlesMap = Collections.synchronizedMap(new HashMap<>());
     private final Map<String,List<Ticker>> tickersMap = new HashMap<>();
     private final Map<Long,Long> lastGeneratedCandlesTimestamps = new HashMap<>();
-    private AtomicBoolean abortAtomicBoolean=new AtomicBoolean(false);
+    private final AtomicBoolean abortAtomicBoolean=new AtomicBoolean(false);
     private final Set<ChartDataReceiver> chartDataReceivers = new HashSet<>();
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
     private final AtomicBoolean isRefreshingChartData=new AtomicBoolean(false);
