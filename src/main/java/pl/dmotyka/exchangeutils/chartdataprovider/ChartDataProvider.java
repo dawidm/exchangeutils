@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -40,6 +41,8 @@ import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
 import pl.dmotyka.exchangeutils.exchangespecs.ExchangeWithTradingHours;
 import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
+import pl.dmotyka.exchangeutils.tradinghoursprovider.TradingHours;
+import pl.dmotyka.exchangeutils.tradinghoursprovider.TradingHoursProvider;
 
 public class ChartDataProvider {
 
@@ -264,7 +267,9 @@ public class ChartDataProvider {
     private void getChartData(String pair, int numCandles, long periodSeconds) throws ExchangeCommunicationException {
         try {
             long startTime;
-            if (exchangeSpecs instanceof ExchangeWithTradingHours) // TODO add methods (ChartInfo) for getting specified number of candles (e.g. xtb has api method to get N last candles instead of specifying timeframe)
+            // TODO add methods (ChartInfo) for getting specified number of candles (e.g. xtb has api method to get N last candles instead of specifying timeframe)
+            // now it tries to take enough candles but it could fail for longer time periods
+            if (exchangeSpecs instanceof ExchangeWithTradingHours)
                 startTime = Math.min(System.currentTimeMillis() / 1000 - 7*24*60*60, (System.currentTimeMillis() / 1000) - (numCandles * periodSeconds));
             else
                 startTime = (System.currentTimeMillis() / 1000) - (numCandles * periodSeconds);
@@ -273,8 +278,10 @@ public class ChartDataProvider {
             if(chartCandles.length==0)
                 throw new ExchangeCommunicationException("got 0 candles");
             logger.fine(String.format("got %d chart candles for %s,%d",chartCandles.length,pair,periodSeconds));
-            if (exchangeSpecs instanceof ExchangeWithTradingHours)
-                chartCandles = Arrays.copyOfRange(chartCandles, chartCandles.length-numCandles, chartCandles.length);
+            if (exchangeSpecs instanceof ExchangeWithTradingHours) {
+                TradingHoursProvider tradingHoursProvider = ((ExchangeWithTradingHours) exchangeSpecs).getTradingHoursProvider();
+                chartCandles = insertMissingCandles(chartCandles, numCandles, periodSeconds, tradingHoursProvider.getTradingHours(pair));
+            }
             else
                 chartCandles = insertMissingCandles(chartCandles, startTime, endTime, periodSeconds);
             chartCandlesMap.put(new CurrencyPairTimePeriod(pair,periodSeconds),chartCandles);
@@ -313,6 +320,51 @@ public class ChartDataProvider {
             currentCandleTime += periodSec;
         }
         return newCandles.toArray(new ChartCandle[0]);
+    }
+
+    public static ChartCandle[] insertMissingCandles(ChartCandle[] candles, int numCandles, long periodSec, TradingHours tradingHours) {
+        List<Long> newCandlesTimestamps = new LinkedList<>();
+        int i;
+        for (i = candles.length-1; i>=0; i--) {
+            ChartCandle currentCandle = candles[i];
+            if (!newCandlesTimestamps.isEmpty() && currentCandle.getTimestampSeconds() > newCandlesTimestamps.get(0))
+                continue;
+            Optional<TradingHours.TradingSession> optCurrentSession = tradingHours.getTradingSession(currentCandle.getTimestampSeconds());
+            if(optCurrentSession.isEmpty())
+                logger.warning("got chart candle which is not within trading hours, aborting inserting missing candles for trading hours exchange");
+            TradingHours.TradingSession currentSession = optCurrentSession.get();
+            LinkedList<Long> currentSessionTimestamps = new LinkedList<>();
+            long currentTimeSec = System.currentTimeMillis()/1000;
+            if (currentCandle.getTimestampSeconds() > currentTimeSec) {
+                logger.severe("chart candle from a future, timestamp: " + currentCandle.getTimestampSeconds() + ", aborting inserting missing candles for trading hours exchange");
+                return candles;
+            }
+            long maxSessionEnd = Math.min(currentSession.getTimestampEndSeconds(), currentTimeSec - currentTimeSec % periodSec);
+            for (long currentTimestamp=currentSession.getTimestampStartSeconds(); currentTimestamp<maxSessionEnd; currentTimestamp+=periodSec) {
+                currentSessionTimestamps.add(currentTimestamp);
+            }
+            currentSessionTimestamps.addAll(newCandlesTimestamps);
+            newCandlesTimestamps = currentSessionTimestamps;
+            if (newCandlesTimestamps.size() >= numCandles)
+                break;
+        }
+        if (i==0)
+            logger.warning("not enough candles with change to correctly generate missing (no change) candles for trading hours exchange");
+        newCandlesTimestamps = newCandlesTimestamps.subList(newCandlesTimestamps.size()-numCandles, newCandlesTimestamps.size());
+        Map<Long, ChartCandle> oldCandlesMap = new HashMap<>();
+        Arrays.stream(candles).forEach(candle -> oldCandlesMap.put(candle.getTimestampSeconds(), candle));
+        List<ChartCandle> newChartCandles = new ArrayList<>(numCandles);
+        ChartCandle lastChangeCandle = candles[Math.max(0, i-1)];
+        for (long timestamp : newCandlesTimestamps) {
+            if(oldCandlesMap.containsKey(timestamp)) {
+                newChartCandles.add(oldCandlesMap.get(timestamp));
+                lastChangeCandle = oldCandlesMap.get(timestamp);
+            } else {
+                double lastClose = lastChangeCandle.getClose();
+                newChartCandles.add(new ChartCandle(lastClose, lastClose, lastClose, lastClose, timestamp));
+            }
+        }
+        return newChartCandles.toArray(new ChartCandle[0]);
     }
 
  }

@@ -11,25 +11,12 @@
  *
  */
 
-package pl.dmotyka.exchangeutils.xtb;
+package pl.dmotyka.exchangeutils.tradinghoursprovider;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-
-import org.junit.jupiter.api.Test;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
-import pl.dmotyka.exchangeutils.tradinghoursprovider.TradingHours;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+public interface TradingHoursProvider {
 
-class XtbTradingHoursTest {
+    public TradingHours getTradingHours(String symbol) throws ExchangeCommunicationException;
 
-    @Test
-    void getTradingHours() throws ExchangeCommunicationException {
-        XtbTradingHours xtbTradingHours = new XtbTradingHours();
-        TradingHours tradingHours = xtbTradingHours.getTradingHours("US500");
-        // 17:00, thursday, US500 session should be open
-        OffsetDateTime dt = OffsetDateTime.of(2020, 12,3, 17, 0, 0, 0, ZoneOffset.UTC);
-        assertTrue(tradingHours.isInTradingHours(dt.toEpochSecond()));
-    }
 }

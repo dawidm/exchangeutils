@@ -17,10 +17,10 @@ import org.knowm.xchange.Exchange;
 import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
 import pl.dmotyka.exchangeutils.exchangespecs.ExchangeWithTradingHours;
-import pl.dmotyka.exchangeutils.exchangespecs.TradingHours;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
 import pl.dmotyka.exchangeutils.tickerprovider.TickerProvider;
 import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
+import pl.dmotyka.exchangeutils.tradinghoursprovider.TradingHoursProvider;
 
 public class XtbExchangeSpecs extends ExchangeSpecs implements ExchangeWithTradingHours {
     private static final String EXCHANGE_NAME = "Xtb";
@@ -60,7 +60,7 @@ public class XtbExchangeSpecs extends ExchangeSpecs implements ExchangeWithTradi
     }
 
     @Override
-    public TradingHours getTradingHours(String symbol) {
-        throw new RuntimeException("not implemented");
+    public TradingHoursProvider getTradingHoursProvider() {
+        return new XtbTradingHours();
     }
 }

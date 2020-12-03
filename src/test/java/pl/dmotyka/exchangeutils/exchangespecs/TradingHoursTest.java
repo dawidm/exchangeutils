@@ -18,6 +18,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
 import org.junit.jupiter.api.Test;
+import pl.dmotyka.exchangeutils.tradinghoursprovider.TradingHours;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

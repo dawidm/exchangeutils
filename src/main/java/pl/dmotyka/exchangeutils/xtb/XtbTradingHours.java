@@ -19,7 +19,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
-import pl.dmotyka.exchangeutils.exchangespecs.TradingHours;
+import pl.dmotyka.exchangeutils.tradinghoursprovider.TradingHours;
+import pl.dmotyka.exchangeutils.tradinghoursprovider.TradingHoursProvider;
 import pro.xstore.api.message.command.APICommandFactory;
 import pro.xstore.api.message.error.APICommandConstructionException;
 import pro.xstore.api.message.error.APICommunicationException;
@@ -29,12 +30,13 @@ import pro.xstore.api.message.response.APIErrorResponse;
 import pro.xstore.api.message.response.TradingHoursResponse;
 import pro.xstore.api.sync.ServerData;
 
-public class XtbTradingHours {
+public class XtbTradingHours implements TradingHoursProvider {
 
     public static final Logger logger = Logger.getLogger(XtbTradingHours.class.getName());
 
     private final XtbConnectionManager xtbConnectionManager=new XtbConnectionManager(ServerData.ServerEnum.REAL);
 
+    @Override
     public TradingHours getTradingHours(String symbol) throws ExchangeCommunicationException {
         try {
             if(!xtbConnectionManager.isConnected())

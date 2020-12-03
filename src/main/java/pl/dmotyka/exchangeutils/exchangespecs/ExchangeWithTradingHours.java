@@ -13,8 +13,10 @@
 
 package pl.dmotyka.exchangeutils.exchangespecs;
 
+import pl.dmotyka.exchangeutils.tradinghoursprovider.TradingHoursProvider;
+
 public interface ExchangeWithTradingHours {
 
-    public TradingHours getTradingHours(String symbol);
+    public TradingHoursProvider getTradingHoursProvider();
 
 }

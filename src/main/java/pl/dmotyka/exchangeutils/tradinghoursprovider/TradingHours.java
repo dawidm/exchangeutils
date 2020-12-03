@@ -11,7 +11,7 @@
  *
  */
 
-package pl.dmotyka.exchangeutils.exchangespecs;
+package pl.dmotyka.exchangeutils.tradinghoursprovider;
 
 import java.time.DayOfWeek;
 import java.time.Instant;
