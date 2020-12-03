@@ -26,7 +26,7 @@ public class XtbExchangeSpecs extends ExchangeSpecs implements ExchangeWithTradi
     private static final String EXCHANGE_NAME = "Xtb";
     private static final String MARKET_URL = "";
     private static final String COLOR_HEX = "000000";
-    public static final int DELAY_BETWEEN_REQUESTS_MS=200;
+    private static final int DELAY_BETWEEN_REQUESTS_MS = 200;
 
     public XtbExchangeSpecs() {
         super(EXCHANGE_NAME);

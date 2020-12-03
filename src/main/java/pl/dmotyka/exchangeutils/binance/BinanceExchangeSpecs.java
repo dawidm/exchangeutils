@@ -31,7 +31,7 @@ public class BinanceExchangeSpecs extends ExchangeSpecs {
     private static final String EXCHANGE_NAME = "Binance";
     private static final String MARKET_URL = "https://www.binance.com/en/trade/";
     private static final String COLOR_HEX = "cc9900";
-    public static final int DELAY_BETWEEN_REQUESTS_MS=200;
+    private static final int DELAY_BETWEEN_REQUESTS_MS=200;
 
     public BinanceExchangeSpecs() {
         super(EXCHANGE_NAME);

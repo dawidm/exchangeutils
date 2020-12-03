@@ -32,7 +32,7 @@ public class HuobiExchangeSpecs extends ExchangeSpecs {
     // pair symbol if in format base_quote
     private static final String MARKET_URL = "https://www.huobi.com/en-us/exchange/";
     private static final String COLOR_HEX = "0066ff";
-    public static final int DELAY_BETWEEN_REQUESTS_MS=100;
+    private static final int DELAY_BETWEEN_REQUESTS_MS = 100;
 
     public HuobiExchangeSpecs() {
         super(EXCHANGE_NAME);
