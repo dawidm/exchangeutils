@@ -286,6 +286,7 @@ public class ChartDataProvider {
             }
             else
                 chartCandles = insertMissingCandles(chartCandles, startTime, endTime, periodSeconds);
+            logger.fine("num candles after inserting missing candles: " + chartCandles.length);
             chartCandlesMap.put(new CurrencyPairTimePeriod(pair,periodSeconds),chartCandles);
         }
         catch (NoSuchTimePeriodException e) {
@@ -333,7 +334,7 @@ public class ChartDataProvider {
                 continue;
             Optional<TradingHours.TradingSession> optCurrentSession = tradingHours.getTradingSession(currentCandle.getTimestampSeconds());
             if(optCurrentSession.isEmpty()) {
-                logger.warning("got chart candle which is not within trading hours");
+                logger.fine("got chart candle which is not within trading hours");
                 continue;
             }
             TradingHours.TradingSession currentSession = optCurrentSession.get();
