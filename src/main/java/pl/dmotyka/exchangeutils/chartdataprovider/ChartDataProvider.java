@@ -38,7 +38,7 @@ import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import pl.dmotyka.exchangeutils.chartinfo.NoSuchTimePeriodException;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
-import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecsWithTradingHours;
+import pl.dmotyka.exchangeutils.exchangespecs.ExchangeWithTradingHours;
 import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
 
 public class ChartDataProvider {
@@ -264,7 +264,7 @@ public class ChartDataProvider {
     private void getChartData(String pair, int numCandles, long periodSeconds) throws ExchangeCommunicationException {
         try {
             long startTime;
-            if (exchangeSpecs instanceof ExchangeSpecsWithTradingHours)
+            if (exchangeSpecs instanceof ExchangeWithTradingHours)
                 startTime = Math.min(System.currentTimeMillis() / 1000 - 7*24*60*60, (System.currentTimeMillis() / 1000) - (numCandles * periodSeconds));
             else
                 startTime = (System.currentTimeMillis() / 1000) - (numCandles * periodSeconds);
@@ -273,7 +273,7 @@ public class ChartDataProvider {
             if(chartCandles.length==0)
                 throw new ExchangeCommunicationException("got 0 candles");
             logger.fine(String.format("got %d chart candles for %s,%d",chartCandles.length,pair,periodSeconds));
-            if (exchangeSpecs instanceof ExchangeSpecsWithTradingHours)
+            if (exchangeSpecs instanceof ExchangeWithTradingHours)
                 chartCandles = Arrays.copyOfRange(chartCandles, chartCandles.length-numCandles, chartCandles.length);
             else
                 chartCandles = insertMissingCandles(chartCandles, startTime, endTime, periodSeconds);
