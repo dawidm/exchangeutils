@@ -60,6 +60,7 @@ public class ChartDataProvider {
     private final AtomicBoolean abortAtomicBoolean=new AtomicBoolean(false);
     private final Set<ChartDataReceiver> chartDataReceivers = new HashSet<>();
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+    private TradingHoursProvider tradingHoursProvider = null;
     private final AtomicBoolean isRefreshingChartData=new AtomicBoolean(false);
 
     public ChartDataProvider(ExchangeSpecs exchangeSpecs, String[] pairs, PeriodNumCandles[] periodsNumCandles) {
@@ -73,6 +74,8 @@ public class ChartDataProvider {
             long timestampSnapshot = System.currentTimeMillis()/1000;
             lastGeneratedCandlesTimestamps.put(periodNumCandles.getPeriodSeconds(),timestampSnapshot-timestampSnapshot%periodSeconds-periodSeconds);
         }
+        if (exchangeSpecs instanceof ExchangeWithTradingHours)
+            tradingHoursProvider = ((ExchangeWithTradingHours) exchangeSpecs).getTradingHoursProvider();
     }
 
     public static ChartTimePeriod[] getAvailableTimePeriods(ExchangeSpecs exchangeSpecs) {
@@ -279,7 +282,6 @@ public class ChartDataProvider {
                 throw new ExchangeCommunicationException("got 0 candles");
             logger.fine(String.format("got %d chart candles for %s,%d",chartCandles.length,pair,periodSeconds));
             if (exchangeSpecs instanceof ExchangeWithTradingHours) {
-                TradingHoursProvider tradingHoursProvider = ((ExchangeWithTradingHours) exchangeSpecs).getTradingHoursProvider();
                 chartCandles = insertMissingCandles(chartCandles, numCandles, periodSeconds, tradingHoursProvider.getTradingHours(pair));
             }
             else
