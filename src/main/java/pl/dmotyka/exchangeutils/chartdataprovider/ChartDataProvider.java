@@ -38,6 +38,7 @@ import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import pl.dmotyka.exchangeutils.chartinfo.NoSuchTimePeriodException;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
+import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecsWithTradingHours;
 import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
 
 public class ChartDataProvider {
@@ -213,8 +214,7 @@ public class ChartDataProvider {
         List<Ticker> tickerList = tickersMap.get(pair);
         ChartCandle[] oldChartCandles = chartCandlesMap.get(new CurrencyPairTimePeriod(pair,timePeriodSeconds));
         if(oldChartCandles==null || oldChartCandles.length==0) {
-            //TODO it should happen?
-            logger.warning("no previous candles for " + pair + "," + timePeriodSeconds + "candle not generated");
+            logger.severe("no previous candles for " + pair + "," + timePeriodSeconds + "candle not generated");
             return;
         }
         double lastClose = oldChartCandles[oldChartCandles.length-1].getClose();
@@ -263,13 +263,20 @@ public class ChartDataProvider {
 
     private void getChartData(String pair, int numCandles, long periodSeconds) throws ExchangeCommunicationException {
         try {
-            long startTime = (System.currentTimeMillis() / 1000) - (numCandles * periodSeconds);
+            long startTime;
+            if (exchangeSpecs instanceof ExchangeSpecsWithTradingHours)
+                startTime = Math.min(System.currentTimeMillis() / 1000 - 7*24*60*60, (System.currentTimeMillis() / 1000) - (numCandles * periodSeconds));
+            else
+                startTime = (System.currentTimeMillis() / 1000) - (numCandles * periodSeconds);
             long endTime = (System.currentTimeMillis() / 1000);
             ChartCandle[] chartCandles = exchangeChartInfo.getCandles(pair,periodSeconds,startTime,endTime);
             if(chartCandles.length==0)
                 throw new ExchangeCommunicationException("got 0 candles");
-            logger.fine(String.format("got %d chart candles for %s,%d, inserting missing empty candles",chartCandles.length,pair,periodSeconds));
-            chartCandles = insertMissingCandles(chartCandles, startTime, endTime, periodSeconds);
+            logger.fine(String.format("got %d chart candles for %s,%d",chartCandles.length,pair,periodSeconds));
+            if (exchangeSpecs instanceof ExchangeSpecsWithTradingHours)
+                chartCandles = Arrays.copyOfRange(chartCandles, chartCandles.length-numCandles, chartCandles.length);
+            else
+                chartCandles = insertMissingCandles(chartCandles, startTime, endTime, periodSeconds);
             chartCandlesMap.put(new CurrencyPairTimePeriod(pair,periodSeconds),chartCandles);
         }
         catch (NoSuchTimePeriodException e) {
