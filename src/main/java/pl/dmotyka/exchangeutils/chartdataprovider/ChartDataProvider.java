@@ -332,8 +332,10 @@ public class ChartDataProvider {
             if (!newCandlesTimestamps.isEmpty() && currentCandle.getTimestampSeconds() > newCandlesTimestamps.get(0))
                 continue;
             Optional<TradingHours.TradingSession> optCurrentSession = tradingHours.getTradingSession(currentCandle.getTimestampSeconds());
-            if(optCurrentSession.isEmpty())
-                logger.warning("got chart candle which is not within trading hours, aborting inserting missing candles for trading hours exchange");
+            if(optCurrentSession.isEmpty()) {
+                logger.warning("got chart candle which is not within trading hours");
+                continue;
+            }
             TradingHours.TradingSession currentSession = optCurrentSession.get();
             LinkedList<Long> currentSessionTimestamps = new LinkedList<>();
             long currentTimeSec = System.currentTimeMillis()/1000;
