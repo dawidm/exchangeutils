@@ -17,7 +17,6 @@ import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
@@ -97,8 +96,6 @@ public class TradingHours {
 
     // tradingDays - specify all days when trading is active, for each day trading hour are specified inside TradingDay class
     public TradingHours(TradingDay[] tradingDays) {
-        if (Arrays.stream(tradingDays).map(td -> td.dayOfWeek).distinct().count() < tradingDays.length)
-            throw new IllegalArgumentException("found duplicates in trading days");
         this.tradingDays = Collections.unmodifiableSet(Set.of(tradingDays));
     }
 

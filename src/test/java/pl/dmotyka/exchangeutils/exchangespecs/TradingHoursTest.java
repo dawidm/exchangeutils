@@ -36,17 +36,6 @@ class TradingHoursTest {
     }
 
     @Test
-    void testTradingHoursArguments() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            TradingHours.TradingDay[] wrongTradingDays = new TradingHours.TradingDay[] {
-                    new TradingHours.TradingDay(DayOfWeek.MONDAY,60, 600),
-                    new TradingHours.TradingDay(DayOfWeek.MONDAY,120, 1000)
-            };
-            new TradingHours(wrongTradingDays);
-        });
-    }
-
-    @Test
     void testTradingHours() {
         // monday
         OffsetDateTime firstDateTime = OffsetDateTime.of(2020,11,30,0,1, 10, 0, ZoneOffset.UTC);
