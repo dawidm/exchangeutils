@@ -264,7 +264,7 @@ public class ChartDataProvider {
     private void getChartData(String pair, int numCandles, long periodSeconds) throws ExchangeCommunicationException {
         try {
             long startTime;
-            if (exchangeSpecs instanceof ExchangeWithTradingHours)
+            if (exchangeSpecs instanceof ExchangeWithTradingHours) // TODO add methods (ChartInfo) for getting specified number of candles (e.g. xtb has api method to get N last candles instead of specifying timeframe)
                 startTime = Math.min(System.currentTimeMillis() / 1000 - 7*24*60*60, (System.currentTimeMillis() / 1000) - (numCandles * periodSeconds));
             else
                 startTime = (System.currentTimeMillis() / 1000) - (numCandles * periodSeconds);

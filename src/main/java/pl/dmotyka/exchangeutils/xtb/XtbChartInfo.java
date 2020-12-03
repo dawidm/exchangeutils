@@ -37,7 +37,7 @@ public class XtbChartInfo implements ExchangeChartInfo {
 
     private XtbConnectionManager xtbConnectionManager=new XtbConnectionManager(ServerData.ServerEnum.REAL);
 
-    @Override
+    @Override //TODO use api method getting N candles (getChartRange)
     public ChartCandle[] getCandles(String symbol, long timePeriodSeconds, long beginTimestampSeconds, long endTimestampSeconds) throws NoSuchTimePeriodException, ExchangeCommunicationException {
         try {
             if(!xtbConnectionManager.isConnected())
