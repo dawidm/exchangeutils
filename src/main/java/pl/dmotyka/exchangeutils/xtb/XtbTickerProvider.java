@@ -65,7 +65,6 @@ public class XtbTickerProvider implements TickerProvider {
         this.connectionStateReceiver=connectionStateReceiver;
         RepeatTillSuccess.planTask(this::connectXtbConnectionManager, (e) -> logger.log(Level.WARNING, "", e), CONNECT_RETRY_PERIOD_SECONDS * 1000);
         RepeatTillSuccess.planTask(this::makeSubscriptions,(e)->logger.log(Level.WARNING,"when making subscriptions",e),CONNECT_RETRY_PERIOD_SECONDS*1000);
-        RepeatTillSuccess.planTask(this::makeSubscriptions,(e)->logger.log(Level.WARNING,"when making subscriptions",e),CONNECT_RETRY_PERIOD_SECONDS*1000);
         connectionStateReceiver.connectionState(TickerProviderConnectionState.CONNECTED);
     }
 
