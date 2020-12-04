@@ -345,7 +345,8 @@ public class ChartDataProvider {
                 return candles;
             }
             long maxSessionEnd = Math.min(currentSession.getTimestampEndSeconds(), currentTimeSec - currentTimeSec % periodSec);
-            for (long currentTimestamp=currentSession.getTimestampStartSeconds(); currentTimestamp<maxSessionEnd; currentTimestamp+=periodSec) {
+            long startTimestamp = currentSession.getTimestampStartSeconds() - currentSession.getTimestampStartSeconds() % periodSec;
+            for (long currentTimestamp=startTimestamp; currentTimestamp<maxSessionEnd; currentTimestamp+=periodSec) {
                 currentSessionTimestamps.add(currentTimestamp);
             }
             currentSessionTimestamps.addAll(newCandlesTimestamps);
