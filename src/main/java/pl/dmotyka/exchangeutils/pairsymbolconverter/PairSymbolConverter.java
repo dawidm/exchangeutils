@@ -23,7 +23,7 @@ import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
 import pl.dmotyka.exchangeutils.poloniex.PoloniexExchangeSpecs;
 import pl.dmotyka.exchangeutils.xtb.XtbExchangeSpecs;
 
-public class PairSymbolConverter { // TODO implementations should be in exchange-specific packages
+public class PairSymbolConverter { // TODO implementations should be in exchange-specific packages and it's need refactoring
 
     public static final Logger logger = Logger.getLogger(PairSymbolConverter.class.getName());
 
@@ -35,7 +35,7 @@ public class PairSymbolConverter { // TODO implementations should be in exchange
         if(exchangeSpecs instanceof BinanceExchangeSpecs)
             return String.format("%s/%s",apiSymbolToBaseCurrencySymbol(exchangeSpecs,apiSymbol),apiSymbolToCounterCurrencySymbol(exchangeSpecs,apiSymbol));
         if(exchangeSpecs instanceof BitfinexExchangeSpecs) {
-            return String.format("%s/%s",apiSymbol.substring(1,apiSymbol.length()-3),apiSymbol.substring(apiSymbol.length()-3));
+            return String.format("%s/%s",apiSymbolToBaseCurrencySymbol(exchangeSpecs, apiSymbol), apiSymbolToCounterCurrencySymbol(exchangeSpecs, apiSymbol));
         }
         if(exchangeSpecs instanceof XtbExchangeSpecs) {
             String[] symbolSplit = apiSymbol.split("__");
@@ -71,7 +71,7 @@ public class PairSymbolConverter { // TODO implementations should be in exchange
             return apiSymbolToBaseCurrencySymbol(exchangeSpecs,apiSymbol)+"_"+apiSymbolToCounterCurrencySymbol(exchangeSpecs,apiSymbol);
         }
         if(exchangeSpecs instanceof BitfinexExchangeSpecs) {
-            return String.format("%s:%s",apiSymbol.substring(1,apiSymbol.length()-3),apiSymbol.substring(apiSymbol.length()-3));
+            return String.format("%s:%s",apiSymbolToBaseCurrencySymbol(exchangeSpecs, apiSymbol), apiSymbolToCounterCurrencySymbol(exchangeSpecs, apiSymbol));
         }
         logger.severe(("cannot api symbol to char url symbol: " + exchangeSpecs.getName()));
         return null;
@@ -88,6 +88,8 @@ public class PairSymbolConverter { // TODO implementations should be in exchange
             return apiSymbol.substring(apiSymbol.length() - 3);
         }
         if(exchangeSpecs instanceof BitfinexExchangeSpecs) {
+            if (apiSymbol.contains(":"))
+                return apiSymbol.split(":")[1];
             return apiSymbol.substring(apiSymbol.length()-3);
         }
         if(exchangeSpecs instanceof XtbExchangeSpecs) {
@@ -107,6 +109,8 @@ public class PairSymbolConverter { // TODO implementations should be in exchange
             return apiSymbol.substring(0,apiSymbol.length()-3);
         }
         if(exchangeSpecs instanceof BitfinexExchangeSpecs) {
+            if (apiSymbol.contains(":"))
+                return apiSymbol.split(":")[0];
             return apiSymbol.substring(1,apiSymbol.length()-3);
         }
         if(exchangeSpecs instanceof XtbExchangeSpecs) {
