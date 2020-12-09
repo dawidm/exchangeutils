@@ -76,6 +76,8 @@ public class ChartDataProvider {
         }
         if (exchangeSpecs instanceof ExchangeWithTradingHours)
             tradingHoursProvider = ((ExchangeWithTradingHours) exchangeSpecs).getTradingHoursProvider();
+        for (String pair : pairs)
+            tickersMap.put(pair, Collections.synchronizedList(new LinkedList<>()));
     }
 
     public static ChartTimePeriod[] getAvailableTimePeriods(ExchangeSpecs exchangeSpecs) {
@@ -98,7 +100,10 @@ public class ChartDataProvider {
                         (e) -> logger.log(Level.WARNING, "when getting data for " + currentPair, e),
                         exchangeSpecs.getDelayBetweenChartDataRequestsMs(),
                         NUM_RETRIES_FOR_PAIR,
-                        () -> logger.log(Level.WARNING, String.format("reached maximum retires for getting data for %s", currentPair)));
+                        () -> {
+                            logger.log(Level.WARNING, String.format("reached maximum retires for getting data for %s", currentPair));
+                            chartCandlesMap.put(new CurrencyPairTimePeriod(currentPair, currentPeriodNumCandles.getPeriodSeconds()), new ChartCandle[0]);
+                        });
                 //delay before next api call
                 try {Thread.sleep(exchangeSpecs.getDelayBetweenChartDataRequestsMs());} catch (InterruptedException e) {return;};
             }
@@ -134,10 +139,6 @@ public class ChartDataProvider {
 
     public void insertTicker(Ticker ticker) {
         List<Ticker> tickerList = tickersMap.get(ticker.getPair());
-        if (tickerList == null) {
-            tickerList = Collections.synchronizedList(new LinkedList<>());
-            tickersMap.put(ticker.getPair(), tickerList);
-        }
         synchronized (tickerList) {
             tickerList.add(ticker);
         }
@@ -219,26 +220,35 @@ public class ChartDataProvider {
         ChartCandle newChartCandle;
         List<Ticker> tickerList = tickersMap.get(pair);
         ChartCandle[] oldChartCandles = chartCandlesMap.get(new CurrencyPairTimePeriod(pair,timePeriodSeconds));
-        if(oldChartCandles==null || oldChartCandles.length==0) {
-            logger.severe("no previous candles for " + pair + "," + timePeriodSeconds + "candle not generated");
-            return;
+        if(oldChartCandles.length == 0) {
+            if (tickerList.size() == 0) {
+                logger.warning("no previous candles for " + pair + "," + timePeriodSeconds + " and no tickers, candle not generated");
+                return;
+            }
         }
-        double lastClose = oldChartCandles[oldChartCandles.length-1].getClose();
-        double maxTicker = lastClose;
-        double minTicker = lastClose;
-        double firstTicker = lastClose;
-        double lastTicker = lastClose;
-        if(tickerList==null) {
-            tickerList = new ArrayList<Ticker>();
-        }
+        double maxTicker, minTicker, firstTicker, lastTicker;
         Ticker[] filteredTickers;
         synchronized (tickerList) {
-            filteredTickers = tickerList.stream().
-                    filter(ticker -> ticker.getTimestampSeconds() >= newCandleTimestamp && ticker.getTimestampSeconds() < newCandleTimestamp + timePeriodSeconds).
-                    toArray(Ticker[]::new);
+            if(tickerList.size() == 0) {
+                filteredTickers = new Ticker[0];
+            } else {
+                filteredTickers = tickerList.stream().
+                        filter(ticker -> ticker.getTimestampSeconds() >= newCandleTimestamp && ticker.getTimestampSeconds() < newCandleTimestamp + timePeriodSeconds).toArray(Ticker[]::new);
+            }
         }
-        if(filteredTickers.length==0) {
-            logger.finer(String.format("no new tickers for %s, generating candle with previous close price", pair));
+        if(filteredTickers.length == 0) { // no tickers for current candle
+            double lastClose;
+            if (oldChartCandles.length == 0) { // no previous candles
+                logger.finer(String.format("no new tickers for %s and no old candles, generating candle with last known ticker", pair));
+                lastClose = tickerList.get(tickerList.size()-1).getValue();
+            } else {
+                logger.finer(String.format("no new tickers for %s, generating candle with last close price", pair));
+                lastClose = oldChartCandles[oldChartCandles.length-1].getClose();
+            }
+            maxTicker = lastClose;
+            minTicker = lastClose;
+            firstTicker = lastClose;
+            lastTicker = lastClose;
         } else {
             maxTicker = Arrays.stream(filteredTickers).max(Comparator.comparingDouble(Ticker::getValue)).get().getValue();
             minTicker = Arrays.stream(filteredTickers).min(Comparator.comparingDouble(Ticker::getValue)).get().getValue();
