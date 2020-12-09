@@ -83,7 +83,9 @@ public class PairSymbolConverter { // TODO implementations should be in exchange
         if(exchangeSpecs instanceof BittrexExchangeSpecs)
             return apiSymbol.split("-")[0];
         if(exchangeSpecs instanceof BinanceExchangeSpecs) {
-            if (apiSymbol.endsWith("USDT") || apiSymbol.endsWith("TUSD") || apiSymbol.endsWith("USDC"))
+            if (apiSymbol.endsWith("USDT") || apiSymbol.endsWith("TUSD") || apiSymbol.endsWith("USDC")
+                    || apiSymbol.endsWith("BKRW") || apiSymbol.endsWith("BUSD")
+                    || apiSymbol.endsWith("IDRT"))
                 return apiSymbol.substring(apiSymbol.length() - 4);
             return apiSymbol.substring(apiSymbol.length() - 3);
         }
@@ -104,7 +106,9 @@ public class PairSymbolConverter { // TODO implementations should be in exchange
         if(exchangeSpecs instanceof BittrexExchangeSpecs)
             return apiSymbol.split("-")[1];
         if(exchangeSpecs instanceof BinanceExchangeSpecs) {
-            if (apiSymbol.endsWith("USDT") || apiSymbol.endsWith("TUSD") || apiSymbol.endsWith("USDC"))
+            if (apiSymbol.endsWith("USDT") || apiSymbol.endsWith("TUSD") || apiSymbol.endsWith("USDC")
+            || apiSymbol.endsWith("BKRW") || apiSymbol.endsWith("BUSD")
+                    || apiSymbol.endsWith("IDRT"))
                 return apiSymbol.substring(0,apiSymbol.length()-4);
             return apiSymbol.substring(0,apiSymbol.length()-3);
         }
