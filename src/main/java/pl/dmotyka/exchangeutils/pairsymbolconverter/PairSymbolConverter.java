@@ -55,7 +55,10 @@ public class PairSymbolConverter { // TODO implementations should be in exchange
         if(exchangeSpecs instanceof BinanceExchangeSpecs)
             return currencyPair.base.getCurrencyCode() + currencyPair.counter.getCurrencyCode();
         if(exchangeSpecs instanceof  BitfinexExchangeSpecs)
-            return String.format("t"+currencyPair.base.getCurrencyCode()+currencyPair.counter.getCurrencyCode());
+            if (currencyPair.base.getCurrencyCode().length() + currencyPair.counter.getCurrencyCode().length() > 6)
+                return String.format("t"+currencyPair.base.getCurrencyCode()+":"+currencyPair.counter.getCurrencyCode());
+            else
+                return String.format("t"+currencyPair.base.getCurrencyCode()+currencyPair.counter.getCurrencyCode());
         if(exchangeSpecs instanceof XtbExchangeSpecs) {
             return currencyPair.base.getSymbol();
         }
@@ -114,7 +117,7 @@ public class PairSymbolConverter { // TODO implementations should be in exchange
         }
         if(exchangeSpecs instanceof BitfinexExchangeSpecs) {
             if (apiSymbol.contains(":"))
-                return apiSymbol.split(":")[0];
+                return apiSymbol.substring(1,apiSymbol.length()-1).split(":")[0];
             return apiSymbol.substring(1,apiSymbol.length()-3);
         }
         if(exchangeSpecs instanceof XtbExchangeSpecs) {

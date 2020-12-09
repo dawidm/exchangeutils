@@ -23,13 +23,16 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
 import pl.dmotyka.exchangeutils.pairdataprovider.MarketQuoteVolume;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairSelectionCriteria;
+import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
 
 public class BitfinexPairDataProvider implements PairDataProvider {
 
     public static final String SYMBOLS_API_V2_URL = "https://api.bitfinex.com/v2/tickers?symbols=";
+    private static final ExchangeSpecs exchangeSpecs = new BitfinexExchangeSpecs();
 
     @Override
     public String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws IOException {
@@ -62,8 +65,6 @@ public class BitfinexPairDataProvider implements PairDataProvider {
     }
 
     private String symbolToCounterSymbol(String symbol) {
-        if (symbol.contains(":"))
-            return symbol.split(":")[1];
-        return symbol.substring(symbol.length()-3);
+        return PairSymbolConverter.apiSymbolToCounterCurrencySymbol(exchangeSpecs, symbol);
     }
 }
