@@ -1,7 +1,7 @@
 /*
  * Cryptonose2
  *
- * Copyright © 2019 Dawid Motyka
+ * Copyright © 2019-2020 Dawid Motyka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
@@ -12,6 +12,14 @@
  */
 
 package pl.dmotyka.exchangeutils.xtb;
+
+import java.io.IOException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import pl.dmotyka.exchangeutils.credentialsprovider.CredentialsNotAvailableException;
 import pl.dmotyka.exchangeutils.credentialsprovider.CredentialsProvider;
@@ -27,15 +35,6 @@ import pro.xstore.api.sync.Credentials;
 import pro.xstore.api.sync.ServerData;
 import pro.xstore.api.sync.SyncAPIConnector;
 
-import java.io.IOException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 public class XtbConnectionManager {
 
     Logger logger = Logger.getLogger(XtbConnectionManager.class.getName());
@@ -46,10 +45,8 @@ public class XtbConnectionManager {
     private Object connectorLock=new Object();
     private final ServerData.ServerEnum serverEnum;
     private ExchangeCredentials exchangeCredentials;
-    private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
-    private ScheduledFuture pingApiScheduledFuture;
     private final AtomicBoolean connected = new AtomicBoolean(false);
-
+    private ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
     public XtbConnectionManager(ServerData.ServerEnum serverEnum) {
         this.serverEnum=serverEnum;
@@ -74,7 +71,9 @@ public class XtbConnectionManager {
                 logger.info(loginResponse.toString());
                 if(loginResponse.getStatus()==true) {
                     connected.set(true);
-                    pingApiScheduledFuture = scheduledExecutorService.scheduleAtFixedRate(this::pingAPIExecutor, PING_API_PERIOD_SECONDS, PING_API_PERIOD_SECONDS, TimeUnit.SECONDS);
+                    if (scheduledExecutorService.isShutdown())
+                        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+                    scheduledExecutorService.scheduleAtFixedRate(this::pingAPIExecutor, PING_API_PERIOD_SECONDS, PING_API_PERIOD_SECONDS, TimeUnit.SECONDS);
                 } else {
                     throw new ExchangeCommunicationException("login failed");
                 }
@@ -86,8 +85,8 @@ public class XtbConnectionManager {
     }
 
     public void disconnect() throws ExchangeCommunicationException {
-        if(pingApiScheduledFuture!=null)
-            pingApiScheduledFuture.cancel(true);
+        if (!scheduledExecutorService.isShutdown())
+            scheduledExecutorService.shutdown();
         synchronized (connectorLock) {
             if (connector != null) {
                 logger.info("disconnecting SyncAPIConnector stream");
