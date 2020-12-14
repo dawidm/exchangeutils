@@ -23,7 +23,6 @@ import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
 import pl.dmotyka.exchangeutils.poloniex.PoloniexExchangeSpecs;
 import pl.dmotyka.exchangeutils.tickerprovider.TickerProvider;
 import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
-import pl.dmotyka.exchangeutils.xtb.XtbExchangeSpecs;
 
 /**
  * Created by dawid on 8/20/17.
@@ -62,7 +61,6 @@ public abstract class ExchangeSpecs implements ExtensionPoint {
             case "bittrex": return new BittrexExchangeSpecs();
             case "bitfinex": return new BitfinexExchangeSpecs();
             case "binance": return new BinanceExchangeSpecs();
-            case "xtb": return new XtbExchangeSpecs();
             default: throw new NoSuchExchangeException("when getting exchange from string: " + exchangeName);
         }
     }
