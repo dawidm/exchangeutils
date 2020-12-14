@@ -14,6 +14,7 @@
 package pl.dmotyka.exchangeutils.exchangespecs;
 
 import org.knowm.xchange.Exchange;
+import org.pf4j.ExtensionPoint;
 import pl.dmotyka.exchangeutils.binance.BinanceExchangeSpecs;
 import pl.dmotyka.exchangeutils.bitfinex.BitfinexExchangeSpecs;
 import pl.dmotyka.exchangeutils.bittrex.BittrexExchangeSpecs;
@@ -27,7 +28,7 @@ import pl.dmotyka.exchangeutils.xtb.XtbExchangeSpecs;
 /**
  * Created by dawid on 8/20/17.
  */
-public abstract class ExchangeSpecs {
+public abstract class ExchangeSpecs implements ExtensionPoint {
 
     private final String name;
 
@@ -82,4 +83,5 @@ public abstract class ExchangeSpecs {
             return name.equals(((ExchangeSpecs)obj).getName());
         return false;
     }
+
 }
