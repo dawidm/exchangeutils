@@ -20,6 +20,7 @@ import org.pf4j.Extension;
 import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
+import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
 import pl.dmotyka.exchangeutils.tickerprovider.GenericWebsocketTickerProvider;
 import pl.dmotyka.exchangeutils.tickerprovider.TickerProvider;
 import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
@@ -47,6 +48,11 @@ public class BitfinexExchangeSpecs extends ExchangeSpecs {
     @Override
     public PairDataProvider getPairDataProvider() {
         return new BitfinexPairDataProvider();
+    }
+
+    @Override
+    public PairSymbolConverter getPairSymbolConverter() {
+        return new BitfinexPairSymbolConverter();
     }
 
     @Override

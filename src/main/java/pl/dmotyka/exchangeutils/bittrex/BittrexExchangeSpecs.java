@@ -19,6 +19,7 @@ import org.knowm.xchange.bittrex.BittrexExchange;
 import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
+import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
 import pl.dmotyka.exchangeutils.tickerprovider.TickerProvider;
 import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
 
@@ -42,6 +43,11 @@ public class BittrexExchangeSpecs extends ExchangeSpecs {
     @Override
     public PairDataProvider getPairDataProvider() {
         return new BittrexPairDataProvider();
+    }
+
+    @Override
+    public PairSymbolConverter getPairSymbolConverter() {
+        return new BittrexPairSymbolConverter();
     }
 
     @Override

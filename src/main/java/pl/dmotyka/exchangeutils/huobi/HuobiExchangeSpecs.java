@@ -19,6 +19,7 @@ import org.knowm.xchange.huobi.HuobiExchange;
 import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
+import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
 import pl.dmotyka.exchangeutils.tickerprovider.GenericWebsocketTickerProvider;
 import pl.dmotyka.exchangeutils.tickerprovider.TickerProvider;
 import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
@@ -46,6 +47,11 @@ public class HuobiExchangeSpecs extends ExchangeSpecs {
     @Override
     public PairDataProvider getPairDataProvider() {
         return new HuobiPairDataProvider();
+    }
+
+    @Override
+    public PairSymbolConverter getPairSymbolConverter() {
+        throw new RuntimeException("not implemented");
     }
 
     @Override

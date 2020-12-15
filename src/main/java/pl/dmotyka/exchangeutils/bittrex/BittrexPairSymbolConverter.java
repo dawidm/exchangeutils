@@ -11,16 +11,43 @@
  *
  */
 
-package pl.dmotyka.exchangeutils.pairsymbolconverter;
+package pl.dmotyka.exchangeutils.bittrex;
 
 import org.knowm.xchange.currency.CurrencyPair;
+import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
 
-public interface PairSymbolConverter {
-    String toFormattedString(String apiSymbol);
-    String toApiSymbol(CurrencyPair currencyPair);
-    String apiSymbolToChartUrlSymbol(String apiSymbol);
-    String apiSymbolToCounterCurrencySymbol(String apiSymbol);
-    String apiSymbolToBaseCurrencySymbol(String apiSymbol);
-    CurrencyPair apiSymbolToXchangeCurrencyPair(String apiSymbol);
+public class BittrexPairSymbolConverter implements PairSymbolConverter {
 
+    @Override
+    public String toFormattedString(String apiSymbol) {
+        return new CurrencyPair(apiSymbol.split("-")[1],apiSymbol.split("-")[0]).toString();
+    }
+
+    @Override
+    public String toApiSymbol(CurrencyPair currencyPair) {
+        return currencyPair.counter.getSymbol()+"-"+currencyPair.base.getSymbol();
+    }
+
+    @Override
+    public String apiSymbolToChartUrlSymbol(String apiSymbol) {
+        return apiSymbol;
+    }
+
+    @Override
+    public String apiSymbolToCounterCurrencySymbol(String apiSymbol) {
+        return apiSymbol.split("-")[0];
+    }
+
+    @Override
+    public String apiSymbolToBaseCurrencySymbol(String apiSymbol) {
+        return apiSymbol.split("-")[1];
+    }
+
+    @Override
+    public CurrencyPair apiSymbolToXchangeCurrencyPair(String apiSymbol) {
+        return new CurrencyPair(
+                apiSymbolToBaseCurrencySymbol(apiSymbol),
+                apiSymbolToCounterCurrencySymbol(apiSymbol)
+        );
+    }
 }

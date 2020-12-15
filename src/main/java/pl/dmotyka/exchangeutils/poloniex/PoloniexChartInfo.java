@@ -29,7 +29,6 @@ import pl.dmotyka.exchangeutils.chartinfo.ChartCandle;
 import pl.dmotyka.exchangeutils.chartinfo.ChartTimePeriod;
 import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
-import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
 import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
 
 /**
@@ -41,7 +40,7 @@ public class PoloniexChartInfo implements ExchangeChartInfo {
 
     private Exchange poloniex;
     private PoloniexMarketDataService poloniexMarketDataService;
-    private final ExchangeSpecs exchangeSpecs = new PoloniexExchangeSpecs();
+    private final PairSymbolConverter pairSymbolConverter = new PoloniexPairSymbolConverter();
 
     @Override
     public ChartCandle[] getCandles(String symbol, long timePeriodSeconds, long beginTimestampSeconds, long endTimestampSeconds) throws ExchangeCommunicationException {
@@ -55,7 +54,7 @@ public class PoloniexChartInfo implements ExchangeChartInfo {
                 throw new ExchangeCommunicationException("error getting PoloniexChartDataPeriodType for " + timePeriodSeconds);
 
             PoloniexChartData poloniexChartData[] = poloniexMarketDataService.getPoloniexChartData(
-                    new CurrencyPair(PairSymbolConverter.apiSymbolToBaseCurrencySymbol(exchangeSpecs,symbol),PairSymbolConverter.apiSymbolToCounterCurrencySymbol(exchangeSpecs,symbol)),
+                    new CurrencyPair(pairSymbolConverter.apiSymbolToBaseCurrencySymbol(symbol), pairSymbolConverter.apiSymbolToCounterCurrencySymbol(symbol)),
                     new Long(beginTimestampSeconds),
                     new Long(endTimestampSeconds),
                     poloniexChartDataPeriodType);

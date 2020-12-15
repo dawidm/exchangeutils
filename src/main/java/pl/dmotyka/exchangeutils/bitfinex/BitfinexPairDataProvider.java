@@ -33,6 +33,7 @@ public class BitfinexPairDataProvider implements PairDataProvider {
 
     public static final String SYMBOLS_API_V2_URL = "https://api.bitfinex.com/v2/tickers?symbols=";
     private static final ExchangeSpecs exchangeSpecs = new BitfinexExchangeSpecs();
+    private static final PairSymbolConverter pairSymbolConverter = new BitfinexPairSymbolConverter();
 
     @Override
     public String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws IOException {
@@ -65,6 +66,6 @@ public class BitfinexPairDataProvider implements PairDataProvider {
     }
 
     private String symbolToCounterSymbol(String symbol) {
-        return PairSymbolConverter.apiSymbolToCounterCurrencySymbol(exchangeSpecs, symbol);
+        return pairSymbolConverter.apiSymbolToCounterCurrencySymbol(symbol);
     }
 }

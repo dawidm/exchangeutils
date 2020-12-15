@@ -20,6 +20,7 @@ import pl.dmotyka.exchangeutils.bitfinex.BitfinexExchangeSpecs;
 import pl.dmotyka.exchangeutils.bittrex.BittrexExchangeSpecs;
 import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
+import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
 import pl.dmotyka.exchangeutils.poloniex.PoloniexExchangeSpecs;
 import pl.dmotyka.exchangeutils.tickerprovider.TickerProvider;
 import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
@@ -38,6 +39,8 @@ public abstract class ExchangeSpecs implements ExtensionPoint {
     public abstract ExchangeChartInfo getChartInfo();
 
     public abstract PairDataProvider getPairDataProvider();
+
+    public abstract PairSymbolConverter getPairSymbolConverter();
 
     public String getName() {
         return name;
