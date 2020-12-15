@@ -288,13 +288,14 @@ public class ChartDataProvider {
                 startTime = (System.currentTimeMillis() / 1000) - (numCandles * periodSeconds);
             long endTime = (System.currentTimeMillis() / 1000);
             ChartCandle[] chartCandles = exchangeChartInfo.getCandles(pair,periodSeconds,startTime,endTime);
-            if(chartCandles.length==0)
-                throw new ExchangeCommunicationException("got 0 candles");
-            logger.fine(String.format("got %d chart candles for %s,%d",chartCandles.length,pair,periodSeconds));
+            if(chartCandles.length==0) {
+                logger.warning(String.format("got 0 candles for %s,%d", pair, periodSeconds));
+                return;
+            } else
+                logger.fine(String.format("got %d chart candles for %s,%d",chartCandles.length,pair,periodSeconds));
             if (exchangeSpecs instanceof ExchangeWithTradingHours) {
                 chartCandles = insertMissingCandles(chartCandles, numCandles, periodSeconds, tradingHoursProvider.getTradingHours(pair));
-            }
-            else
+            } else
                 chartCandles = insertMissingCandles(chartCandles, startTime, endTime, periodSeconds);
             logger.fine("num candles after inserting missing candles: " + chartCandles.length);
             chartCandlesMap.put(new CurrencyPairTimePeriod(pair,periodSeconds),chartCandles);
