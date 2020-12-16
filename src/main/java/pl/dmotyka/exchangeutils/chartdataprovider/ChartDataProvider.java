@@ -290,6 +290,7 @@ public class ChartDataProvider {
             ChartCandle[] chartCandles = exchangeChartInfo.getCandles(pair,periodSeconds,startTime,endTime);
             if(chartCandles.length==0) {
                 logger.warning(String.format("got 0 candles for %s,%d", pair, periodSeconds));
+                chartCandlesMap.put(new CurrencyPairTimePeriod(pair,periodSeconds),chartCandles);
                 return;
             } else
                 logger.fine(String.format("got %d chart candles for %s,%d",chartCandles.length,pair,periodSeconds));
