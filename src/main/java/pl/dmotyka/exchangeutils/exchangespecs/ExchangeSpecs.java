@@ -13,6 +13,8 @@
 
 package pl.dmotyka.exchangeutils.exchangespecs;
 
+import java.util.ServiceLoader;
+
 import org.knowm.xchange.Exchange;
 import pl.dmotyka.exchangeutils.binance.BinanceExchangeSpecs;
 import pl.dmotyka.exchangeutils.bitfinex.BitfinexExchangeSpecs;
@@ -82,6 +84,11 @@ public abstract class ExchangeSpecs {
         if(obj instanceof ExchangeSpecs)
             return name.equals(((ExchangeSpecs)obj).getName());
         return false;
+    }
+
+    public static ExchangeSpecs[] getAll() {
+        ServiceLoader<ExchangeSpecsProvider> loader = ServiceLoader.load(ExchangeSpecsProvider.class);
+        return loader.stream().map(prov -> prov.get().create()).toArray(ExchangeSpecs[]::new);
     }
 
 }

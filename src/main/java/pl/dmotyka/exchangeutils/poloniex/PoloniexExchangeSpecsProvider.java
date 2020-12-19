@@ -11,32 +11,15 @@
  *
  */
 
-package pl.dmotyka.exchangeutils.exchangespecs;
+package pl.dmotyka.exchangeutils.poloniex;
 
-import java.util.List;
+import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
+import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecsProvider;
 
-import org.junit.jupiter.api.Test;
-import pl.dmotyka.exchangeutils.binance.BinanceExchangeSpecs;
-import pl.dmotyka.exchangeutils.bitfinex.BitfinexExchangeSpecs;
-import pl.dmotyka.exchangeutils.poloniex.PoloniexExchangeSpecs;
+public class PoloniexExchangeSpecsProvider implements ExchangeSpecsProvider {
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-class ExchangesPluginsLoaderTest {
-
-    @Test
-    void getAllExchangeSpecs() {
-        List<ExchangeSpecs> es = new ExchangesPluginsLoader().getAllExchangeSpecs();
-        assertTrue(es.size() > 0);
-        assertTrue(containExchangeSpecs(es, BinanceExchangeSpecs.class));
-        assertTrue(containExchangeSpecs(es, PoloniexExchangeSpecs.class));
-        assertTrue(containExchangeSpecs(es, BitfinexExchangeSpecs.class));
-    }
-
-    private boolean containExchangeSpecs(List<ExchangeSpecs> list, Class<? extends ExchangeSpecs> specsClass) {
-        for (ExchangeSpecs es : list)
-            if (es.getClass().equals(specsClass))
-                return true;
-        return false;
+    @Override
+    public ExchangeSpecs create() {
+        return new PoloniexExchangeSpecs();
     }
 }
