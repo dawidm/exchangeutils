@@ -219,7 +219,8 @@ public class ChartDataProvider {
         long newCandleTimestamp = (currentTimestampSnapshot-currentTimestampSnapshot%timePeriodSeconds) - timePeriodSeconds;
         ChartCandle newChartCandle;
         List<Ticker> tickerList = tickersMap.get(pair);
-        ChartCandle[] oldChartCandles = chartCandlesMap.get(new CurrencyPairTimePeriod(pair,timePeriodSeconds));
+        CurrencyPairTimePeriod currencyPairTimePeriod = new CurrencyPairTimePeriod(pair,timePeriodSeconds);
+        ChartCandle[] oldChartCandles = chartCandlesMap.get(currencyPairTimePeriod);
         if(oldChartCandles.length == 0) {
             if (tickerList.size() == 0) {
                 logger.warning("no previous candles for " + pair + "," + timePeriodSeconds + " and no tickers, candle not generated");
@@ -272,7 +273,7 @@ public class ChartDataProvider {
             newChartCandles.addAll(Arrays.asList(oldChartCandles));
             newChartCandles.add(newChartCandle);
             logger.finer(String.format("Number of candles in array: %d.", newChartCandles.size()));
-            chartCandlesMap.put(new CurrencyPairTimePeriod(pair,timePeriodSeconds),
+            chartCandlesMap.put(currencyPairTimePeriod,
                     newChartCandles.stream().filter(chartCandle -> chartCandle.getTimestampSeconds()>=minValidTimestampSeconds).toArray(ChartCandle[]::new));
         }
     }
