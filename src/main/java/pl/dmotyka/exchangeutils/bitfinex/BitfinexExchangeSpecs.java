@@ -16,7 +16,6 @@ package pl.dmotyka.exchangeutils.bitfinex;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.bitfinex.v2.BitfinexExchange;
-import org.pf4j.Extension;
 import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
@@ -28,7 +27,6 @@ import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
 /**
  * Created by dawid on 8/20/17.
  */
-@Extension
 public class BitfinexExchangeSpecs extends ExchangeSpecs {
 
     private static final String EXCHANGE_NAME = "Bitfinex";

@@ -16,7 +16,6 @@ package pl.dmotyka.exchangeutils.binance;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.binance.BinanceExchange;
-import org.pf4j.Extension;
 import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
@@ -28,7 +27,6 @@ import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
 /**
  * Created by dawid on 8/20/17.
  */
-@Extension
 public class BinanceExchangeSpecs extends ExchangeSpecs {
 
     private static final String EXCHANGE_NAME = "Binance";
