@@ -255,7 +255,7 @@ public class ChartDataProvider {
             firstTicker = filteredTickers[0].getValue();
             lastTicker = filteredTickers[filteredTickers.length-1].getValue();
         }
-        if(oldChartCandles[oldChartCandles.length-1].getTimestampSeconds()==newCandleTimestamp && filteredTickers.length>0) {
+        if(oldChartCandles.length > 0 && oldChartCandles[oldChartCandles.length-1].getTimestampSeconds() == newCandleTimestamp) {
             logger.finer("modifying last candle with new data for "+pair+timePeriodSeconds);
             ChartCandle oldLastChartCandle=oldChartCandles[oldChartCandles.length-1];
             oldChartCandles[oldChartCandles.length-1]=new ChartCandle(Math.max(maxTicker,oldLastChartCandle.getHigh()),
@@ -299,7 +299,7 @@ public class ChartDataProvider {
             } else
                 chartCandles = insertMissingCandles(chartCandles, startTime, endTime, periodSeconds);
             logger.fine("num candles after inserting missing candles: " + chartCandles.length);
-            chartCandlesMap.put(new CurrencyPairTimePeriod(pair,periodSeconds),chartCandles);
+            chartCandlesMap.put(new CurrencyPairTimePeriod(pair,periodSeconds), chartCandles);
         }
         catch (NoSuchTimePeriodException e) {
             logger.log(Level.WARNING,String.format("when getting data for %s, period: %s",pair,periodSeconds),e);
