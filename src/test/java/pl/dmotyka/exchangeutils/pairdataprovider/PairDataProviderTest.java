@@ -13,12 +13,13 @@
 
 package pl.dmotyka.exchangeutils.pairdataprovider;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import pl.dmotyka.exchangeutils.binance.BinancePairDataProvider;
 import pl.dmotyka.exchangeutils.bittrex.BittrexPairDataProvider;
+import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
+import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.poloniex.PoloniexPairDataProvider;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -29,7 +30,7 @@ public class PairDataProviderTest {
     BittrexPairDataProvider bittrexPairDataProvider=new BittrexPairDataProvider();
 
     @org.junit.jupiter.api.Test
-    void getPairsApiSymbolsBinance() throws IOException {
+    void getPairsApiSymbolsBinance() throws ExchangeCommunicationException, ConnectionProblemException {
         String[] pairs = binancePairDataProvider.getPairsApiSymbols(new PairSelectionCriteria[] {new PairSelectionCriteria("BTC",1),new PairSelectionCriteria("BNB",1)});
         assertTrue(pairs!=null);
         String allPairs = Arrays.stream(pairs).collect(Collectors.joining());
@@ -40,7 +41,7 @@ public class PairDataProviderTest {
     }
 
     @org.junit.jupiter.api.Test
-    void getPairsApiSymbolsPoloniex() throws IOException {
+    void getPairsApiSymbolsPoloniex() throws ExchangeCommunicationException, ConnectionProblemException {
         String[] pairs = poloniexPairDataProvider.getPairsApiSymbols(new PairSelectionCriteria[] {new PairSelectionCriteria("BTC",1),new PairSelectionCriteria("USDT",1)});
         assertTrue(pairs!=null);
         String allPairs = Arrays.stream(pairs).collect(Collectors.joining());
@@ -51,7 +52,7 @@ public class PairDataProviderTest {
     }
 
     @org.junit.jupiter.api.Test
-    void getPairsApiSymbolsBittrex() throws IOException {
+    void getPairsApiSymbolsBittrex() throws ExchangeCommunicationException, ConnectionProblemException {
         String[] pairs = bittrexPairDataProvider.getPairsApiSymbols(new PairSelectionCriteria[] {new PairSelectionCriteria("BTC",1),new PairSelectionCriteria("ETH",1)});
         assertTrue(pairs!=null);
         String allPairs = Arrays.stream(pairs).collect(Collectors.joining());

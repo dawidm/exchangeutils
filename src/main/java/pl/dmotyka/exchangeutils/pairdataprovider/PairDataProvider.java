@@ -13,10 +13,14 @@
 
 package pl.dmotyka.exchangeutils.pairdataprovider;
 
-import java.io.IOException;
+import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
+import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 
 public interface PairDataProvider {
-    String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws IOException;
-    String[] getPairsApiSymbols() throws IOException;
+    // get api symbol for specified criteria
+    // throw ConnectionProblemException when error indicates no internet connection
+    // throw ExchangeCommunicationException in other cases
+    String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws ConnectionProblemException, ExchangeCommunicationException;
+    String[] getPairsApiSymbols() throws ConnectionProblemException, ExchangeCommunicationException;
 
 }

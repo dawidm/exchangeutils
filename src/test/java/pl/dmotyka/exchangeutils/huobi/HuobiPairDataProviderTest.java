@@ -13,9 +13,9 @@
 
 package pl.dmotyka.exchangeutils.huobi;
 
-import java.io.IOException;
-
 import org.junit.jupiter.api.Test;
+import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
+import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairSelectionCriteria;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class HuobiPairDataProviderTest {
 
     @Test
-    void getPairsApiSymbols() throws IOException {
+    void getPairsApiSymbols() throws ConnectionProblemException, ExchangeCommunicationException {
         String COUNTER_CURRENCY = "btc";
         String[] symbols = new HuobiPairDataProvider().getPairsApiSymbols(new PairSelectionCriteria[] {new PairSelectionCriteria(COUNTER_CURRENCY, 1)});
         assertNotNull(symbols);

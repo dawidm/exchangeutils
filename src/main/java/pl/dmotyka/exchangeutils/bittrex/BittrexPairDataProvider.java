@@ -14,29 +14,48 @@
 package pl.dmotyka.exchangeutils.bittrex;
 
 import java.io.IOException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
+import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairSelectionCriteria;
 
 public class BittrexPairDataProvider implements PairDataProvider {
+
     @Override
-    public String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws IOException {
-        Map<String,Double> criteriaMap = new HashMap<>();
-        Arrays.stream(pairSelectionCriteria).forEach(criterium->criteriaMap.put(criterium.getCounterCurrencySymbol(),criterium.getMinVolume()));
-        return Arrays.stream(BittrexPairInfoProvider.getAllPairsInfos()).
-                filter(marketQuoteVolume->criteriaMap.containsKey(apiSymbolToCounterCurrency(marketQuoteVolume.getPairApiSymbol()))).
-                filter(marketQuoteVolume -> marketQuoteVolume.getQuoteVolume()>criteriaMap.get(apiSymbolToCounterCurrency(marketQuoteVolume.getPairApiSymbol()))).
-                map(marketQuoteVolume -> marketQuoteVolume.getPairApiSymbol()).
-                toArray(String[]::new);
+    public String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws ConnectionProblemException, ExchangeCommunicationException {
+        try {
+            Map<String, Double> criteriaMap = new HashMap<>();
+            Arrays.stream(pairSelectionCriteria).forEach(criterium -> criteriaMap.put(criterium.getCounterCurrencySymbol(), criterium.getMinVolume()));
+            return Arrays.stream(BittrexPairInfoProvider.getAllPairsInfos()).
+                    filter(marketQuoteVolume -> criteriaMap.containsKey(apiSymbolToCounterCurrency(marketQuoteVolume.getPairApiSymbol()))).
+                                 filter(marketQuoteVolume -> marketQuoteVolume.getQuoteVolume() > criteriaMap.get(apiSymbolToCounterCurrency(marketQuoteVolume.getPairApiSymbol()))).
+                                 map(marketQuoteVolume -> marketQuoteVolume.getPairApiSymbol()).
+                                 toArray(String[]::new);
+        } catch (UnknownHostException | SocketException e) {
+            throw new ConnectionProblemException("when getting symbols", e);
+        } catch (IOException e) {
+            throw new ExchangeCommunicationException("when getting symbols", e);
+        }
     }
-    public String[] getPairsApiSymbols() throws IOException {
-        return Arrays.stream(BittrexPairInfoProvider.getAllPairsInfos()).
-                map(marketQuoteVolume -> marketQuoteVolume.getPairApiSymbol()).
-                toArray(String[]::new);
+
+    public String[] getPairsApiSymbols() throws ConnectionProblemException, ExchangeCommunicationException {
+        try {
+            return Arrays.stream(BittrexPairInfoProvider.getAllPairsInfos()).
+                    map(marketQuoteVolume -> marketQuoteVolume.getPairApiSymbol()).
+                                 toArray(String[]::new);
+        } catch (UnknownHostException | SocketException e) {
+            throw new ConnectionProblemException("when getting symbols", e);
+        } catch (IOException e) {
+            throw new ExchangeCommunicationException("when getting symbols", e);
+        }
     }
+
     private static String apiSymbolToCounterCurrency(String apiSymbol) {
         return apiSymbol.split("-")[0];
     }

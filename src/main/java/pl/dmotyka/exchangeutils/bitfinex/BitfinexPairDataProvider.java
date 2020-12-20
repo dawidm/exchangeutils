@@ -14,7 +14,9 @@
 package pl.dmotyka.exchangeutils.bitfinex;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,7 +25,8 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
+import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
+import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.pairdataprovider.MarketQuoteVolume;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairSelectionCriteria;
@@ -32,11 +35,10 @@ import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
 public class BitfinexPairDataProvider implements PairDataProvider {
 
     public static final String SYMBOLS_API_V2_URL = "https://api.bitfinex.com/v2/tickers?symbols=";
-    private static final ExchangeSpecs exchangeSpecs = new BitfinexExchangeSpecs();
     private static final PairSymbolConverter pairSymbolConverter = new BitfinexPairSymbolConverter();
 
     @Override
-    public String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws IOException {
+    public String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws ExchangeCommunicationException, ConnectionProblemException {
         Map<String,Double> criteriaMap = new HashMap<>();
         Arrays.stream(pairSelectionCriteria).forEach(criterium ->criteriaMap.put(criterium.getCounterCurrencySymbol(),criterium.getMinVolume()));
         return Arrays.stream(getQuoteVolumes()).filter(marketQuoteVolume -> {
@@ -46,23 +48,29 @@ public class BitfinexPairDataProvider implements PairDataProvider {
     }
 
     @Override
-    public String[] getPairsApiSymbols() throws IOException {
+    public String[] getPairsApiSymbols() throws ExchangeCommunicationException, ConnectionProblemException {
         return Arrays.stream(getQuoteVolumes()).map(marketQuoteVolume -> marketQuoteVolume.getPairApiSymbol()).toArray(String[]::new);
     }
 
-    private MarketQuoteVolume[] getQuoteVolumes() throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode symbolsJsonNode = objectMapper.readValue(new URL(SYMBOLS_API_V2_URL+"ALL"), JsonNode.class);
-        List<MarketQuoteVolume> marketQuoteVolumes = new ArrayList<>(symbolsJsonNode.size());
-        for(JsonNode symbolJsonNode : symbolsJsonNode) {
-            String marketSymbol = symbolJsonNode.get(0).asText();
-            if(marketSymbol.startsWith("f"))
-                continue;
-            double volume = symbolJsonNode.get(8).asDouble(0);
-            double lastPrice = symbolJsonNode.get(7).asDouble(0);
-            marketQuoteVolumes.add(new MarketQuoteVolume(marketSymbol,volume*lastPrice));
+    private MarketQuoteVolume[] getQuoteVolumes() throws ConnectionProblemException, ExchangeCommunicationException {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode symbolsJsonNode = objectMapper.readValue(new URL(SYMBOLS_API_V2_URL + "ALL"), JsonNode.class);
+            List<MarketQuoteVolume> marketQuoteVolumes = new ArrayList<>(symbolsJsonNode.size());
+            for (JsonNode symbolJsonNode : symbolsJsonNode) {
+                String marketSymbol = symbolJsonNode.get(0).asText();
+                if (marketSymbol.startsWith("f"))
+                    continue;
+                double volume = symbolJsonNode.get(8).asDouble(0);
+                double lastPrice = symbolJsonNode.get(7).asDouble(0);
+                marketQuoteVolumes.add(new MarketQuoteVolume(marketSymbol, volume * lastPrice));
+            }
+            return marketQuoteVolumes.toArray(new MarketQuoteVolume[marketQuoteVolumes.size()]);
+        } catch (UnknownHostException | SocketException e) {
+            throw new ConnectionProblemException("when getting quote volumes", e);
+        } catch (IOException e) {
+            throw new ExchangeCommunicationException("when getting quote volumes", e);
         }
-        return marketQuoteVolumes.toArray(new MarketQuoteVolume[marketQuoteVolumes.size()]);
     }
 
     private String symbolToCounterSymbol(String symbol) {

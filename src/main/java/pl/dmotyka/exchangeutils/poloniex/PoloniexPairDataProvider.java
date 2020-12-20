@@ -14,6 +14,8 @@
 package pl.dmotyka.exchangeutils.poloniex;
 
 import java.io.IOException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,12 +24,15 @@ import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.ExchangeSpecification;
 import org.knowm.xchange.poloniex.PoloniexExchange;
 import org.knowm.xchange.poloniex.service.PoloniexMarketDataService;
+import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
+import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairSelectionCriteria;
 
 public class PoloniexPairDataProvider implements PairDataProvider {
     @Override
-    public String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws IOException {
+    public String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws ConnectionProblemException, ExchangeCommunicationException {
+        try {
         Map<String,Double> criteriaMap = new HashMap<>();
         Arrays.stream(pairSelectionCriteria).forEach(criterium->criteriaMap.put(criterium.getCounterCurrencySymbol(),criterium.getMinVolume()));
         PoloniexMarketDataService poloniexMarketDataService = new PoloniexMarketDataService(ExchangeFactory.INSTANCE.createExchange(new ExchangeSpecification(PoloniexExchange.class)));
@@ -36,12 +41,23 @@ public class PoloniexPairDataProvider implements PairDataProvider {
                 filter(entry -> entry.getValue().getBaseVolume().doubleValue()>criteriaMap.get(apiSymbolToCounterCurrency(entry.getKey()))).
                 map((entry)->entry.getKey()).
                 toArray(String[]::new);
+        } catch (UnknownHostException | SocketException e) {
+            throw new ConnectionProblemException("when getting symbols", e);
+        } catch (IOException e) {
+            throw new ExchangeCommunicationException("when getting symbols", e);
+        }
     }
-    public String[] getPairsApiSymbols() throws IOException {
+    public String[] getPairsApiSymbols() throws ConnectionProblemException, ExchangeCommunicationException {
+        try {
         PoloniexMarketDataService poloniexMarketDataService = new PoloniexMarketDataService(ExchangeFactory.INSTANCE.createExchange(new ExchangeSpecification(PoloniexExchange.class)));
         return poloniexMarketDataService.getAllPoloniexTickers().entrySet().stream().
                 map((entry)->entry.getKey()).
                 toArray(String[]::new);
+        } catch (UnknownHostException | SocketException e) {
+            throw new ConnectionProblemException("when getting symbols", e);
+        } catch (IOException e) {
+            throw new ExchangeCommunicationException("when getting symbols", e);
+        }
     }
     private static String apiSymbolToCounterCurrency(String apiSymbol) {
         return apiSymbol.split("_")[0];

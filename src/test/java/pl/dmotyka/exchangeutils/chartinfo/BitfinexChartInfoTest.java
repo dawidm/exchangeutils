@@ -15,6 +15,7 @@ package pl.dmotyka.exchangeutils.chartinfo;
 
 import org.junit.jupiter.api.Test;
 import pl.dmotyka.exchangeutils.bitfinex.BitfinexChartInfo;
+import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class BitfinexChartInfoTest {
 
     @Test
-    void getCandles() throws ExchangeCommunicationException,NoSuchTimePeriodException {
+    void getCandles() throws ExchangeCommunicationException, NoSuchTimePeriodException, ConnectionProblemException {
         int beginTimestamp = (int)(System.currentTimeMillis()/1000) - 50*1800;
         int endTimestamp = (int)(System.currentTimeMillis()/1000);
         ChartCandle[] chartCandles = new BitfinexChartInfo().getCandles("tBTCUSD",1800,beginTimestamp,endTimestamp);

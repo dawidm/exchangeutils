@@ -13,17 +13,17 @@
 
 package pl.dmotyka.exchangeutils.pairdataprovider;
 
-import java.io.IOException;
-
 import org.junit.jupiter.api.Test;
 import pl.dmotyka.exchangeutils.bitfinex.BitfinexPairDataProvider;
+import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
+import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BitfinexPairDataProviderTest {
 
     @Test
-    void getPairsApiSymbolsFiltered() throws IOException {
+    void getPairsApiSymbolsFiltered() throws ConnectionProblemException, ExchangeCommunicationException {
         PairSelectionCriteria[] pairSelectionCriteria = new PairSelectionCriteria[] {
                 new PairSelectionCriteria("BTC",100),
                 new PairSelectionCriteria("USD",10000)
@@ -38,7 +38,7 @@ class BitfinexPairDataProviderTest {
     }
 
     @Test
-    void getPairsApiSymbolsAll() throws IOException {
+    void getPairsApiSymbolsAll() throws ConnectionProblemException, ExchangeCommunicationException {
         assertTrue(new BitfinexPairDataProvider().getPairsApiSymbols().length>0);
     }
 }

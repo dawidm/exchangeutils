@@ -56,8 +56,8 @@ public class PoloniexChartInfo implements ExchangeChartInfo {
 
             PoloniexChartData poloniexChartData[] = poloniexMarketDataService.getPoloniexChartData(
                     new CurrencyPair(pairSymbolConverter.apiSymbolToBaseCurrencySymbol(symbol), pairSymbolConverter.apiSymbolToCounterCurrencySymbol(symbol)),
-                    new Long(beginTimestampSeconds),
-                    new Long(endTimestampSeconds),
+                    beginTimestampSeconds,
+                    endTimestampSeconds,
                     poloniexChartDataPeriodType);
             return Arrays.stream(poloniexChartData).map(poloniexChartCandle -> new ChartCandle(poloniexChartCandle.getHigh().doubleValue(),
                     poloniexChartCandle.getLow().doubleValue(),

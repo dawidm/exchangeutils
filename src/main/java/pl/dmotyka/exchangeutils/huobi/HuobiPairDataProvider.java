@@ -14,7 +14,9 @@
 package pl.dmotyka.exchangeutils.huobi;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -23,6 +25,8 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
+import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairSelectionCriteria;
 
@@ -32,51 +36,57 @@ public class HuobiPairDataProvider implements PairDataProvider {
     public static final String MARKETS_URL = "https://api.huobi.pro/v1/common/symbols";
 
     @Override
-    public String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws IOException {
+    public String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws ExchangeCommunicationException, ConnectionProblemException {
         Objects.requireNonNull(pairSelectionCriteria);
         return getPairsApiSymbolsRaw(pairSelectionCriteria);
     }
 
     @Override
-    public String[] getPairsApiSymbols() throws IOException {
+    public String[] getPairsApiSymbols() throws ExchangeCommunicationException, ConnectionProblemException {
         return getPairsApiSymbolsRaw(null);
     }
 
     // pairSelectionCriteria - pass null to get all assets
-    public String[] getPairsApiSymbolsRaw(PairSelectionCriteria[] pairSelectionCriteria) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode marketsNode = objectMapper.readValue(new URL(MARKETS_URL), JsonNode.class);
-        if (!marketsNode.get("status").textValue().equals("ok")) {
-            throw new IOException("Status reported by api is not \"ok\" " + MARKETS_URL);
-        }
-        Set<String> quoteCurrencies = new HashSet<>();
-        Set<String> onlineMarkets = new HashSet<>();
-        marketsNode = marketsNode.get("data");
-        for (JsonNode marketNode : marketsNode) {
-            quoteCurrencies.add(marketNode.get("quote-currency").textValue());
-            if (marketNode.get("state").textValue().equals("online")) {
-                onlineMarkets.add(marketNode.get("base-currency").textValue() + marketNode.get("quote-currency").textValue());
+    public String[] getPairsApiSymbolsRaw(PairSelectionCriteria[] pairSelectionCriteria) throws ConnectionProblemException, ExchangeCommunicationException {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode marketsNode = objectMapper.readValue(new URL(MARKETS_URL), JsonNode.class);
+            if (!marketsNode.get("status").textValue().equals("ok")) {
+                throw new IOException("Status reported by api is not \"ok\" " + MARKETS_URL);
             }
-        }
-        if (pairSelectionCriteria==null)
-            return onlineMarkets.toArray(String[]::new);
-        JsonNode tickersNode = objectMapper.readValue(new URL(TICKERS_URL), JsonNode.class);
-        Map<String, Double> volumesMap = new HashMap<>();
-        if (!tickersNode.get("status").textValue().equals("ok"))
-            throw new IOException("Status reported by api is not \"ok\" " + TICKERS_URL);
-        tickersNode = tickersNode.get("data");
-        for (JsonNode tickerNode : tickersNode) {
-            volumesMap.put(tickerNode.get("symbol").asText(), tickerNode.get("vol").asDouble(0));
-        }
-        tickersNode.size();
-        String[] filteredPairs = volumesMap.entrySet().stream().filter(entry -> {
-            for (var criteria : pairSelectionCriteria) {
-                if(entry.getKey().endsWith(criteria.getCounterCurrencySymbol()))
-                    if (entry.getValue() > criteria.getMinVolume())
-                        return true;
+            Set<String> quoteCurrencies = new HashSet<>();
+            Set<String> onlineMarkets = new HashSet<>();
+            marketsNode = marketsNode.get("data");
+            for (JsonNode marketNode : marketsNode) {
+                quoteCurrencies.add(marketNode.get("quote-currency").textValue());
+                if (marketNode.get("state").textValue().equals("online")) {
+                    onlineMarkets.add(marketNode.get("base-currency").textValue() + marketNode.get("quote-currency").textValue());
+                }
             }
-            return false;
-        }).map(entry -> entry.getKey()).toArray(String[]::new);
-        return filteredPairs;
+            if (pairSelectionCriteria == null)
+                return onlineMarkets.toArray(String[]::new);
+            JsonNode tickersNode = objectMapper.readValue(new URL(TICKERS_URL), JsonNode.class);
+            Map<String, Double> volumesMap = new HashMap<>();
+            if (!tickersNode.get("status").textValue().equals("ok"))
+                throw new IOException("Status reported by api is not \"ok\" " + TICKERS_URL);
+            tickersNode = tickersNode.get("data");
+            for (JsonNode tickerNode : tickersNode) {
+                volumesMap.put(tickerNode.get("symbol").asText(), tickerNode.get("vol").asDouble(0));
+            }
+            tickersNode.size();
+            String[] filteredPairs = volumesMap.entrySet().stream().filter(entry -> {
+                for (var criteria : pairSelectionCriteria) {
+                    if (entry.getKey().endsWith(criteria.getCounterCurrencySymbol()))
+                        if (entry.getValue() > criteria.getMinVolume())
+                            return true;
+                }
+                return false;
+            }).map(entry -> entry.getKey()).toArray(String[]::new);
+            return filteredPairs;
+        } catch (UnknownHostException | SocketException e) {
+            throw new ConnectionProblemException("when getting symbols", e);
+        } catch (IOException e) {
+            throw new ExchangeCommunicationException("when getting symbols", e);
+        }
     }
 }

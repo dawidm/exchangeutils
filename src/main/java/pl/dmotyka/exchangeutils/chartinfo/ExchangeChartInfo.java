@@ -21,8 +21,8 @@ import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
  */
 public interface ExchangeChartInfo {
     // get chart data for specified symbol
-    // throw ConnectionProblemException when there's problem with connecting to an exchange
-    // throw ExchangeCommunicationException when connection to an Exchange is possible but other problems occur
+    // throw ConnectionProblemException when error indicates no internet connection
+    // throw ExchangeCommunicationException in other cases
     ChartCandle[] getCandles(String symbol, long timePeriodSeconds, long beginTimestampSeconds, long endTimestampSeconds) throws NoSuchTimePeriodException, ExchangeCommunicationException, ConnectionProblemException;
     ChartTimePeriod[] getAvailablePeriods();
 }
