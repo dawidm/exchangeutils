@@ -64,27 +64,36 @@ public class BinanceChartInfo implements ExchangeChartInfo {
 
     @Override
     public ChartTimePeriod[] getAvailablePeriods() {
-        //TODO add missing
         return new ChartTimePeriod[] {
                 new ChartTimePeriod("m1",60,null),
                 new ChartTimePeriod("m5",5*60,null),
                 new ChartTimePeriod("m15",15*60,null),
                 new ChartTimePeriod("m30",30*60,null),
                 new ChartTimePeriod("h1",60*60,null),
+                new ChartTimePeriod("h2",2*60*60,null),
+                new ChartTimePeriod("h4",4*60*60,null),
+                new ChartTimePeriod("h6",6*60*60,null),
+                new ChartTimePeriod("h12",12*60*60,null),
                 new ChartTimePeriod("d1",24*60*60,null),
+                new ChartTimePeriod("d3",3*24*60*60,null),
                 new ChartTimePeriod("w1",7*24*60*60,null),
+                new ChartTimePeriod("M1",30*24*60*60,null),
         };
     }
 
     private KlineInterval periodsSecondsToKlineInterval(int periodSeconds) throws NoSuchTimePeriodException {
-        //TODO add missing
         switch (periodSeconds) {
             case 60: return KlineInterval.m1;
             case 300: return KlineInterval.m5;
             case 900: return KlineInterval.m15;
             case 1800: return KlineInterval.m30;
             case 3600: return KlineInterval.h1;
+            case 7200: return KlineInterval.h2;
+            case 14400: return KlineInterval.h4;
+            case 21600: return KlineInterval.h6;
+            case 43200: return KlineInterval.h12;
             case 86400: return KlineInterval.d1;
+            case 259200: return KlineInterval.d3;
             case 604800: return KlineInterval.w1;
         }
         throw new NoSuchTimePeriodException("for time period (seconds): " + periodSeconds);
