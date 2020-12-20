@@ -1,7 +1,7 @@
 /*
- * Cryptonose2
+ * Cryptonose
  *
- * Copyright © 2019 Dawid Motyka
+ * Copyright © 2019-2020 Dawid Motyka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
@@ -13,14 +13,6 @@
 
 package pl.dmotyka.exchangeutils.bittrex;
 
-import pl.dmotyka.exchangeutils.chartinfo.ChartCandle;
-import pl.dmotyka.exchangeutils.chartinfo.ChartTimePeriod;
-import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
-import pl.dmotyka.exchangeutils.chartinfo.NoSuchTimePeriodException;
-import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
@@ -30,6 +22,14 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import pl.dmotyka.exchangeutils.chartinfo.ChartCandle;
+import pl.dmotyka.exchangeutils.chartinfo.ChartTimePeriod;
+import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
+import pl.dmotyka.exchangeutils.chartinfo.NoSuchTimePeriodException;
+import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 
 /**
  * Created by dawid on 12/4/17.
