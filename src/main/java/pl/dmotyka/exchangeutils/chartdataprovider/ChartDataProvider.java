@@ -104,7 +104,8 @@ public class ChartDataProvider {
                         () -> {
                             logger.log(Level.WARNING, String.format("reached maximum retires for getting data for %s", currentPair));
                             chartCandlesMap.put(new CurrencyPairTimePeriod(currentPair, currentPeriodNumCandles.getPeriodSeconds()), new ChartCandle[0]);
-                        });
+                        },
+                        Set.of(ConnectionProblemException.class));
                 //delay before next api call
                 try {Thread.sleep(exchangeSpecs.getDelayBetweenChartDataRequestsMs());} catch (InterruptedException e) {return;};
             }
