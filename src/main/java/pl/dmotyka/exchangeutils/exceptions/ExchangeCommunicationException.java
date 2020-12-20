@@ -20,4 +20,8 @@ public class ExchangeCommunicationException extends Exception {
     public ExchangeCommunicationException(String msg) {
         super(msg);
     }
+
+    public ExchangeCommunicationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

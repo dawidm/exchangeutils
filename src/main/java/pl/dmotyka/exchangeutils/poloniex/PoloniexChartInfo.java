@@ -14,8 +14,8 @@
 package pl.dmotyka.exchangeutils.poloniex;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.knowm.xchange.Exchange;
@@ -28,6 +28,7 @@ import org.knowm.xchange.poloniex.service.PoloniexMarketDataService;
 import pl.dmotyka.exchangeutils.chartinfo.ChartCandle;
 import pl.dmotyka.exchangeutils.chartinfo.ChartTimePeriod;
 import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
+import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
 
@@ -43,7 +44,7 @@ public class PoloniexChartInfo implements ExchangeChartInfo {
     private final PairSymbolConverter pairSymbolConverter = new PoloniexPairSymbolConverter();
 
     @Override
-    public ChartCandle[] getCandles(String symbol, long timePeriodSeconds, long beginTimestampSeconds, long endTimestampSeconds) throws ExchangeCommunicationException {
+    public ChartCandle[] getCandles(String symbol, long timePeriodSeconds, long beginTimestampSeconds, long endTimestampSeconds) throws ExchangeCommunicationException, ConnectionProblemException {
         if(poloniex==null | poloniexMarketDataService==null) {
             poloniex = ExchangeFactory.INSTANCE.createExchange(PoloniexExchange.class.getName());
             poloniexMarketDataService = (PoloniexMarketDataService) poloniex.getMarketDataService();
@@ -63,9 +64,11 @@ public class PoloniexChartInfo implements ExchangeChartInfo {
                     poloniexChartCandle.getOpen().doubleValue(),
                     poloniexChartCandle.getClose().doubleValue(),
                     poloniexChartCandle.getDate().getTime()/1000)).toArray(ChartCandle[]::new);
-        } catch (IOException e) {
-            logger.log(Level.WARNING,"when getting poloniex candles for: "+symbol);
-            throw new ExchangeCommunicationException(e.getClass().getSimpleName() + " when getting poloniex candles for: "+symbol);
+        } catch (UnknownHostException e) {
+            throw new ConnectionProblemException("when getting poloniex candles for: "+symbol);
+        }
+        catch (IOException e) {
+            throw new ExchangeCommunicationException("when getting poloniex candles for: "+symbol);
         }
     }
 

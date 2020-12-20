@@ -14,8 +14,8 @@
 package pl.dmotyka.exchangeutils.binance;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.knowm.xchange.Exchange;
@@ -29,6 +29,7 @@ import pl.dmotyka.exchangeutils.chartinfo.ChartCandle;
 import pl.dmotyka.exchangeutils.chartinfo.ChartTimePeriod;
 import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import pl.dmotyka.exchangeutils.chartinfo.NoSuchTimePeriodException;
+import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 
 /**
@@ -41,7 +42,7 @@ public class BinanceChartInfo implements ExchangeChartInfo {
     private BinanceMarketDataService binanceMarketDataService;
 
     @Override
-    public ChartCandle[] getCandles(String symbol, long timePeriodSeconds, long beginTimestampSeconds, long endTimestampSeconds) throws ExchangeCommunicationException, NoSuchTimePeriodException {
+    public ChartCandle[] getCandles(String symbol, long timePeriodSeconds, long beginTimestampSeconds, long endTimestampSeconds) throws ExchangeCommunicationException, NoSuchTimePeriodException, ConnectionProblemException {
         if (exchange==null || binanceMarketDataService==null) {
             exchange=ExchangeFactory.INSTANCE.createExchange(BinanceExchange.class);
             binanceMarketDataService = (BinanceMarketDataService) exchange.getMarketDataService();
@@ -56,8 +57,9 @@ public class BinanceChartInfo implements ExchangeChartInfo {
                             binanceKline.getClosePrice().doubleValue(),
                             binanceKline.getOpenTime() / 1000)).
                     toArray(ChartCandle[]::new);
+        } catch (UnknownHostException e) {
+            throw new ConnectionProblemException("when getting binance klines for " + symbol);
         } catch (IOException e) {
-            logger.log(Level.WARNING,"when getting binance klines for " + symbol,e);
             throw new ExchangeCommunicationException("when getting binance klines for " + symbol);
         }
     }

@@ -11,18 +11,15 @@
  *
  */
 
-package pl.dmotyka.exchangeutils.chartinfo;
+package pl.dmotyka.exchangeutils.exceptions;
 
-import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
-import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
+public class ConnectionProblemException extends Exception {
 
-/**
- * Created by dawid on 12/4/17.
- */
-public interface ExchangeChartInfo {
-    // get chart data for specified symbol
-    // throw ConnectionProblemException when there's problem with connecting to an exchange
-    // throw ExchangeCommunicationException when connection to an Exchange is possible but other problems occur
-    ChartCandle[] getCandles(String symbol, long timePeriodSeconds, long beginTimestampSeconds, long endTimestampSeconds) throws NoSuchTimePeriodException, ExchangeCommunicationException, ConnectionProblemException;
-    ChartTimePeriod[] getAvailablePeriods();
+    public ConnectionProblemException(String message) {
+        super(message);
+    }
+
+    public ConnectionProblemException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

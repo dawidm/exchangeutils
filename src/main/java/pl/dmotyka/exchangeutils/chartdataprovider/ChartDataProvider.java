@@ -37,6 +37,7 @@ import pl.dmotyka.exchangeutils.chartinfo.ChartCandle;
 import pl.dmotyka.exchangeutils.chartinfo.ChartTimePeriod;
 import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import pl.dmotyka.exchangeutils.chartinfo.NoSuchTimePeriodException;
+import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
 import pl.dmotyka.exchangeutils.exchangespecs.ExchangeWithTradingHours;
@@ -261,7 +262,7 @@ public class ChartDataProvider {
             ChartCandle oldLastChartCandle=oldChartCandles[oldChartCandles.length-1];
             oldChartCandles[oldChartCandles.length-1]=new ChartCandle(Math.max(maxTicker,oldLastChartCandle.getHigh()),
                     Math.min(minTicker,oldLastChartCandle.getLow()),
-                    oldLastChartCandle.getOpen(),
+                    oldLastChartCandle.getOpen(), //TODO out of bonds
                     filteredTickers[filteredTickers.length-1].getValue(),
                     newCandleTimestamp);
         } else {
@@ -278,7 +279,7 @@ public class ChartDataProvider {
         }
     }
 
-    private void getChartData(String pair, int numCandles, long periodSeconds) throws ExchangeCommunicationException {
+    private void getChartData(String pair, int numCandles, long periodSeconds) throws ExchangeCommunicationException, ConnectionProblemException {
         try {
             long startTime;
             // TODO add methods (ChartInfo) for getting specified number of candles (e.g. xtb has api method to get N last candles instead of specifying timeframe)

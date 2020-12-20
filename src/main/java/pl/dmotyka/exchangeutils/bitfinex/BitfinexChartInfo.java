@@ -15,6 +15,7 @@ package pl.dmotyka.exchangeutils.bitfinex;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +25,7 @@ import pl.dmotyka.exchangeutils.chartinfo.ChartCandle;
 import pl.dmotyka.exchangeutils.chartinfo.ChartTimePeriod;
 import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import pl.dmotyka.exchangeutils.chartinfo.NoSuchTimePeriodException;
+import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 
 public class BitfinexChartInfo  implements ExchangeChartInfo {
@@ -32,7 +34,7 @@ public class BitfinexChartInfo  implements ExchangeChartInfo {
     public static final String CANDLES_API_V2_URL = "https://api.bitfinex.com/v2/candles/trade:%s:%s/hist?start=%d&end=%d&limit=5000&sorted=1";
 
     @Override
-    public ChartCandle[] getCandles(String symbol, long timePeriodSeconds, long beginTimestampSeconds, long endTimestampSeconds) throws NoSuchTimePeriodException, ExchangeCommunicationException {
+    public ChartCandle[] getCandles(String symbol, long timePeriodSeconds, long beginTimestampSeconds, long endTimestampSeconds) throws NoSuchTimePeriodException, ExchangeCommunicationException, ConnectionProblemException {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             JsonNode candlesJsonNode = objectMapper.readValue(new URL(buildQueryUrl(symbol, (int) timePeriodSeconds, (int) beginTimestampSeconds, (int) endTimestampSeconds)), JsonNode.class);
@@ -49,10 +51,12 @@ public class BitfinexChartInfo  implements ExchangeChartInfo {
                 }
                 return chartCandles.toArray(new ChartCandle[chartCandles.size()]);
             } else {
-                throw new ExchangeCommunicationException("got 0 candles");
+                return new ChartCandle[0];
             }
+        } catch (UnknownHostException e) {
+            throw new ConnectionProblemException("when getting chart data for " + symbol,e);
         } catch (IOException e) {
-            throw new ExchangeCommunicationException(e.getClass().getName() + " " + e.getMessage());
+            throw new ExchangeCommunicationException("when getting chart data for " + symbol,e);
         }
     }
 
