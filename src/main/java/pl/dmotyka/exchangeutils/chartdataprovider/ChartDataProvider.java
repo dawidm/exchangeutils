@@ -263,8 +263,8 @@ public class ChartDataProvider {
             ChartCandle oldLastChartCandle=oldChartCandles[oldChartCandles.length-1];
             oldChartCandles[oldChartCandles.length-1]=new ChartCandle(Math.max(maxTicker,oldLastChartCandle.getHigh()),
                     Math.min(minTicker,oldLastChartCandle.getLow()),
-                    oldLastChartCandle.getOpen(), //TODO out of bonds
-                    filteredTickers[filteredTickers.length-1].getValue(),
+                    oldLastChartCandle.getOpen(),
+                    lastTicker,
                     newCandleTimestamp);
         } else {
             newChartCandle = new ChartCandle(maxTicker, minTicker, firstTicker, lastTicker, newCandleTimestamp);
