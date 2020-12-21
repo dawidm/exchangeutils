@@ -90,8 +90,8 @@ public class ChartDataProvider {
         isRefreshingChartData.set(true);
         for (String currentPair : pairs) {
             for(PeriodNumCandles currentPeriodNumCandles : periodsNumCandles) {
-                if(abortAtomicBoolean.get())
-                    break;
+                if (abortAtomicBoolean.get())
+                    return;
                 logger.fine("getting data for " + currentPair);
                 RepeatTillSuccess.planTask(() -> {
                             if (abortAtomicBoolean.get())
@@ -110,6 +110,8 @@ public class ChartDataProvider {
                 try {Thread.sleep(exchangeSpecs.getDelayBetweenChartDataRequestsMs());} catch (InterruptedException e) {return;};
             }
         }
+        if (abortAtomicBoolean.get())
+            return;
         notifyChartDataReceivers();
         isRefreshingChartData.set(false);
         logger.info("finished refreshing data");
