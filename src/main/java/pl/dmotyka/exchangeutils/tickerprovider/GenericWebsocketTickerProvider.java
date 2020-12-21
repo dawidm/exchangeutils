@@ -52,7 +52,7 @@ public class GenericWebsocketTickerProvider implements TickerProvider {
     }
 
     @Override
-    public void connect(TickerProviderConnectionStateReceiver connectionStateReceiver) throws IOException {
+    public synchronized void connect(TickerProviderConnectionStateReceiver connectionStateReceiver) throws IOException {
         this.connectionStateReceiver=connectionStateReceiver;
         isConnectedAtomicBoolean.set(true);
         logger.fine(String.format("connecting websocket, url: %s", genericTickerWebsocketExchangeMethods.getWsUrl(pairs)));
@@ -111,7 +111,7 @@ public class GenericWebsocketTickerProvider implements TickerProvider {
         }
     }
 
-    public void disconnect() {
+    public synchronized void disconnect() {
         logger.fine("disconnecting websocket");
         if(reconnectScheduledFuture!=null)
             reconnectScheduledFuture.cancel(true);
