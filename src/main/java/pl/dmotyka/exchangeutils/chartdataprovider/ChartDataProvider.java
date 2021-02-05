@@ -152,8 +152,12 @@ public class ChartDataProvider {
 
     public void insertTicker(Ticker ticker) {
         List<Ticker> tickerList = tickersMap.get(ticker.getPair());
-        synchronized (tickerList) {
-            tickerList.add(ticker);
+        if (tickerList == null) {
+            logger.warning("no tickers list for " + ticker.getPair());
+        } else {
+            synchronized (tickerList) {
+                tickerList.add(ticker);
+            }
         }
     }
 
