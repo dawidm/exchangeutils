@@ -1,7 +1,7 @@
 /*
  * Cryptonose
  *
- * Copyright © 2019-2020 Dawid Motyka
+ * Copyright © 2019-2021 Dawid Motyka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
@@ -14,6 +14,7 @@
 package pl.dmotyka.exchangeutils.binance;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -62,5 +63,16 @@ public class BinanceExchangeMethods implements GenericTickerWebsocketExchangeMet
             logger.log(Level.WARNING,"when reading websocket aggTrade message",e);
         }
         return null;
+    }
+
+    @Override
+    public String handleBinaryMessage(ByteBuffer buffer) {
+        logger.warning("Handling binary messages not supported");
+        return null;
+    }
+
+    @Override
+    public String checkIfPingMessage(String msg) {
+        throw new RuntimeException("not implemented");
     }
 }

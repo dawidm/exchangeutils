@@ -13,20 +13,40 @@
 
 package pl.dmotyka.exchangeutils.tickerprovider;
 
-import java.nio.ByteBuffer;
+import java.io.IOException;
 
-public interface GenericTickerWebsocketExchangeMethods {
-    // get websocket sddress
-    // pairsSymbols - arrays of symbols in a format correct for API
-    String getWsUrl(String[] pairsSymbols);
-    // whether websocket for exchange needs making subscriptions for pairs
-    boolean isMakingSubscriptions();
-    // generate message sent to websocket to subscribe tickers data
-    String[] subscriptionsMessages(String[] pairsSymbols);
-    // read websocket message and return Tickers when message contains any, otherwise null
-    Ticker[] handleMessage(String message);
-    // read binary websocket message and converts it to string
-    String handleBinaryMessage(ByteBuffer buffer);
-    // check if provided message is a ping message and return pong massage if it is
-    String checkIfPingMessage(String msg);
+import org.junit.jupiter.api.Test;
+import pl.dmotyka.exchangeutils.huobi.HuobiExchangeMethods;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class JSRWebsocketTickerProviderTest {
+
+    @Test
+    void testConnectHuobi() throws IOException, InterruptedException {
+        TickerProvider tp = new JSRWebsocketTickerProvider(new TickerReceiver() {
+            @Override
+            public void receiveTicker(Ticker ticker) {
+
+            }
+
+            @Override
+            public void receiveTickers(Ticker[] tickers) {
+                if (tickers != null)
+                    for (Ticker ticker : tickers) {
+                        System.out.print(ticker.getPair() + " ");
+                        System.out.println(ticker.getValue());
+                    }
+            }
+
+            @Override
+            public void error(Throwable error) {
+                error.printStackTrace();
+            }
+        }, new String[] {"btcusdt"}, new HuobiExchangeMethods());
+        tp.connect(state -> System.out.println(state.toString()));
+        Thread.sleep(5000);
+        tp.disconnect();
+
+    }
 }
