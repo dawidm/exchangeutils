@@ -1,7 +1,7 @@
 /*
  * Cryptonose
  *
- * Copyright © 2019-2020 Dawid Motyka
+ * Copyright © 2019-2021 Dawid Motyka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
@@ -76,7 +76,7 @@ public class HuobiPairDataProvider implements PairDataProvider {
             tickersNode.size();
             String[] filteredPairs = volumesMap.entrySet().stream().filter(entry -> {
                 for (var criteria : pairSelectionCriteria) {
-                    if (entry.getKey().endsWith(criteria.getCounterCurrencySymbol()))
+                    if (entry.getKey().toLowerCase().endsWith(criteria.getCounterCurrencySymbol().toLowerCase()))
                         if (entry.getValue() > criteria.getMinVolume())
                             return true;
                 }
