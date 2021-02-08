@@ -1,7 +1,7 @@
 /*
  * Cryptonose
  *
- * Copyright © 2019-2020 Dawid Motyka
+ * Copyright © 2019-2021 Dawid Motyka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
@@ -13,11 +13,13 @@
 
 package pl.dmotyka.exchangeutils.poloniex;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -25,6 +27,8 @@ import pl.dmotyka.exchangeutils.tickerprovider.GenericTickerWebsocketExchangeMet
 import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
 
 public class PoloniexExchangeMethods implements GenericTickerWebsocketExchangeMethods {
+
+    private static final Logger logger = Logger.getLogger(PoloniexExchangeMethods.class.getName());
 
     private static final String WS_API_URL = "wss://api2.poloniex.com";
 
@@ -81,5 +85,16 @@ public class PoloniexExchangeMethods implements GenericTickerWebsocketExchangeMe
         if (currentPairTickersList==null)
             return null;
         return currentPairTickersList.toArray(new Ticker[0]);
+    }
+
+    @Override
+    public String handleBinaryMessage(ByteBuffer buffer) {
+        logger.warning("Handling binary messages not supported");
+        return null;
+    }
+
+    @Override
+    public String checkIfPingMessage(String msg) {
+        throw new RuntimeException("not implemented");
     }
 }
