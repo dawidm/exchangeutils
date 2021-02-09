@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import jakarta.websocket.ClientEndpoint;
 import jakarta.websocket.CloseReason;
 import jakarta.websocket.OnClose;
+import jakarta.websocket.OnError;
 import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
@@ -82,5 +83,10 @@ public class JSRWebsocketClientEndpoint {
     public void onClose(Session session, CloseReason closeReason) {
         logger.fine("connection closed");
         connectionStateReceiver.connectionState(JSRWebsocketConnectionState.DISCONNECTED);
+    }
+
+    @OnError
+    public void onError(Session session, Throwable t) {
+        logger.log(Level.WARNING, "websocket error", t);
     }
 }
