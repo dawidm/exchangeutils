@@ -71,8 +71,11 @@ public class JSRWebsocketTickerProvider implements TickerProvider {
         if (!connected.get()) {
             throw new IllegalStateException("not connected");
         }
+        if (reconnectScheduledFuture != null && !reconnectScheduledFuture.isDone())
+            reconnectScheduledFuture.cancel(true);
         if (client != null)
             client.shutdown();
+        connected.set(false);
         connectionStateReceiver.connectionState(TickerProviderConnectionState.DISCONNECTED);
     }
 
@@ -86,6 +89,7 @@ public class JSRWebsocketTickerProvider implements TickerProvider {
                 connectionStateReceiver.connectionState(TickerProviderConnectionState.CONNECTED);
                 break;
             case DISCONNECTED:
+                connected.set(false);
                 connectionStateReceiver.connectionState(TickerProviderConnectionState.RECONNECTING);
                 logger.fine("websocket closed, reconnecting...");
                 if (reconnectScheduledFuture == null || reconnectScheduledFuture.isDone()) {
