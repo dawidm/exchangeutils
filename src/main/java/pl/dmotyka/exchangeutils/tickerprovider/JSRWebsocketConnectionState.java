@@ -14,6 +14,7 @@
 package pl.dmotyka.exchangeutils.tickerprovider;
 
 public enum JSRWebsocketConnectionState {
+    REQUESTED_DISCONNECT,
     CONNECTED,
     DISCONNECTED
 }

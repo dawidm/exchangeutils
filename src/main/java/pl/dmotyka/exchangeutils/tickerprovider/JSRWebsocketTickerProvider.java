@@ -25,7 +25,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.dawidmotyka.dmutils.runtime.RepeatTillSuccess;
+import jakarta.websocket.CloseReason;
 import jakarta.websocket.DeploymentException;
+import jakarta.websocket.Session;
 import org.glassfish.tyrus.client.ClientManager;
 
 public class JSRWebsocketTickerProvider implements TickerProvider {
@@ -40,6 +42,7 @@ public class JSRWebsocketTickerProvider implements TickerProvider {
     private final GenericTickerWebsocketExchangeMethods exchangeMethods;
 
     private ClientManager client;
+    private Session session;
     private final ScheduledExecutorService scheduledExecutorService= Executors.newScheduledThreadPool(1);
     private ScheduledFuture<?> reconnectScheduledFuture;
 
@@ -59,7 +62,7 @@ public class JSRWebsocketTickerProvider implements TickerProvider {
         this.connectionStateReceiver = connectionStateReceiver;
         client = ClientManager.createClient();
         try {
-            client.connectToServer(new JSRWebsocketClientEndpoint(exchangeMethods, tickerReceiver, this::JSRWsebsocketConnectionState, pairs), new URI(exchangeMethods.getWsUrl(null)));
+            session = client.connectToServer(new JSRWebsocketClientEndpoint(exchangeMethods, tickerReceiver, this::JSRWsebsocketConnectionState, pairs), new URI(exchangeMethods.getWsUrl(null)));
             connected.set(true);
         } catch (DeploymentException | URISyntaxException e) {
             throw new IOException(e);
@@ -73,6 +76,12 @@ public class JSRWebsocketTickerProvider implements TickerProvider {
         }
         if (reconnectScheduledFuture != null && !reconnectScheduledFuture.isDone())
             reconnectScheduledFuture.cancel(true);
+        if (session != null && session.isOpen())
+            try {
+                session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "locally requested disconnect"));
+            } catch (IOException e) {
+                logger.log(Level.WARNING, "when closing websocket session " + session.getId(), e);
+            }
         connected.set(false);
         connectionStateReceiver.connectionState(TickerProviderConnectionState.DISCONNECTED);
     }
@@ -95,6 +104,8 @@ public class JSRWebsocketTickerProvider implements TickerProvider {
                         RepeatTillSuccess.planTask(this::reconnect, e -> logger.log(Level.WARNING, "when reconnecting", e), RECONNECT_INTERVAL_SECONDS * 100);
                     }, RECONNECT_INTERVAL_SECONDS, TimeUnit.SECONDS);
                 }
+                break;
+            case REQUESTED_DISCONNECT:
                 break;
         }
     }

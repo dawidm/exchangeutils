@@ -82,7 +82,10 @@ public class JSRWebsocketClientEndpoint {
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
         logger.fine("connection closed");
-        connectionStateReceiver.connectionState(JSRWebsocketConnectionState.DISCONNECTED);
+        if (closeReason.getCloseCode() == CloseReason.CloseCodes.NORMAL_CLOSURE)
+            connectionStateReceiver.connectionState(JSRWebsocketConnectionState.REQUESTED_DISCONNECT);
+        else
+            connectionStateReceiver.connectionState(JSRWebsocketConnectionState.DISCONNECTED);
     }
 
     @OnError
