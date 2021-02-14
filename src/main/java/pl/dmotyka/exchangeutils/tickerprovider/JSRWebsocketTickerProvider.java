@@ -73,8 +73,6 @@ public class JSRWebsocketTickerProvider implements TickerProvider {
         }
         if (reconnectScheduledFuture != null && !reconnectScheduledFuture.isDone())
             reconnectScheduledFuture.cancel(true);
-        if (client != null)
-            client.shutdown();
         connected.set(false);
         connectionStateReceiver.connectionState(TickerProviderConnectionState.DISCONNECTED);
     }
