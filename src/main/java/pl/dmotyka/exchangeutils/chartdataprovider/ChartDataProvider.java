@@ -222,9 +222,11 @@ public class ChartDataProvider {
         }
         if(longestPeriodUpdated) {
             for(List<Ticker> tickerList : tickersMap.values()) {
-                Iterator<Ticker> tickersListIterator = tickerList.iterator();
-                while (tickersListIterator.hasNext() && tickersListIterator.next().getTimestampSeconds()<currentTimestampSnapshot-longestTimePeriod)
-                    tickersListIterator.remove();
+                synchronized (tickerList) {
+                    Iterator<Ticker> tickersListIterator = tickerList.iterator();
+                    while (tickersListIterator.hasNext() && tickersListIterator.next().getTimestampSeconds() < currentTimestampSnapshot - longestTimePeriod)
+                        tickersListIterator.remove();
+                }
             }
         }
         if(anyPeriodUpdated)
@@ -258,7 +260,9 @@ public class ChartDataProvider {
             double lastClose;
             if (oldChartCandles.length == 0) { // no previous candles
                 logger.finer(String.format("no new tickers for %s and no old candles, generating candle with last known ticker", pair));
-                lastClose = tickerList.get(tickerList.size()-1).getValue();
+                synchronized (tickerList) {
+                    lastClose = tickerList.get(tickerList.size() - 1).getValue();
+                }
             } else {
                 logger.finer(String.format("no new tickers for %s, generating candle with last close price", pair));
                 lastClose = oldChartCandles[oldChartCandles.length-1].getClose();
