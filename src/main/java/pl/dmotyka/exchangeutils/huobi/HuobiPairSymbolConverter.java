@@ -29,7 +29,7 @@ public class HuobiPairSymbolConverter implements PairSymbolConverter {
 
     @Override
     public String toApiSymbol(CurrencyPair currencyPair) {
-        return currencyPair.counter.getSymbol().toLowerCase()+currencyPair.base.getSymbol().toLowerCase();
+        return currencyPair.base.getSymbol().toLowerCase()+currencyPair.counter.getSymbol().toLowerCase();
     }
 
     @Override
