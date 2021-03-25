@@ -187,7 +187,7 @@ public class ChartDataProvider {
         if(!chartDataReceivers.isEmpty()) {
             logger.fine("sending update notification to ChartDataReceivers");
             for (ChartDataReceiver chartDataReceiver:chartDataReceivers)
-                chartDataReceiver.onChartCandlesUpdate(Collections.unmodifiableMap(chartCandlesMap));
+                chartDataReceiver.onChartCandlesUpdate(getAllCandleData());
         }
     }
 
