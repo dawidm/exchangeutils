@@ -161,7 +161,7 @@ public class ChartDataProvider {
         }
     }
 
-    public Map<CurrencyPairTimePeriod, ChartCandle[]> getAllCandleData() {
+    public synchronized Map<CurrencyPairTimePeriod, ChartCandle[]> getAllCandleData() {
         Map<CurrencyPairTimePeriod,ChartCandle[]> allDataMap = new HashMap<>();
         for(Map.Entry<CurrencyPairTimePeriod,ChartCandle[]> oldMapEntry : chartCandlesMap.entrySet()) {
             allDataMap.put(oldMapEntry.getKey(),Arrays.copyOf(oldMapEntry.getValue(),oldMapEntry.getValue().length));
@@ -169,7 +169,7 @@ public class ChartDataProvider {
         return allDataMap;
     }
 
-    public Map<CurrencyPairTimePeriod, ChartCandle[]> getAllCandleDataForPeriod(long timePeriodSeconds) {
+    public synchronized Map<CurrencyPairTimePeriod, ChartCandle[]> getAllCandleDataForPeriod(long timePeriodSeconds) {
         Map<CurrencyPairTimePeriod,ChartCandle[]> allDataMap = new HashMap<>();
         for(Map.Entry<CurrencyPairTimePeriod,ChartCandle[]> oldMapEntry : chartCandlesMap.entrySet()) {
             if(oldMapEntry.getKey().getTimePeriodSeconds()==timePeriodSeconds)
