@@ -1,7 +1,7 @@
 /*
  * Cryptonose
  *
- * Copyright © 2019-2020 Dawid Motyka
+ * Copyright © 2019-2021 Dawid Motyka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
@@ -42,7 +42,7 @@ public class BinancePairDataProvider implements PairDataProvider {
     @Override
     public String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws ConnectionProblemException, ExchangeCommunicationException {
         try {
-            BinanceMarketDataService binanceMarketDataService = new BinanceMarketDataService(ExchangeFactory.INSTANCE.createExchange(new ExchangeSpecification(BinanceExchange.class)));
+            BinanceMarketDataService binanceMarketDataService = ((BinanceMarketDataService)ExchangeFactory.INSTANCE.createExchange(new ExchangeSpecification(BinanceExchange.class)).getMarketDataService());
             Map<String, Double> criteriaMap = new HashMap<>();
             Arrays.stream(pairSelectionCriteria).forEach(criterium -> criteriaMap.put(criterium.getCounterCurrencySymbol(), criterium.getMinVolume()));
             String[] pairs = Arrays.stream(binanceMarketDataService.getExchangeInfo().getSymbols()).
@@ -76,7 +76,7 @@ public class BinancePairDataProvider implements PairDataProvider {
     @Override
     public String[] getPairsApiSymbols() throws ConnectionProblemException, ExchangeCommunicationException {
         try {
-        BinanceMarketDataService binanceMarketDataService = new BinanceMarketDataService(ExchangeFactory.INSTANCE.createExchange(new ExchangeSpecification(BinanceExchange.class)));
+        BinanceMarketDataService binanceMarketDataService = ((BinanceMarketDataService)ExchangeFactory.INSTANCE.createExchange(new ExchangeSpecification(BinanceExchange.class)).getMarketDataService());
         return binanceMarketDataService.tickerAllPrices().stream().
                 map(BinancePrice::getCurrencyPair).
                 map(BinanceAdapters::toSymbol).
