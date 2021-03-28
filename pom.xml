@@ -58,37 +58,37 @@
         <dependency>
             <groupId>org.knowm.xchange</groupId>
             <artifactId>xchange-core</artifactId>
-            <version>4.3.8</version>
+            <version>5.0.6</version>
         </dependency>
         <dependency>
             <groupId>org.knowm.xchange</groupId>
             <artifactId>xchange-poloniex</artifactId>
-            <version>4.3.8</version>
+            <version>5.0.6</version>
         </dependency>
         <dependency>
             <groupId>org.knowm.xchange</groupId>
             <artifactId>xchange-bittrex</artifactId>
-            <version>4.3.8</version>
+            <version>5.0.6</version>
         </dependency>
         <dependency>
             <groupId>org.knowm.xchange</groupId>
             <artifactId>xchange-hitbtc</artifactId>
-            <version>4.3.8</version>
+            <version>5.0.6</version>
         </dependency>
         <dependency>
             <groupId>org.knowm.xchange</groupId>
             <artifactId>xchange-binance</artifactId>
-            <version>4.3.8</version>
+            <version>5.0.6</version>
         </dependency>
         <dependency>
             <groupId>org.knowm.xchange</groupId>
             <artifactId>xchange-bitfinex</artifactId>
-            <version>4.3.8</version>
+            <version>5.0.6</version>
         </dependency>
         <dependency>
             <groupId>org.knowm.xchange</groupId>
             <artifactId>xchange-huobi</artifactId>
-            <version>4.3.8</version>
+            <version>5.0.6</version>
         </dependency>
         <dependency>
             <groupId>com.github.ccob</groupId>
