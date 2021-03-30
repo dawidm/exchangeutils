@@ -13,7 +13,12 @@
 
 package pl.dmotyka.exchangeutils.exchangespecs;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.ServiceLoader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.knowm.xchange.Exchange;
 import pl.dmotyka.exchangeutils.binance.BinanceExchangeSpecs;
@@ -31,6 +36,10 @@ import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
  * Created by dawid on 8/20/17.
  */
 public abstract class ExchangeSpecs {
+
+    public static final Logger logger = Logger.getLogger(ExchangeSpecs.class.getName());
+
+    private static final int CHECK_CONNECTION_TIMEOUT_MILLIS = 60000;
 
     private final String name;
 
@@ -68,6 +77,20 @@ public abstract class ExchangeSpecs {
             case "binance": return new BinanceExchangeSpecs();
             case "huobi": return new HuobiExchangeSpecs();
             default: throw new NoSuchExchangeException("when getting exchange from string: " + exchangeName);
+        }
+    }
+
+    public abstract String getApiHostname();
+
+    public abstract int getApiPort();
+
+    // check if exchange api is reachable (using java.net.Socket connect() method), throws exception if not (connection problems)
+    public void checkConnection() throws IOException {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(getApiHostname(), getApiPort()), CHECK_CONNECTION_TIMEOUT_MILLIS);
+        } catch (IOException e) {
+            logger.log(Level.WARNING, name + ": no connection", e);
+            throw e;
         }
     }
 

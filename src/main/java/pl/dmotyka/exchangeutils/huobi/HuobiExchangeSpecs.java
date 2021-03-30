@@ -34,6 +34,8 @@ public class HuobiExchangeSpecs extends ExchangeSpecs {
     private static final String MARKET_URL = "https://www.huobi.com/en-us/exchange/";
     private static final String COLOR_HEX = "0066ff";
     private static final int DELAY_BETWEEN_REQUESTS_MS = 100;
+    private static final String API_HOSTNAME = "api.huobi.pro";
+    private static final int API_PORT = 443;
 
     public HuobiExchangeSpecs() {
         super(EXCHANGE_NAME);
@@ -69,5 +71,15 @@ public class HuobiExchangeSpecs extends ExchangeSpecs {
     @Override
     public TickerProvider getTickerProvider(TickerReceiver tickerReceiver, String[] pairs) {
         return new JSRWebsocketTickerProvider(tickerReceiver, pairs, new HuobiExchangeMethods());
+    }
+
+    @Override
+    public String getApiHostname() {
+        return API_HOSTNAME;
+    }
+
+    @Override
+    public int getApiPort() {
+        return API_PORT;
     }
 }

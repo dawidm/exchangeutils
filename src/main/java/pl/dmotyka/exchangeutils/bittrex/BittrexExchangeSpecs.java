@@ -32,6 +32,8 @@ public class BittrexExchangeSpecs extends ExchangeSpecs {
     private static final String MARKET_URL = "https://bittrex.com/Market/Index?MarketName=";
     private static final String COLOR_HEX = "2184ff";
     private static final int DELAY_BETWEEN_REQUESTS_MS=500;
+    private static final String API_HOSTNAME = "api.bittrex.com/v3";
+    private static final int API_PORT = 443;
 
     public BittrexExchangeSpecs() {
         super(EXCHANGE_NAME);
@@ -69,5 +71,15 @@ public class BittrexExchangeSpecs extends ExchangeSpecs {
     @Override
     public TickerProvider getTickerProvider(TickerReceiver tickerReceiver, String[] pairs) {
         throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public String getApiHostname() {
+        return API_HOSTNAME;
+    }
+
+    @Override
+    public int getApiPort() {
+        return API_PORT;
     }
 }

@@ -33,6 +33,8 @@ public class BitfinexExchangeSpecs extends ExchangeSpecs {
     private static final String MARKET_URL = "https://www.bitfinex.com/t/";
     private static final String COLOR_HEX = "32CD32";
     private static final int DELAY_BETWEEN_REQUESTS_MS=6000;
+    private static final String API_HOSTNAME = "api.bitfinex.com";
+    private static final int API_PORT = 443;
 
     public BitfinexExchangeSpecs() {
         super(EXCHANGE_NAME);
@@ -68,5 +70,15 @@ public class BitfinexExchangeSpecs extends ExchangeSpecs {
     @Override
     public TickerProvider getTickerProvider(TickerReceiver tickerReceiver, String[] pairs) {
         return new GenericWebsocketTickerProvider(tickerReceiver, pairs, new BitfinexExchangeMethods());
+    }
+
+    @Override
+    public String getApiHostname() {
+        return API_HOSTNAME;
+    }
+
+    @Override
+    public int getApiPort() {
+        return API_PORT;
     }
 }

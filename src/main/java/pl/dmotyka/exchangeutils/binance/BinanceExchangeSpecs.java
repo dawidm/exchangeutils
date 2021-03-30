@@ -1,7 +1,7 @@
 /*
  * Cryptonose
  *
- * Copyright © 2019-2020 Dawid Motyka
+ * Copyright © 2019-2021 Dawid Motyka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
@@ -33,6 +33,8 @@ public class BinanceExchangeSpecs extends ExchangeSpecs {
     private static final String MARKET_URL = "https://www.binance.com/en/trade/";
     private static final String COLOR_HEX = "cc9900";
     private static final int DELAY_BETWEEN_REQUESTS_MS=200;
+    private static final String API_HOSTNAME = "api.binance.com";
+    private static final int API_PORT = 443;
 
     public BinanceExchangeSpecs() {
         super(EXCHANGE_NAME);
@@ -68,5 +70,15 @@ public class BinanceExchangeSpecs extends ExchangeSpecs {
     @Override
     public TickerProvider getTickerProvider(TickerReceiver tickerReceiver, String[] pairs) {
         return new GenericWebsocketTickerProvider(tickerReceiver, pairs, new BinanceExchangeMethods());
+    }
+
+    @Override
+    public String getApiHostname() {
+        return API_HOSTNAME;
+    }
+
+    @Override
+    public int getApiPort() {
+        return API_PORT;
     }
 }
