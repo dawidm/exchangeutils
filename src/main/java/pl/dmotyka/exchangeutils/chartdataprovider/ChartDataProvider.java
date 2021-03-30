@@ -50,6 +50,7 @@ public class ChartDataProvider {
     private static final Logger logger = Logger.getLogger(ChartDataProvider.class.getName());
 
     public static final int NUM_RETRIES_FOR_PAIR=2;
+    public static final int WAIT_FOR_CONNECTION_RETRY_MILLIS = 60000;
 
     private final ExchangeSpecs exchangeSpecs;
     private String[] pairs;
@@ -107,14 +108,16 @@ public class ChartDataProvider {
                                 return;
                             getChartData(currentPair, currentPeriodNumCandles.getNumCandles(), currentPeriodNumCandles.getPeriodSeconds());
                         },
-                        (e) -> logger.log(Level.WARNING, "when getting data for " + currentPair, e),
+                        e -> {
+                            logger.log(Level.WARNING, "when getting data for " + currentPair, e);
+                            waitForConnection();
+                        },
                         exchangeSpecs.getDelayBetweenChartDataRequestsMs(),
                         NUM_RETRIES_FOR_PAIR,
                         () -> {
                             logger.log(Level.WARNING, String.format("reached maximum retires for getting data for %s", currentPair));
                             chartCandlesMap.put(new CurrencyPairTimePeriod(currentPair, currentPeriodNumCandles.getPeriodSeconds()), new ChartCandle[0]);
-                        },
-                        Set.of(ConnectionProblemException.class));
+                        });
                 //delay before next api call
                 try {Thread.sleep(exchangeSpecs.getDelayBetweenChartDataRequestsMs());} catch (InterruptedException e) {return;};
             }
@@ -181,6 +184,12 @@ public class ChartDataProvider {
     public synchronized ChartCandle[] getCandleData(CurrencyPairTimePeriod currencyPairTimePeriod) {
         ChartCandle[] oldArray = chartCandlesMap.get(currencyPairTimePeriod);
         return Arrays.copyOf(oldArray,oldArray.length);
+    }
+
+    private void waitForConnection() {
+        logger.fine("Checking exchange connection...");
+        RepeatTillSuccess.planTask(exchangeSpecs::checkConnection, e -> logger.log(Level.FINE, "No connection", e), WAIT_FOR_CONNECTION_RETRY_MILLIS);
+        logger.fine("Exchange connection available");
     }
 
     private void notifyChartDataReceivers() {
