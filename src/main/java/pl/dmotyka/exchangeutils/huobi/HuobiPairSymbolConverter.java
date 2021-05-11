@@ -20,7 +20,7 @@ import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
 
 public class HuobiPairSymbolConverter implements PairSymbolConverter {
 
-    private static final Set<String> COUNTER_CURRENCY_SET = Set.of("btc", "usdt", "husd", "eth", "ht", "trx");
+    private static final Set<String> COUNTER_CURRENCY_SET = Set.of("btc", "usdt", "husd", "eth", "ht", "trx", "usdc");
 
     @Override
     public String toFormattedString(String apiSymbol) {
@@ -44,7 +44,7 @@ public class HuobiPairSymbolConverter implements PairSymbolConverter {
                 return counter;
             }
         }
-        throw new IllegalArgumentException(apiSymbol + "has an unknown counter currency");
+        throw new IllegalArgumentException(apiSymbol + " has an unknown counter currency");
     }
 
     @Override
@@ -54,7 +54,7 @@ public class HuobiPairSymbolConverter implements PairSymbolConverter {
                 return apiSymbol.substring(0, apiSymbol.length()-counter.length());
             }
         }
-        throw new IllegalArgumentException(apiSymbol + "has an unknown counter currency");
+        throw new IllegalArgumentException(apiSymbol + " has an unknown counter currency");
     }
 
     @Override
