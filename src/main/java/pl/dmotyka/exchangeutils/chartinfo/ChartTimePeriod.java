@@ -23,8 +23,10 @@ public class ChartTimePeriod {
     public static final long PERIOD_15M = 15*60;
     public static final long PERIOD_30M = 30*60;
     public static final long PERIOD_1H = 60*60;
+    public static final long PERIOD_4H = 4*60*60;
     public static final long PERIOD_3H = 3*60*60;
     public static final long PERIOD_1D = 24*60*60;
+    public static final long PERIOD_1W = 7*24*60*60;
 
     private final String periodName;
     private final long periodLengthSeconds;
