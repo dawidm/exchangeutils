@@ -60,6 +60,11 @@ public class HuobiExchangeMethods implements GenericTickerWebsocketExchangeMetho
     }
 
     @Override
+    public String pingMessage() {
+        throw new RuntimeException("not applicable for this implementation (check with clientSendsPingMessages)");
+    }
+
+    @Override
     public String[] subscriptionsMessages(String[] pairsSymbols) {
         return Arrays.stream(pairsSymbols).map(symbol -> String.format("{ \"sub\": \"market.%s.trade.detail\", \"id\": \"1\" }", symbol)).toArray(String[]::new);
     }

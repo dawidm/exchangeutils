@@ -27,6 +27,8 @@ public interface GenericTickerWebsocketExchangeMethods {
     boolean clientSendsPingMessages();
     // client ping messages interval in milliseconds
     long clientPingMessageIntervalMs() throws ExchangeCommunicationException;
+    // get ping message to be sent
+    String pingMessage();
     // generate message sent to websocket to subscribe tickers data
     String[] subscriptionsMessages(String[] pairsSymbols);
     // read websocket message and return Tickers when message contains any, otherwise null

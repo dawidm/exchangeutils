@@ -59,6 +59,11 @@ public class PoloniexExchangeMethods implements GenericTickerWebsocketExchangeMe
     }
 
     @Override
+    public String pingMessage() {
+        throw new RuntimeException("not applicable for this implementation (check with clientSendsPingMessages)");
+    }
+
+    @Override
     public String[] subscriptionsMessages(String[] pairsSymbols) {
         return Arrays.stream(pairsSymbols).map(symbol -> String.format("{\"command\": \"subscribe\",\"channel\": \"%s\"}", symbol)).toArray(String[]::new);
     }
