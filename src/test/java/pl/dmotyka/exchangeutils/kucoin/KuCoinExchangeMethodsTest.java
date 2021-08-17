@@ -13,6 +13,8 @@
 
 package pl.dmotyka.exchangeutils.kucoin;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 
@@ -24,11 +26,10 @@ class KuCoinExchangeMethodsTest {
     @Test
     void getWsUrl() throws ExchangeCommunicationException {
         KuCoinExchangeMethods kuCoinExchangeMethods = new KuCoinExchangeMethods();
-        String url = kuCoinExchangeMethods.getWsUrl(new String[] {"test1", "test2"});
+        String url = kuCoinExchangeMethods.getWsUrl(new String[] {});
         assertNotNull(url);
         assertTrue(url.length() > 0);
         assertTrue(url.startsWith("wss"));
-        assertTrue(url.endsWith("test1,test2"));
     }
 
     @Test
@@ -37,5 +38,14 @@ class KuCoinExchangeMethodsTest {
         Long interval = kuCoinExchangeMethods.clientPingMessageIntervalMs();
         assertNotNull(interval);
         assertTrue(interval > 0);
+    }
+
+    @Test
+    void subscriptionsMessages() throws ExchangeCommunicationException, JsonProcessingException {
+        KuCoinExchangeMethods kuCoinExchangeMethods = new KuCoinExchangeMethods();
+        kuCoinExchangeMethods.getWsUrl(new String[0]);
+        String[] messages = kuCoinExchangeMethods.subscriptionsMessages(new String[] {"BTC-USDT","ETH-USDT"});
+        assertTrue(messages.length == 1);
+        new ObjectMapper().readTree(messages[0]);
     }
 }

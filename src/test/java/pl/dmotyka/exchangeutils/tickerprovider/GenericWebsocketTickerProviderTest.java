@@ -21,15 +21,29 @@ import org.junit.jupiter.api.Test;
 import pl.dmotyka.exchangeutils.binance.BinanceExchangeMethods;
 import pl.dmotyka.exchangeutils.bitfinex.BitfinexExchangeMethods;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
+import pl.dmotyka.exchangeutils.kucoin.KuCoinExchangeMethods;
 import pl.dmotyka.exchangeutils.poloniex.PoloniexExchangeMethods;
 
 class GenericWebsocketTickerProviderTest {
 
     @Test
-    public synchronized void connect() throws IOException, InterruptedException, ExchangeCommunicationException {
+    public synchronized void connectPoloniex() throws IOException, InterruptedException, ExchangeCommunicationException {
         testConnect(new PoloniexExchangeMethods(), new String[] {"USDT_BTC", "USDT_ETH"});
+    }
+
+    @Test
+    public synchronized void connectBitfinex() throws IOException, InterruptedException, ExchangeCommunicationException {
         testConnect(new BitfinexExchangeMethods(), new String[] {"tBTCUSD","tETHUSD"});
+    }
+
+    @Test
+    public synchronized void connectBinance() throws IOException, InterruptedException, ExchangeCommunicationException {
         testConnect(new BinanceExchangeMethods(), new String[] {"BTCUSDT","ETHBTC"});
+    }
+
+    @Test
+    public synchronized void connectKuCoin() throws IOException, InterruptedException, ExchangeCommunicationException {
+        testConnect(new KuCoinExchangeMethods(), new String[] {"BTC-USDT","ETH-USDT"});
     }
 
     private void testConnect(GenericTickerWebsocketExchangeMethods exchangeMethods, String[] pairs) throws IOException, InterruptedException, ExchangeCommunicationException {
