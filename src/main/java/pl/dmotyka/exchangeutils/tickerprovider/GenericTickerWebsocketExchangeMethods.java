@@ -13,19 +13,20 @@
 
 package pl.dmotyka.exchangeutils.tickerprovider;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
+
+import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 
 public interface GenericTickerWebsocketExchangeMethods {
     // get websocket sddress
     // pairsSymbols - arrays of symbols in a format correct for API
-    String getWsUrl(String[] pairsSymbols) throws IOException;
+    String getWsUrl(String[] pairsSymbols) throws ExchangeCommunicationException;
     // whether websocket for exchange needs making subscriptions for pairs
     boolean makesSubscriptions();
     // whether client should send ping messages
     boolean clientSendsPingMessages();
     // client ping messages interval in milliseconds
-    long clientPingMessageIntervalMs();
+    long clientPingMessageIntervalMs() throws ExchangeCommunicationException;
     // generate message sent to websocket to subscribe tickers data
     String[] subscriptionsMessages(String[] pairsSymbols);
     // read websocket message and return Tickers when message contains any, otherwise null
