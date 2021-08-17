@@ -48,7 +48,7 @@ public class JSRWebsocketClientEndpoint {
         logger.fine("connection opened");
         connectionStateReceiver.connectionState(JSRWebsocketConnectionState.CONNECTED);
         try {
-            if (exchangeMethods.isMakingSubscriptions()) {
+            if (exchangeMethods.makesSubscriptions()) {
                 String[] messages = exchangeMethods.subscriptionsMessages(pairs);
                 for (String msg : messages)
                     session.getBasicRemote().sendText(msg);

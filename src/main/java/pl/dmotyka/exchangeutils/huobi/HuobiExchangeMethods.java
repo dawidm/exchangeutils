@@ -45,7 +45,7 @@ public class HuobiExchangeMethods implements GenericTickerWebsocketExchangeMetho
     }
 
     @Override
-    public boolean isMakingSubscriptions() {
+    public boolean makesSubscriptions() {
         return true;
     }
 

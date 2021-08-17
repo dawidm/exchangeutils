@@ -44,7 +44,7 @@ public class PoloniexExchangeMethods implements GenericTickerWebsocketExchangeMe
     }
 
     @Override
-    public boolean isMakingSubscriptions() {
+    public boolean makesSubscriptions() {
         return true;
     }
 

@@ -20,7 +20,7 @@ public interface GenericTickerWebsocketExchangeMethods {
     // pairsSymbols - arrays of symbols in a format correct for API
     String getWsUrl(String[] pairsSymbols);
     // whether websocket for exchange needs making subscriptions for pairs
-    boolean isMakingSubscriptions();
+    boolean makesSubscriptions();
     // generate message sent to websocket to subscribe tickers data
     String[] subscriptionsMessages(String[] pairsSymbols);
     // read websocket message and return Tickers when message contains any, otherwise null

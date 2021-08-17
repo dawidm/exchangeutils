@@ -41,7 +41,7 @@ public class BinanceExchangeMethods implements GenericTickerWebsocketExchangeMet
     }
 
     @Override
-    public boolean isMakingSubscriptions() {
+    public boolean makesSubscriptions() {
         return false;
     }
 

@@ -42,7 +42,7 @@ public class BitfinexExchangeMethods implements GenericTickerWebsocketExchangeMe
     }
 
     @Override
-    public boolean isMakingSubscriptions() {
+    public boolean makesSubscriptions() {
         return true;
     }
 
