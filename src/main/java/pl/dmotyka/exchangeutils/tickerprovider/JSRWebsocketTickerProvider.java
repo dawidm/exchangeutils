@@ -29,6 +29,7 @@ import jakarta.websocket.CloseReason;
 import jakarta.websocket.DeploymentException;
 import jakarta.websocket.Session;
 import org.glassfish.tyrus.client.ClientManager;
+import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 
 public class JSRWebsocketTickerProvider implements TickerProvider {
 
@@ -55,7 +56,7 @@ public class JSRWebsocketTickerProvider implements TickerProvider {
     }
 
     @Override
-    public synchronized void connect(TickerProviderConnectionStateReceiver connectionStateReceiver) throws IOException {
+    public synchronized void connect(TickerProviderConnectionStateReceiver connectionStateReceiver) throws IOException, ExchangeCommunicationException {
         if (connected.get()) {
             throw new IllegalStateException("already connected");
         }
@@ -86,7 +87,7 @@ public class JSRWebsocketTickerProvider implements TickerProvider {
         connectionStateReceiver.connectionState(TickerProviderConnectionState.DISCONNECTED);
     }
 
-    private void reconnect() throws IOException {
+    private void reconnect() throws IOException, ExchangeCommunicationException {
         connect(connectionStateReceiver);
     }
 

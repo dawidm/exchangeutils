@@ -16,14 +16,13 @@ package pl.dmotyka.exchangeutils.tickerprovider;
 import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
+import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.huobi.HuobiExchangeMethods;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class JSRWebsocketTickerProviderTest {
 
     @Test
-    void testConnectHuobi() throws IOException, InterruptedException {
+    void testConnectHuobi() throws IOException, InterruptedException, ExchangeCommunicationException {
         TickerProvider tp = new JSRWebsocketTickerProvider(new TickerReceiver() {
             @Override
             public void receiveTicker(Ticker ticker) {

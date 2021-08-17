@@ -29,6 +29,7 @@ import javax.net.ssl.SSLContext;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
+import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 
 public class GenericWebsocketTickerProvider implements TickerProvider {
 
@@ -52,7 +53,7 @@ public class GenericWebsocketTickerProvider implements TickerProvider {
     }
 
     @Override
-    public synchronized void connect(TickerProviderConnectionStateReceiver connectionStateReceiver) throws IOException {
+    public synchronized void connect(TickerProviderConnectionStateReceiver connectionStateReceiver) throws IOException, ExchangeCommunicationException {
         this.connectionStateReceiver=connectionStateReceiver;
         isConnectedAtomicBoolean.set(true);
         logger.fine(String.format("connecting websocket, url: %s", genericTickerWebsocketExchangeMethods.getWsUrl(pairs)));

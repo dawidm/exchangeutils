@@ -20,18 +20,19 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import pl.dmotyka.exchangeutils.binance.BinanceExchangeMethods;
 import pl.dmotyka.exchangeutils.bitfinex.BitfinexExchangeMethods;
+import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.poloniex.PoloniexExchangeMethods;
 
 class GenericWebsocketTickerProviderTest {
 
     @Test
-    public synchronized void connect() throws IOException, InterruptedException {
+    public synchronized void connect() throws IOException, InterruptedException, ExchangeCommunicationException {
         testConnect(new PoloniexExchangeMethods(), new String[] {"USDT_BTC", "USDT_ETH"});
         testConnect(new BitfinexExchangeMethods(), new String[] {"tBTCUSD","tETHUSD"});
         testConnect(new BinanceExchangeMethods(), new String[] {"BTCUSDT","ETHBTC"});
     }
 
-    private void testConnect(GenericTickerWebsocketExchangeMethods exchangeMethods, String[] pairs) throws IOException, InterruptedException {
+    private void testConnect(GenericTickerWebsocketExchangeMethods exchangeMethods, String[] pairs) throws IOException, InterruptedException, ExchangeCommunicationException {
         Set<String> pairsSet= new HashSet<>();
         GenericWebsocketTickerProvider genericWebsocketTickerProvider = new GenericWebsocketTickerProvider(new TickerReceiver() {
             @Override
