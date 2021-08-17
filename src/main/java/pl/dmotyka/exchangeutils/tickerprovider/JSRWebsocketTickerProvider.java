@@ -50,6 +50,9 @@ public class JSRWebsocketTickerProvider implements TickerProvider {
     private final AtomicBoolean connected = new AtomicBoolean(false);
 
     public JSRWebsocketTickerProvider(TickerReceiver tickerReceiver, String[] pairs, GenericTickerWebsocketExchangeMethods exchangeMethods) {
+        if (exchangeMethods.clientSendsPingMessages()) {
+            throw new IllegalArgumentException("Exchanges requiring client ping messages are not supported");
+        }
         this.tickerReceiver = tickerReceiver;
         this.pairs = pairs;
         this.exchangeMethods = exchangeMethods;

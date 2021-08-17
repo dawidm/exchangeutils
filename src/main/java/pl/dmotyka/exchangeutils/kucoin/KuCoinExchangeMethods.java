@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
@@ -93,6 +94,7 @@ public class KuCoinExchangeMethods implements GenericTickerWebsocketExchangeMeth
     public static final String WS_URL_ENDING = "?token=%s&[connectId=%s]";
     // template for subscription of market match events, %s is symbols list
     public static final String WS_SUB_TEMPLATE = "/market/match:%s";
+    public static final String PING_MESSAGE = "{\"id\":\"%d\",\"type\":\"ping\"}";
 
     private final long connectionId = System.currentTimeMillis();
     private KuCoinWsData kuCoinWsData = null;
@@ -123,6 +125,10 @@ public class KuCoinExchangeMethods implements GenericTickerWebsocketExchangeMeth
         return kuCoinWsData.clientPingMessageInterval;
     }
 
+    public String pingMessage() {
+        return String.format(PING_MESSAGE, connectionId);
+    }
+
     @Override
     public String[] subscriptionsMessages(String[] pairsSymbols) {
         if (kuCoinWsData == null) {
@@ -133,7 +139,15 @@ public class KuCoinExchangeMethods implements GenericTickerWebsocketExchangeMeth
 
     @Override
     public Ticker[] handleMessage(String message) {
-        return new Ticker[0];
+        try {
+            JsonNode dataNode = objectMapper.readValue(message, JsonNode.class).get("data");
+            if (dataNode != null) {
+                return new Ticker[] {new Ticker(dataNode.get("symbol").asText(), dataNode.get("price").asDouble(), dataNode.get("time").asLong()/1000000000)};
+            }
+        } catch (JsonProcessingException e) {
+            logger.finest("Error parsing ticker message");
+        }
+        return null;
     }
 
     @Override

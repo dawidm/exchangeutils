@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 
 import javax.net.ssl.SSLContext;
 
+import com.dawidmotyka.dmutils.runtime.RepeatTillSuccess;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
@@ -36,9 +37,11 @@ public class GenericWebsocketTickerProvider implements TickerProvider {
     private static final Logger logger = Logger.getLogger(GenericWebsocketTickerProvider.class.getName());
     public static final int CONNECTION_LOST_TIMEOUT_SECONDS=60;
     public static final int PAUSE_BETWEEN_SUBSCRIPTIONS_MILLIS=200;
+    public static final int SCHEDULE_PING_RETRY_INTERVAL_MS = 5000;
 
-    private final ScheduledExecutorService scheduledExecutorService= Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService scheduledExecutorService= Executors.newScheduledThreadPool(2);
     private ScheduledFuture<?> reconnectScheduledFuture;
+    private ScheduledFuture<?> pingScheduledFuture;
     private final AtomicBoolean isConnectedAtomicBoolean=new AtomicBoolean(false);
     private WebSocketClient webSocketClient;
     private final TickerReceiver tickerReceiver;
@@ -69,7 +72,18 @@ public class GenericWebsocketTickerProvider implements TickerProvider {
                         for(String message : messages) {
                             try { Thread.sleep(PAUSE_BETWEEN_SUBSCRIPTIONS_MILLIS); } catch (InterruptedException e) {break;}
                             logger.finer("sending to ws: " + message);
-                            webSocketClient.send(message);
+                            synchronized (GenericWebsocketTickerProvider.this) {
+                                webSocketClient.send(message);
+                            }
+                        }
+                        if (genericTickerWebsocketExchangeMethods.clientSendsPingMessages()) {
+                            RepeatTillSuccess.planTask(() -> {
+                                long pingInterval = genericTickerWebsocketExchangeMethods.clientPingMessageIntervalMs();
+                                if (pingScheduledFuture != null) {
+                                    pingScheduledFuture.cancel(true);
+                                }
+                                pingScheduledFuture = scheduledExecutorService.scheduleAtFixedRate(GenericWebsocketTickerProvider.this::sendPing, pingInterval, pingInterval, TimeUnit.MILLISECONDS);
+                            }, (e) -> logger.log(Level.WARNING, "when sending ping",e), SCHEDULE_PING_RETRY_INTERVAL_MS);
                         }
                     }
                 }
@@ -128,6 +142,13 @@ public class GenericWebsocketTickerProvider implements TickerProvider {
             connectionStateReceiver.connectionState(TickerProviderConnectionState.DISCONNECTED);
         } catch (InterruptedException e) {
             logger.warning("interruptedException when closeBlocking webSocketClient");
+        }
+    }
+
+    private synchronized void sendPing() {
+        logger.fine("sending ping message");
+        if (webSocketClient != null && !webSocketClient.isClosed() && !webSocketClient.isClosing()) {
+            webSocketClient.send(genericTickerWebsocketExchangeMethods.pingMessage());
         }
     }
 
