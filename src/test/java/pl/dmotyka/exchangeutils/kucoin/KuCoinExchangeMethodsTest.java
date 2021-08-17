@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -46,6 +47,6 @@ class KuCoinExchangeMethodsTest {
         kuCoinExchangeMethods.getWsUrl(new String[0]);
         String[] messages = kuCoinExchangeMethods.subscriptionsMessages(new String[] {"BTC-USDT","ETH-USDT"});
         assertTrue(messages.length == 1);
-        new ObjectMapper().readTree(messages[0]);
+        assertDoesNotThrow(() -> new ObjectMapper().readTree(messages[0]));
     }
 }
