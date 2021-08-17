@@ -46,6 +46,16 @@ public class BinanceExchangeMethods implements GenericTickerWebsocketExchangeMet
     }
 
     @Override
+    public boolean clientSendsPingMessages() {
+        return false;
+    }
+
+    @Override
+    public long clientPingMessageIntervalMs() {
+        throw new RuntimeException("not applicable for this implementation (check with clientSendsPingMessages)");
+    }
+
+    @Override
     public String[] subscriptionsMessages(String[] pairsSymbols) {
         return new String[0];
     }

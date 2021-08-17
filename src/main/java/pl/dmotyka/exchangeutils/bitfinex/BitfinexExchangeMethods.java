@@ -47,6 +47,16 @@ public class BitfinexExchangeMethods implements GenericTickerWebsocketExchangeMe
     }
 
     @Override
+    public boolean clientSendsPingMessages() {
+        return false;
+    }
+
+    @Override
+    public long clientPingMessageIntervalMs() {
+        throw new RuntimeException("not applicable for this implementation (check with clientSendsPingMessages)");
+    }
+
+    @Override
     public String[] subscriptionsMessages(String[] pairsSymbols) {
         List<String> messages = new ArrayList<>(pairsSymbols.length);
         for(String pair : pairsSymbols)  {
