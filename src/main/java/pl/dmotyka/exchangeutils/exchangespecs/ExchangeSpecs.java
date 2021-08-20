@@ -21,14 +21,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.knowm.xchange.Exchange;
-import pl.dmotyka.exchangeutils.binance.BinanceExchangeSpecs;
-import pl.dmotyka.exchangeutils.bitfinex.BitfinexExchangeSpecs;
-import pl.dmotyka.exchangeutils.bittrex.BittrexExchangeSpecs;
 import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
-import pl.dmotyka.exchangeutils.huobi.HuobiExchangeSpecs;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
 import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
-import pl.dmotyka.exchangeutils.poloniex.PoloniexExchangeSpecs;
 import pl.dmotyka.exchangeutils.tickerprovider.TickerProvider;
 import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
 
@@ -68,16 +63,14 @@ public abstract class ExchangeSpecs {
     public abstract TickerProvider getTickerProvider(TickerReceiver tickerReceiver, String[] pairs);
 
     // get instance of ExchangeSpecs subclass for exchange string name, not case-sensitive
-    // available exchanges: poloniex, bittrex, bitfinex, binance, xtb
     public static ExchangeSpecs fromStringName(String exchangeName) throws NoSuchExchangeException{
-        switch (exchangeName.toLowerCase()) {
-            case "poloniex": return new PoloniexExchangeSpecs();
-            case "bittrex": return new BittrexExchangeSpecs();
-            case "bitfinex": return new BitfinexExchangeSpecs();
-            case "binance": return new BinanceExchangeSpecs();
-            case "huobi": return new HuobiExchangeSpecs();
-            default: throw new NoSuchExchangeException("when getting exchange from string: " + exchangeName);
+        ExchangeSpecs[] availableExchanges = getAll();
+        for (ExchangeSpecs currentExchange : availableExchanges) {
+            if (exchangeName.toLowerCase().equals(currentExchange.getName().toLowerCase())) {
+                return currentExchange;
+            }
         }
+        throw new NoSuchExchangeException("when getting exchange from string: " + exchangeName);
     }
 
     public abstract String getApiHostname();
