@@ -16,6 +16,13 @@ package pl.dmotyka.exchangeutils.exchangespecs;
 import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
+import pl.dmotyka.exchangeutils.binance.BinanceExchangeSpecs;
+import pl.dmotyka.exchangeutils.bitfinex.BitfinexExchangeSpecs;
+import pl.dmotyka.exchangeutils.huobi.HuobiExchangeSpecs;
+import pl.dmotyka.exchangeutils.kucoin.KuCoinExchangeSpecs;
+import pl.dmotyka.exchangeutils.poloniex.PoloniexExchangeSpecs;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ExchangeSpecsTest {
 
@@ -24,5 +31,14 @@ class ExchangeSpecsTest {
         for (ExchangeSpecs exchangeSpecs : ExchangeSpecs.getAll()) {
             exchangeSpecs.checkConnection();
         }
+    }
+
+    @Test
+    void fromStringName() throws NoSuchExchangeException {
+        assertTrue(ExchangeSpecs.fromStringName("binance") instanceof BinanceExchangeSpecs);
+        assertTrue(ExchangeSpecs.fromStringName("huobi") instanceof HuobiExchangeSpecs);
+        assertTrue(ExchangeSpecs.fromStringName("bitfinex") instanceof BitfinexExchangeSpecs);
+        assertTrue(ExchangeSpecs.fromStringName("kucoin") instanceof KuCoinExchangeSpecs);
+        assertTrue(ExchangeSpecs.fromStringName("Poloniex") instanceof PoloniexExchangeSpecs);
     }
 }
