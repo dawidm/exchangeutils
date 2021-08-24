@@ -47,7 +47,7 @@ public class BinanceExchangeSpecs extends ExchangeSpecs {
 
     @Override
     public PairDataProvider getPairDataProvider() {
-        return new BinancePairDataProvider();
+        return new BinancePairDataProviderNew();
     }
 
     @Override
