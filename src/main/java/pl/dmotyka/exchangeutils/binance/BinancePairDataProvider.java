@@ -35,7 +35,7 @@ import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairSelectionCriteria;
 
-public class BinancePairDataProvider implements PairDataProvider {
+class BinancePairDataProvider implements PairDataProvider {
 
     private static final Logger logger = Logger.getLogger(BinancePairDataProvider.class.getName());
 
