@@ -42,7 +42,7 @@ public class BinanceExchangeSpecs extends ExchangeSpecs {
 
     @Override
     public ExchangeChartInfo getChartInfo() {
-        return new BinanceChartInfo();
+        return new BinanceChartInfoNew();
     }
 
     @Override
