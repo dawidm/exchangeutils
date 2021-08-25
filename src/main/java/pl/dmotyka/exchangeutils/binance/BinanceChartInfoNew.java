@@ -45,7 +45,7 @@ class BinanceChartInfoNew implements ExchangeChartInfo {
     @Override
     public ChartCandle[] getCandles(String symbol, long timePeriodSeconds, long beginTimestampSeconds, long endTimestampSeconds) throws ExchangeCommunicationException, NoSuchTimePeriodException, ConnectionProblemException {
         try{
-            String url = new URL(BinanceApiUrls.getFullEndpointUrl(KLINES_ENDPOINT)) + createEndpointParameters(symbol, timePeriodSeconds, beginTimestampSeconds * 1000, endTimestampSeconds * 1000);
+            String url = new URL(BinanceApiSpecs.getFullEndpointUrl(KLINES_ENDPOINT)) + createEndpointParameters(symbol, timePeriodSeconds, beginTimestampSeconds * 1000, endTimestampSeconds * 1000);
             JsonNode klinesNode = objectMapper.readValue(new URL(url), JsonNode.class);
             List<ChartCandle> candlesList = new ArrayList<>(klinesNode.size());
             for (JsonNode klineNode : klinesNode) {

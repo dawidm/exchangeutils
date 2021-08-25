@@ -13,7 +13,7 @@
 
 package pl.dmotyka.exchangeutils.binance;
 
-public class BinanceApiUrls {
+public class BinanceApiSpecs {
 
     public static final String API_ADDRESS = "https://api.binance.com";
 

@@ -43,7 +43,7 @@ class BinancePairDataProviderNew implements PairDataProvider {
     @Override
     public String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws ConnectionProblemException, ExchangeCommunicationException {
         try {
-            JsonNode tickersNode = objectMapper.readValue(new URL(BinanceApiUrls.getFullEndpointUrl(TICKER24_INFO_ENDPOINT)), JsonNode.class);
+            JsonNode tickersNode = objectMapper.readValue(new URL(BinanceApiSpecs.getFullEndpointUrl(TICKER24_INFO_ENDPOINT)), JsonNode.class);
             Map<String, Double> volumesMap = new HashMap<>();
             for (JsonNode tickerNode : tickersNode) {
                 volumesMap.put(tickerNode.get("symbol").textValue(), tickerNode.get("quoteVolume").asDouble(0));
@@ -63,7 +63,7 @@ class BinancePairDataProviderNew implements PairDataProvider {
     @Override
     public String[] getPairsApiSymbols() throws ConnectionProblemException, ExchangeCommunicationException {
         try {
-            JsonNode infoNode = objectMapper.readValue(new URL(BinanceApiUrls.getFullEndpointUrl(EXCHANGE_INFO_ENDPOINT)), JsonNode.class);
+            JsonNode infoNode = objectMapper.readValue(new URL(BinanceApiSpecs.getFullEndpointUrl(EXCHANGE_INFO_ENDPOINT)), JsonNode.class);
             JsonNode symbolsNode = infoNode.get("symbols");
             ArrayList<String> apiSymbols = new ArrayList<>();
             for (JsonNode symbolNode : symbolsNode) {
