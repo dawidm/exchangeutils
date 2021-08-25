@@ -22,6 +22,7 @@ public class ChartCandle {
     private final double open;
     private final double close;
     private final long timestampSeconds;
+    private final Double quoteVolume;
 
     public ChartCandle(double high, double low, double open, double close, long timestampSeconds) {
         this.timestampSeconds=timestampSeconds;
@@ -29,6 +30,16 @@ public class ChartCandle {
         this.low=low;
         this.open=open;
         this.close=close;
+        this.quoteVolume = null;
+    }
+
+    public ChartCandle(double high, double low, double open, double close, long timestampSeconds, double quoteVolume) {
+        this.high = high;
+        this.low = low;
+        this.open = open;
+        this.close = close;
+        this.timestampSeconds = timestampSeconds;
+        this.quoteVolume = quoteVolume;
     }
 
     /**
@@ -64,6 +75,13 @@ public class ChartCandle {
      */
     public long getTimestampSeconds() {
         return timestampSeconds;
+    }
+
+    /**
+     * @return quote volume
+     */
+    public Double getQuoteVolume() {
+        return quoteVolume;
     }
 
     // returns true when price didn't change "within" this candle
