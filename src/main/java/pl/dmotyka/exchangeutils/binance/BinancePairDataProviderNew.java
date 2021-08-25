@@ -15,12 +15,15 @@ package pl.dmotyka.exchangeutils.binance;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import pl.dmotyka.exchangeutils.binance.dataobj.Volume24h;
 import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
@@ -32,18 +35,16 @@ class BinancePairDataProviderNew implements PairDataProvider {
     private static final Logger logger = Logger.getLogger(BinancePairDataProviderNew.class.getName());
 
     private final ApiTools apiTools = new ApiTools();
+    BinanceExchangeApi binanceExchangeApi = new BinanceExchangeApi();
 
     @Override
     public String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws ConnectionProblemException, ExchangeCommunicationException {
-        JsonNode tickersNode = apiTools.getJsonNode(BinanceApiSpecs.getFullEndpointUrl(BinanceApiSpecs.TICKER24_INFO_ENDPOINT));
-        Map<String, Double> volumesMap = new HashMap<>();
-        for (JsonNode tickerNode : tickersNode) {
-            volumesMap.put(tickerNode.get("symbol").textValue(), tickerNode.get("quoteVolume").asDouble(0));
-        }
+        List<Volume24h> volumesList = binanceExchangeApi.getVolumes24h();
+        Map<String, Volume24h> volumesMap = volumesList.stream().collect(Collectors.toMap(Volume24h::getApiSymbol, Function.identity()));
         return Arrays.stream(getPairsApiSymbols()).filter(symbol -> {
             Optional<PairSelectionCriteria> criterion = Arrays.stream(pairSelectionCriteria).
                     filter(crit -> symbol.endsWith(crit.getCounterCurrencySymbol())).findAny();
-            return criterion.filter(selectionCriteria -> volumesMap.get(symbol) >= selectionCriteria.getMinVolume()).isPresent();
+            return criterion.filter(selectionCriteria -> volumesMap.get(symbol).getQuoteVolume24h() >= selectionCriteria.getMinVolume()).isPresent();
         }).toArray(String[]::new);
     }
 
