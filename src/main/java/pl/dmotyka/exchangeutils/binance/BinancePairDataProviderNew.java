@@ -31,14 +31,11 @@ class BinancePairDataProviderNew implements PairDataProvider {
 
     private static final Logger logger = Logger.getLogger(BinancePairDataProviderNew.class.getName());
 
-    private static final String EXCHANGE_INFO_ENDPOINT = "/api/v3/exchangeInfo";
-    private static final String TICKER24_INFO_ENDPOINT = "/api/v3/ticker/24hr";
-
     private final ApiTools apiTools = new ApiTools();
 
     @Override
     public String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws ConnectionProblemException, ExchangeCommunicationException {
-        JsonNode tickersNode = apiTools.getJsonNode(BinanceApiSpecs.getFullEndpointUrl(TICKER24_INFO_ENDPOINT));
+        JsonNode tickersNode = apiTools.getJsonNode(BinanceApiSpecs.getFullEndpointUrl(BinanceApiSpecs.TICKER24_INFO_ENDPOINT));
         Map<String, Double> volumesMap = new HashMap<>();
         for (JsonNode tickerNode : tickersNode) {
             volumesMap.put(tickerNode.get("symbol").textValue(), tickerNode.get("quoteVolume").asDouble(0));
@@ -52,7 +49,7 @@ class BinancePairDataProviderNew implements PairDataProvider {
 
     @Override
     public String[] getPairsApiSymbols() throws ConnectionProblemException, ExchangeCommunicationException {
-        JsonNode infoNode = apiTools.getJsonNode(BinanceApiSpecs.getFullEndpointUrl(EXCHANGE_INFO_ENDPOINT));
+        JsonNode infoNode = apiTools.getJsonNode(BinanceApiSpecs.getFullEndpointUrl(BinanceApiSpecs.EXCHANGE_INFO_ENDPOINT));
         JsonNode symbolsNode = infoNode.get("symbols");
         ArrayList<String> apiSymbols = new ArrayList<>();
         for (JsonNode symbolNode : symbolsNode) {

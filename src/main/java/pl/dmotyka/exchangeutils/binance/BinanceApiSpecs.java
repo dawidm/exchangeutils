@@ -16,6 +16,8 @@ package pl.dmotyka.exchangeutils.binance;
 public class BinanceApiSpecs {
 
     public static final String API_ADDRESS = "https://api.binance.com";
+    public static final String EXCHANGE_INFO_ENDPOINT = "/api/v3/exchangeInfo";
+    public static final String TICKER24_INFO_ENDPOINT = "/api/v3/ticker/24hr";
 
     public static String getFullEndpointUrl(String endpoint) {
         return API_ADDRESS + (endpoint.startsWith("/")?"":"/") + endpoint;
