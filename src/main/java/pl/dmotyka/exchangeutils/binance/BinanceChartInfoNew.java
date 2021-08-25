@@ -13,23 +13,19 @@
 
 package pl.dmotyka.exchangeutils.binance;
 
-import java.io.IOException;
-import java.net.SocketException;
-import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import pl.dmotyka.exchangeutils.chartinfo.ChartCandle;
 import pl.dmotyka.exchangeutils.chartinfo.ChartTimePeriod;
 import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import pl.dmotyka.exchangeutils.chartinfo.NoSuchTimePeriodException;
 import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
+import pl.dmotyka.exchangeutils.tools.ApiTools;
 
 /**
  * Created by dawid on 12/4/17.
@@ -40,28 +36,22 @@ class BinanceChartInfoNew implements ExchangeChartInfo {
 
     private static final String KLINES_ENDPOINT = "/api/v3/klines";
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ApiTools apiTools = new ApiTools();
 
     @Override
     public ChartCandle[] getCandles(String symbol, long timePeriodSeconds, long beginTimestampSeconds, long endTimestampSeconds) throws ExchangeCommunicationException, NoSuchTimePeriodException, ConnectionProblemException {
-        try{
-            String url = new URL(BinanceApiSpecs.getFullEndpointUrl(KLINES_ENDPOINT)) + createEndpointParameters(symbol, timePeriodSeconds, beginTimestampSeconds * 1000, endTimestampSeconds * 1000);
-            JsonNode klinesNode = objectMapper.readValue(new URL(url), JsonNode.class);
-            List<ChartCandle> candlesList = new ArrayList<>(klinesNode.size());
-            for (JsonNode klineNode : klinesNode) {
-                candlesList.add(new ChartCandle(
-                        klineNode.get(2).asDouble(),
-                        klineNode.get(3).asDouble(),
-                        klineNode.get(1).asDouble(),
-                        klineNode.get(4).asDouble(),
-                        klineNode.get(0).asLong()/1000));
-            }
-            return candlesList.toArray(ChartCandle[]::new);
-        } catch (SocketException | UnknownHostException e) {
-            throw new ConnectionProblemException("when getting binance klines for " + symbol, e);
-        } catch (IOException e) {
-            throw new ExchangeCommunicationException("when getting binance klines for " + symbol, e);
+        String url = BinanceApiSpecs.getFullEndpointUrl(KLINES_ENDPOINT) + createEndpointParameters(symbol, timePeriodSeconds, beginTimestampSeconds * 1000, endTimestampSeconds * 1000);
+        JsonNode klinesNode = apiTools.getJsonNode(url);
+        List<ChartCandle> candlesList = new ArrayList<>(klinesNode.size());
+        for (JsonNode klineNode : klinesNode) {
+            candlesList.add(new ChartCandle(
+                    klineNode.get(2).asDouble(),
+                    klineNode.get(3).asDouble(),
+                    klineNode.get(1).asDouble(),
+                    klineNode.get(4).asDouble(),
+                    klineNode.get(0).asLong()/1000));
         }
+        return candlesList.toArray(ChartCandle[]::new);
     }
 
     @Override
