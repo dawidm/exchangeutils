@@ -13,10 +13,6 @@
 
 package pl.dmotyka.exchangeutils.binance;
 
-import java.io.IOException;
-import java.net.SocketException;
-import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,11 +21,11 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairSelectionCriteria;
+import pl.dmotyka.exchangeutils.tools.ApiTools;
 
 class BinancePairDataProviderNew implements PairDataProvider {
 
@@ -38,44 +34,32 @@ class BinancePairDataProviderNew implements PairDataProvider {
     private static final String EXCHANGE_INFO_ENDPOINT = "/api/v3/exchangeInfo";
     private static final String TICKER24_INFO_ENDPOINT = "/api/v3/ticker/24hr";
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ApiTools apiTools = new ApiTools();
 
     @Override
     public String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws ConnectionProblemException, ExchangeCommunicationException {
-        try {
-            JsonNode tickersNode = objectMapper.readValue(new URL(BinanceApiSpecs.getFullEndpointUrl(TICKER24_INFO_ENDPOINT)), JsonNode.class);
-            Map<String, Double> volumesMap = new HashMap<>();
-            for (JsonNode tickerNode : tickersNode) {
-                volumesMap.put(tickerNode.get("symbol").textValue(), tickerNode.get("quoteVolume").asDouble(0));
-            }
-            return Arrays.stream(getPairsApiSymbols()).filter(symbol -> {
-                Optional<PairSelectionCriteria> criterion = Arrays.stream(pairSelectionCriteria).
-                        filter(crit -> symbol.endsWith(crit.getCounterCurrencySymbol())).findAny();
-                return criterion.filter(selectionCriteria -> volumesMap.get(symbol) >= selectionCriteria.getMinVolume()).isPresent();
-            }).toArray(String[]::new);
-        } catch (UnknownHostException | SocketException e) {
-            throw new ConnectionProblemException("when getting symbols", e);
-        } catch (IOException e) {
-            throw new ExchangeCommunicationException("when getting symbols", e);
+        JsonNode tickersNode = apiTools.getJsonNode(BinanceApiSpecs.getFullEndpointUrl(TICKER24_INFO_ENDPOINT));
+        Map<String, Double> volumesMap = new HashMap<>();
+        for (JsonNode tickerNode : tickersNode) {
+            volumesMap.put(tickerNode.get("symbol").textValue(), tickerNode.get("quoteVolume").asDouble(0));
         }
+        return Arrays.stream(getPairsApiSymbols()).filter(symbol -> {
+            Optional<PairSelectionCriteria> criterion = Arrays.stream(pairSelectionCriteria).
+                    filter(crit -> symbol.endsWith(crit.getCounterCurrencySymbol())).findAny();
+            return criterion.filter(selectionCriteria -> volumesMap.get(symbol) >= selectionCriteria.getMinVolume()).isPresent();
+        }).toArray(String[]::new);
     }
 
     @Override
     public String[] getPairsApiSymbols() throws ConnectionProblemException, ExchangeCommunicationException {
-        try {
-            JsonNode infoNode = objectMapper.readValue(new URL(BinanceApiSpecs.getFullEndpointUrl(EXCHANGE_INFO_ENDPOINT)), JsonNode.class);
-            JsonNode symbolsNode = infoNode.get("symbols");
-            ArrayList<String> apiSymbols = new ArrayList<>();
-            for (JsonNode symbolNode : symbolsNode) {
-                if (symbolNode.get("status").asText().equals("TRADING")) {
-                    apiSymbols.add(symbolNode.get("symbol").textValue());
-                }
+        JsonNode infoNode = apiTools.getJsonNode(BinanceApiSpecs.getFullEndpointUrl(EXCHANGE_INFO_ENDPOINT));
+        JsonNode symbolsNode = infoNode.get("symbols");
+        ArrayList<String> apiSymbols = new ArrayList<>();
+        for (JsonNode symbolNode : symbolsNode) {
+            if (symbolNode.get("status").asText().equals("TRADING")) {
+                apiSymbols.add(symbolNode.get("symbol").textValue());
             }
-            return apiSymbols.toArray(String[]::new);
-        } catch (UnknownHostException | SocketException e) {
-            throw new ConnectionProblemException("when getting symbols", e);
-        } catch (IOException e) {
-            throw new ExchangeCommunicationException("when getting symbols", e);
         }
+        return apiSymbols.toArray(String[]::new);
     }
 }
