@@ -23,4 +23,15 @@ public class ApiTools {
             throw new ExchangeCommunicationException("when getting symbols", e);
         }
     }
+
+    public <T> T getDataObj(String url, Class<T> dataobjClass) throws ConnectionProblemException, ExchangeCommunicationException {
+        try {
+            return objectMapper.readValue(new URL(url), dataobjClass);
+        } catch (UnknownHostException | SocketException e) {
+            throw new ConnectionProblemException("when getting symbols", e);
+        } catch (IOException e) {
+            throw new ExchangeCommunicationException("when getting symbols", e);
+        }
+    }
+
 }
