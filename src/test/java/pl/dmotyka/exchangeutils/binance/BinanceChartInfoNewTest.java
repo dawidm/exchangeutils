@@ -20,7 +20,8 @@ import pl.dmotyka.exchangeutils.chartinfo.NoSuchTimePeriodException;
 import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BinanceChartInfoNewTest {
 
@@ -33,5 +34,10 @@ class BinanceChartInfoNewTest {
         ExchangeChartInfo info = new BinanceExchangeSpecs().getChartInfo();
         ChartCandle[] candles = info.getCandles("BTCUSDT", interval, beginTimestamp, endTimestamp);
         assertTrue(candles != null && candles.length > numCandles/2);
+        for (ChartCandle candle : candles) {
+            assertNotNull(candle);
+            assertNotNull(candle.getQuoteVolume());
+            assertTrue(candle.getQuoteVolume() >= 0);
+        }
     }
 }

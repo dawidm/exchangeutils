@@ -49,7 +49,8 @@ class BinanceChartInfoNew implements ExchangeChartInfo {
                     klineNode.get(3).asDouble(),
                     klineNode.get(1).asDouble(),
                     klineNode.get(4).asDouble(),
-                    klineNode.get(0).asLong()/1000));
+                    klineNode.get(0).asLong()/1000,
+                    klineNode.get(7).asDouble()));
         }
         return candlesList.toArray(ChartCandle[]::new);
     }
