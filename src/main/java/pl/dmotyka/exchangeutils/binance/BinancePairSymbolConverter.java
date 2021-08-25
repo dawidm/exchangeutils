@@ -13,7 +13,6 @@
 
 package pl.dmotyka.exchangeutils.binance;
 
-import java.util.Collections;
 import java.util.Set;
 
 import org.knowm.xchange.currency.CurrencyPair;
@@ -21,7 +20,7 @@ import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
 
 class BinancePairSymbolConverter implements PairSymbolConverter {
 
-    private static final Set<String> COUNTER_CURRENCY_4_DIGIT_SET = Collections.unmodifiableSet(Set.of("USDT", "TUSD", "USDC", "BKRW", "BUSD", "IDRT"));
+    private static final Set<String> COUNTER_CURRENCY_4_DIGIT_SET = Set.of("USDT", "TUSD", "USDC", "BKRW", "BUSD", "IDRT");
 
     @Override
     public String toFormattedString(String apiSymbol) {
