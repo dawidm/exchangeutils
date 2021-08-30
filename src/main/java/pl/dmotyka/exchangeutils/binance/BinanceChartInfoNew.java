@@ -69,7 +69,7 @@ class BinanceChartInfoNew implements ExchangeChartInfo {
                 new ChartTimePeriod("h12",12*60*60,"12h"),
                 new ChartTimePeriod("d1",24*60*60,"1d"),
                 new ChartTimePeriod("d3",3*24*60*60,"3d"),
-                new ChartTimePeriod("w1",7*24*60*60,"1e"),
+                new ChartTimePeriod("w1",7*24*60*60,"1w"),
                 new ChartTimePeriod("M1",30*24*60*60,"1M"),
         };
     }
