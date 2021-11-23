@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -77,9 +78,9 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
             for (JsonNode poolNode : poolsNode.get("pools")) {
                 String id = poolNode.get("id").textValue();
                 if (!dexCurrencyPairMap.containsKey(id)) {
-                    DexCurrencyPair pair = new DexCurrencyPair(poolNode.get("token0").get("symbol").textValue(),
+                    DexCurrencyPair pair = new DexCurrencyPair(poolNode.get("token0").get("symbol").textValue().toUpperCase(Locale.ROOT),
                             poolNode.get("token0").get("id").textValue(),
-                            poolNode.get("token1").get("symbol").textValue(),
+                            poolNode.get("token1").get("symbol").textValue().toUpperCase(Locale.ROOT),
                             poolNode.get("token1").get("id").textValue(),
                             poolNode.get("id").textValue());
                     dexCurrencyPairMap.put(pair.getPoolAddress(), pair);
