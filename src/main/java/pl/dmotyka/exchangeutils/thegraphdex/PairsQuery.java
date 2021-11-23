@@ -14,22 +14,35 @@
 package pl.dmotyka.exchangeutils.thegraphdex;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import pl.dmotyka.exchangeutils.pairdataprovider.PairSelectionCriteria;
 
 public class PairsQuery extends TheGraphQuery {
 
-    private final String QUERY_STRING = "{pools(where:{volumeUSD_gt:10000.0}){id,token0{id,symbol}token1{id,symbol}}}";
-    private final String QUERY_STRING_PAGINATED = "{pools(where:{id_gt:\"%s\",volumeUSD_gt:10000.0}){id,token0{id,symbol}token1{id,symbol}}}";
+    private final String QUERY_STRING = "{pools(where:{volumeUSD_gt:10000.0}){id,token0{id,symbol},token1{id,symbol}}}";
+    private final String QUERY_STRING_PAGINATED = "{pools(where:{id_gt:\"%s\",volumeUSD_gt:10000.0}){id,token0{id,symbol},token1{id,symbol}}}";
+    private final String QUERY_STRING_FILTERED = "{pools(where:{token1:\"%s\",totalValueLockedToken1_gt:%.2f}){id,token0{id,symbol},token1{id,symbol}}}";
+    private final String QUERY_STRING_FILTERED_PAGINATED = "{pools(where:{id_gt:\"%s\",token1:\"%s\",totalValueLockedToken1_gt:%.2f}){id,token0{id,symbol},token1{id,symbol}}}";
     private final String POOLS_FIELD = "pools";
     private final String ID_FIELD = "id";
 
+    private PairSelectionCriteria pairSelectionCriteria;
+
     @Override
     public String getGraphQLQuery() {
-        return QUERY_STRING;
+        if (pairSelectionCriteria == null) {
+            return QUERY_STRING;
+        } else {
+            return String.format(QUERY_STRING_FILTERED, pairSelectionCriteria.getCounterCurrencySymbol(), pairSelectionCriteria.getMinVolume());
+        }
     }
 
     @Override
     protected String getGraphQLQuery(String lastPaginationId) {
-        return String.format(QUERY_STRING_PAGINATED, lastPaginationId);
+        if (pairSelectionCriteria == null) {
+            return String.format(QUERY_STRING_PAGINATED, lastPaginationId);
+        } else {
+            return String.format(QUERY_STRING_FILTERED_PAGINATED, lastPaginationId, pairSelectionCriteria.getCounterCurrencySymbol(), pairSelectionCriteria.getMinVolume());
+        }
     }
 
     @Override
@@ -45,6 +58,10 @@ public class PairsQuery extends TheGraphQuery {
     @Override
     protected String lastElemendId(JsonNode jsonNode) {
         return jsonNode.get(POOLS_FIELD).get(jsonNode.get(POOLS_FIELD).size()-1).get(ID_FIELD).asText();
+    }
+
+    public void setPairSelectionCriteria(PairSelectionCriteria pairSelectionCriteria) {
+        this.pairSelectionCriteria = pairSelectionCriteria;
     }
 
 }
