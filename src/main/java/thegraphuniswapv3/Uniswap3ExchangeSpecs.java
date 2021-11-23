@@ -21,12 +21,12 @@ import pl.dmotyka.exchangeutils.thegraphdex.TheGraphExchangeSpecs;
 import pl.dmotyka.exchangeutils.tickerprovider.TickerProvider;
 import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
 
-public class UniswapExchangeSpecs extends TheGraphExchangeSpecs {
+public class Uniswap3ExchangeSpecs extends TheGraphExchangeSpecs {
 
     private static final String THE_GRAPH_URL = "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3";
 
-    public UniswapExchangeSpecs() {
-        super("Uniswap3");
+    public Uniswap3ExchangeSpecs() {
+        super("Uniswap V3");
     }
 
     @Override
