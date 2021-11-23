@@ -25,7 +25,7 @@ public class Uniswap3ExchangeSpecs extends TheGraphExchangeSpecs {
 
     private static final String THE_GRAPH_URL = "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3";
 
-    private Uniswap3PairDataProvider uniswap3PairDataProvider;
+    private final Uniswap3PairDataProvider uniswap3PairDataProvider = new Uniswap3PairDataProvider();
 
     public Uniswap3ExchangeSpecs() {
         super("Uniswap V3");
@@ -38,17 +38,11 @@ public class Uniswap3ExchangeSpecs extends TheGraphExchangeSpecs {
 
     @Override
     public PairDataProvider getPairDataProvider() {
-        if (uniswap3PairDataProvider == null) {
-            uniswap3PairDataProvider = new Uniswap3PairDataProvider();
-        }
         return uniswap3PairDataProvider;
     }
 
     @Override
     public PairSymbolConverter getPairSymbolConverter() {
-        if (uniswap3PairDataProvider == null) {
-            throw new IllegalStateException("symbol converter should be used for pairs delivered by getPairDataProvider() which was never called");
-        }
         return new Uniswap3PairSymbolConverter(uniswap3PairDataProvider);
     }
 
