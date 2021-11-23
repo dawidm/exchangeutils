@@ -29,3 +29,4 @@ pl.dmotyka.exchangeutils.poloniex.PoloniexExchangeSpecsProvider
 pl.dmotyka.exchangeutils.bitfinex.BitfinexExchangeSpecsProvider
 pl.dmotyka.exchangeutils.huobi.HuobiExchangeSpecsProvider
 pl.dmotyka.exchangeutils.kucoin.KuCoinExchangeSpecsProvider
+pl.dmotyka.exchangeutils.thegraphuniswapv3.Uniswap3ExchangeSpecsProvider
