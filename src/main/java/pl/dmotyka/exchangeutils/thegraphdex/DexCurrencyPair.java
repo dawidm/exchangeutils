@@ -15,22 +15,34 @@ package pl.dmotyka.exchangeutils.thegraphdex;
 
 public class DexCurrencyPair {
 
+    private String token0Symbol;
+    private String token0Address;
     private String token1Symbol;
-    private String token2Symbol;
+    private String token1Address;
     private String poolAddress;
 
-    public DexCurrencyPair(String token1Symbol, String token2Symbol, String poolAddress) {
+    public DexCurrencyPair(String token0Symbol, String token0Address, String token1Symbol, String token1Address, String poolAddress) {
+        this.token0Symbol = token0Symbol;
+        this.token0Address = token0Address;
         this.token1Symbol = token1Symbol;
-        this.token2Symbol = token2Symbol;
+        this.token1Address = token1Address;
         this.poolAddress = poolAddress;
+    }
+
+    public String getToken0Symbol() {
+        return token0Symbol;
+    }
+
+    public String getToken0Address() {
+        return token0Address;
     }
 
     public String getToken1Symbol() {
         return token1Symbol;
     }
 
-    public String getToken2Symbol() {
-        return token2Symbol;
+    public String getToken1Address() {
+        return token1Address;
     }
 
     public String getPoolAddress() {

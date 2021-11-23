@@ -13,18 +13,24 @@
 
 package thegraphuniswapv3;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairSelectionCriteria;
+import pl.dmotyka.exchangeutils.thegraphdex.DexCurrencyPair;
 import pl.dmotyka.exchangeutils.thegraphdex.PairsQuery;
 import pl.dmotyka.exchangeutils.thegraphdex.TheGraphHttpRequest;
 
 public class Uniswap3PairDataProvider implements PairDataProvider {
+
+    private final Map<String, DexCurrencyPair> dexCurrencyPairMap = new HashMap<>();
 
     // api symbol is a pool address
     // minVolume in PairSelectionCriteria is total locked volume in counter currency (token1)
@@ -41,6 +47,7 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
                     symbols.add(poolNode.get("id").textValue());
                 }
             }
+            updatePairsMapWithNewData(poolsNodes);
         }
         return symbols.toArray(String[]::new);
     }
@@ -56,6 +63,28 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
                 symbols.add(poolNode.get("id").textValue());
             }
         }
+        updatePairsMapWithNewData(poolsNodes);
         return symbols.toArray(String[]::new);
+    }
+
+    // Returns a map with dex currency pairs. All pairs that were returned at any time by current instance of this class are stored in this map.
+    public Map<String, DexCurrencyPair> getDexCurrencyPairMap() {
+        return Collections.unmodifiableMap(dexCurrencyPairMap);
+    }
+
+    private void updatePairsMapWithNewData(List<JsonNode> poolsJsonNodes) {
+        for(JsonNode poolsNode : poolsJsonNodes) {
+            for (JsonNode poolNode : poolsNode.get("pools")) {
+                String id = poolNode.get("id").textValue();
+                if (!dexCurrencyPairMap.containsKey(id)) {
+                    DexCurrencyPair pair = new DexCurrencyPair(poolNode.get("token0").get("symbol").textValue(),
+                            poolNode.get("token0").get("id").textValue(),
+                            poolNode.get("token1").get("symbol").textValue(),
+                            poolNode.get("token1").get("id").textValue(),
+                            poolNode.get("id").textValue());
+                    dexCurrencyPairMap.put(pair.getPoolAddress(), pair);
+                }
+            }
+        }
     }
 }

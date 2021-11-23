@@ -30,6 +30,7 @@ class Uniswap3PairDataProviderTest {
         for (String pool : pools) {
             assertTrue(pool.startsWith("0x"));
         }
+        assertTrue(dp.getDexCurrencyPairMap().size() == pools.length);
     }
 
     @Test
@@ -41,5 +42,6 @@ class Uniswap3PairDataProviderTest {
         for (String pool : pools) {
             assertTrue(pool.startsWith("0x"));
         }
+        assertTrue(dp.getDexCurrencyPairMap().size() == pools.length);
     }
 }
