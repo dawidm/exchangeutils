@@ -11,7 +11,7 @@
  *
  */
 
-package thegraphuniswapv3;
+package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
 import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecs;
 import pl.dmotyka.exchangeutils.exchangespecs.ExchangeSpecsProvider;

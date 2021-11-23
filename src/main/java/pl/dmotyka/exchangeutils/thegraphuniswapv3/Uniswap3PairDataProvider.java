@@ -11,7 +11,7 @@
  *
  */
 
-package thegraphuniswapv3;
+package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
 import java.util.Collections;
 import java.util.HashMap;

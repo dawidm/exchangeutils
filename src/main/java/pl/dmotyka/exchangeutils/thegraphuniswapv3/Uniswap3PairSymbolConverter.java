@@ -11,7 +11,7 @@
  *
  */
 
-package thegraphuniswapv3;
+package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
 import org.knowm.xchange.currency.CurrencyPair;
 import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;

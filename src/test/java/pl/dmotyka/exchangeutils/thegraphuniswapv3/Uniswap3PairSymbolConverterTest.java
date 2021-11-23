@@ -11,7 +11,7 @@
  *
  */
 
-package thegraphuniswapv3;
+package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
 import org.junit.jupiter.api.Test;
 import org.knowm.xchange.currency.CurrencyPair;

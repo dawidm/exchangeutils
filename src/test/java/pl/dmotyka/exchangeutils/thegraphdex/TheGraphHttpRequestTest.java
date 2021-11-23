@@ -18,7 +18,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
-import thegraphuniswapv3.Uniswap3ExchangeSpecs;
+import pl.dmotyka.exchangeutils.thegraphuniswapv3.Uniswap3ExchangeSpecs;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TheGraphHttpRequestTest {
