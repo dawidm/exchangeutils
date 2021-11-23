@@ -46,7 +46,10 @@ public class Uniswap3ExchangeSpecs extends TheGraphExchangeSpecs {
 
     @Override
     public PairSymbolConverter getPairSymbolConverter() {
-        return null;
+        if (uniswap3PairDataProvider == null) {
+            throw new IllegalStateException("symbol converter should be used for pairs delivered by getPairDataProvider() which was never called");
+        }
+        return new Uniswap3PairSymbolConverter(uniswap3PairDataProvider);
     }
 
     @Override
