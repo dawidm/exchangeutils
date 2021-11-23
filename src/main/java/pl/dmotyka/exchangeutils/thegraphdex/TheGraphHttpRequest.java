@@ -18,12 +18,17 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Logger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 
 public class TheGraphHttpRequest {
+
+    public static final Logger logger = Logger.getLogger(TheGraphHttpRequest.class.getName());
 
     private final TheGraphExchangeSpecs theGraphExchangeSpecs;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -35,13 +40,19 @@ public class TheGraphHttpRequest {
         this.theGraphExchangeSpecs = theGraphExchangeSpecs;
     }
 
-    public JsonNode send(TheGraphQuery theGraphQuery) throws ExchangeCommunicationException {
+    private JsonNode sendSingle(TheGraphQuery theGraphQuery, String lastPaginationId) throws ExchangeCommunicationException {
         HttpClient client = HttpClient.newHttpClient();
+        String requestBody;
+        if (theGraphQuery.isPaginated() && lastPaginationId != null) {
+            requestBody = theGraphQuery.getJSONQueryString(lastPaginationId);
+        } else {
+            requestBody = theGraphQuery.getJSONQueryString();
+        }
         HttpRequest request = HttpRequest.newBuilder()
                                          .uri(URI.create(theGraphExchangeSpecs.getTheGraphApiURL()))
                                          .header("Content-Type", "application/json")
                                          .header("Accept", "application/json")
-                                         .POST(HttpRequest.BodyPublishers.ofString(theGraphQuery.getJSONQueryString()))
+                                         .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                                          .build();
         try {
             String responseBody = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
@@ -56,6 +67,30 @@ public class TheGraphHttpRequest {
             }
         } catch (IOException | InterruptedException e) {
             throw new ExchangeCommunicationException("when sending request to The Graph", e);
+        }
+    }
+
+    // when there are multiple pages, every page is in separate JsonNode
+    public List<JsonNode> send(TheGraphQuery theGraphQuery) throws ExchangeCommunicationException {
+        if (!theGraphQuery.isPaginated()) {
+            return List.of(sendSingle(theGraphQuery, null));
+        } else {
+            List<JsonNode> resultsList = new LinkedList<>();
+            JsonNode firstPage = sendSingle(theGraphQuery, null);
+            resultsList.add(firstPage);
+            String lastId = theGraphQuery.lastElemendId(firstPage);
+            boolean lastRequestEmpty = false;
+            while (!lastRequestEmpty) {
+                logger.fine("getting next page...");
+                JsonNode nextPage = sendSingle(theGraphQuery, lastId);
+                if (theGraphQuery.numReturnedElements(nextPage) > 0) {
+                    resultsList.add(nextPage);
+                    lastId = theGraphQuery.lastElemendId(nextPage);
+                } else {
+                    lastRequestEmpty = true;
+                }
+            }
+            return resultsList;
         }
     }
 }

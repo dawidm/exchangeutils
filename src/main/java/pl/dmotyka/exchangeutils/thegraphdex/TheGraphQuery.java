@@ -13,13 +13,38 @@
 
 package pl.dmotyka.exchangeutils.thegraphdex;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public abstract class TheGraphQuery {
 
-    private final String JSON_QUERY_TEMPLATE = "{\"query\": \"%s\"}";
+    private final String JSON_QUERY_TEMPLATE = "{\"query\": %s}";
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     protected abstract String getGraphQLQuery();
+    // the graph limits number of returned elements, pagination my be needed to query all the elements
+    protected abstract boolean isPaginated();
+    // for pagination: check a number of returned elements in returned JSON
+    protected abstract int numReturnedElements(JsonNode jsonNode);
+    // for pagination: get an id of a last returned element
+    protected abstract String lastElemendId(JsonNode jsonNode);
+    // for pagination: create query for elements with id greater than lastPaginationId
+    protected abstract String getGraphQLQuery(String lastPaginationId);
 
     public String getJSONQueryString() {
-        return String.format(JSON_QUERY_TEMPLATE, getGraphQLQuery());
+        try {
+            return String.format(JSON_QUERY_TEMPLATE, objectMapper.writeValueAsString(getGraphQLQuery()));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("when creating json request", e);
+        }
+    }
+
+    public String getJSONQueryString(String lastPaginationId) {
+        try {
+            return String.format(JSON_QUERY_TEMPLATE, objectMapper.writeValueAsString(getGraphQLQuery(lastPaginationId)));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("when creating json request", e);
+        }
     }
 }

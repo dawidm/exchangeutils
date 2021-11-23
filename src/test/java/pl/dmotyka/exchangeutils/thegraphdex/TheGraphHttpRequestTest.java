@@ -13,11 +13,12 @@
 
 package pl.dmotyka.exchangeutils.thegraphdex;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import thegraphuniswapv3.Uniswap3ExchangeSpecs;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class TheGraphHttpRequestTest {
@@ -25,7 +26,10 @@ class TheGraphHttpRequestTest {
     @Test
     void testSendPairsRequest() throws ExchangeCommunicationException {
         TheGraphHttpRequest theGraphHttpRequest = new TheGraphHttpRequest(new Uniswap3ExchangeSpecs());
-        JsonNode jsonNode = theGraphHttpRequest.send(new PairsQuery());
-        assertTrue(jsonNode.has("pools"));
+        List<JsonNode> jsonNodes = theGraphHttpRequest.send(new PairsQuery());
+        for (JsonNode node : jsonNodes) {
+            assertTrue(node.has("pools"));
+            assertTrue(node.get("pools").size() > 0);
+        }
     }
 }
