@@ -18,6 +18,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
+import pl.dmotyka.exchangeutils.thegraphuniswapv3.Uniswap3PairsQuery;
 import pl.dmotyka.exchangeutils.thegraphuniswapv3.Uniswap3ExchangeSpecs;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,7 +27,7 @@ class TheGraphHttpRequestTest {
     @Test
     void testSendPairsRequest() throws ExchangeCommunicationException {
         TheGraphHttpRequest theGraphHttpRequest = new TheGraphHttpRequest(new Uniswap3ExchangeSpecs());
-        List<JsonNode> jsonNodes = theGraphHttpRequest.send(new PairsQuery());
+        List<JsonNode> jsonNodes = theGraphHttpRequest.send(new Uniswap3PairsQuery());
         for (JsonNode node : jsonNodes) {
             assertTrue(node.has("pools"));
             assertTrue(node.get("pools").size() > 0);

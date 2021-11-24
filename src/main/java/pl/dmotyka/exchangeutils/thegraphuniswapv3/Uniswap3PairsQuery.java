@@ -11,12 +11,13 @@
  *
  */
 
-package pl.dmotyka.exchangeutils.thegraphdex;
+package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairSelectionCriteria;
+import pl.dmotyka.exchangeutils.thegraphdex.TheGraphQuery;
 
-public class PairsQuery extends TheGraphQuery {
+public class Uniswap3PairsQuery extends TheGraphQuery {
 
     private final String QUERY_STRING = "{pools(where:{volumeUSD_gt:10000.0}){id,token0{id,symbol},token1{id,symbol}}}";
     private final String QUERY_STRING_PAGINATED = "{pools(where:{id_gt:\"%s\",volumeUSD_gt:10000.0}){id,token0{id,symbol},token1{id,symbol}}}";

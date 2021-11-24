@@ -26,7 +26,6 @@ import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairSelectionCriteria;
 import pl.dmotyka.exchangeutils.thegraphdex.DexCurrencyPair;
-import pl.dmotyka.exchangeutils.thegraphdex.PairsQuery;
 import pl.dmotyka.exchangeutils.thegraphdex.TheGraphHttpRequest;
 
 public class Uniswap3PairDataProvider implements PairDataProvider {
@@ -40,9 +39,9 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
         List<String> symbols = new LinkedList<>();
         for (PairSelectionCriteria currentCriteria : pairSelectionCriteria) {
             TheGraphHttpRequest theGraphHttpRequest = new TheGraphHttpRequest(new Uniswap3ExchangeSpecs());
-            PairsQuery pairsQuery = new PairsQuery();
-            pairsQuery.setPairSelectionCriteria(currentCriteria);
-            List<JsonNode> poolsNodes = theGraphHttpRequest.send(pairsQuery);
+            Uniswap3PairsQuery uniswap3PairsQuery = new Uniswap3PairsQuery();
+            uniswap3PairsQuery.setPairSelectionCriteria(currentCriteria);
+            List<JsonNode> poolsNodes = theGraphHttpRequest.send(uniswap3PairsQuery);
             for (JsonNode poolsNode : poolsNodes) {
                 for (JsonNode poolNode : poolsNode.get("pools")) {
                     symbols.add(poolNode.get("id").textValue());
@@ -57,7 +56,7 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
     @Override
     public synchronized String[] getPairsApiSymbols() throws ConnectionProblemException, ExchangeCommunicationException {
         TheGraphHttpRequest theGraphHttpRequest = new TheGraphHttpRequest(new Uniswap3ExchangeSpecs());
-        List<JsonNode> poolsNodes = theGraphHttpRequest.send(new PairsQuery());
+        List<JsonNode> poolsNodes = theGraphHttpRequest.send(new Uniswap3PairsQuery());
         List<String> symbols = new LinkedList<>();
         for(JsonNode poolsNode : poolsNodes) {
             for (JsonNode poolNode : poolsNode.get("pools")) {
