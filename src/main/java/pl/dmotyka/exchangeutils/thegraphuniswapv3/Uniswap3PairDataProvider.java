@@ -78,10 +78,10 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
             for (JsonNode poolNode : poolsNode.get("pools")) {
                 String token0Symbol = poolNode.get("token0").get("symbol").textValue();
                 String token0ApiSymbol = Uniswap3PairSymbolConverter.formatApiSymbol(token0Symbol, COUNTER_CURRENCY_SYMBOL);
-                String token0address = poolNode.get("token0").textValue();
+                String token0address = poolNode.get("token0").get("id").textValue();
                 String token1Symbol = poolNode.get("token1").get("symbol").textValue();
                 String token1ApiSymbol = Uniswap3PairSymbolConverter.formatApiSymbol(token1Symbol, COUNTER_CURRENCY_SYMBOL);
-                String token1address = poolNode.get("token1").textValue();
+                String token1address = poolNode.get("token1").get("id").textValue();
                 String poolAddress = poolNode.get("id").textValue();
                 if (dexCurrencyPairMap.containsKey(token0ApiSymbol)) {
                     dexCurrencyPairMap.get(token0ApiSymbol).addPool(poolAddress);
