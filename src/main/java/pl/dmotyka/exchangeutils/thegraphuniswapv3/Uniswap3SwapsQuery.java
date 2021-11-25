@@ -62,7 +62,7 @@ public class Uniswap3SwapsQuery extends TheGraphQuery {
     @Override
     protected String lastElemendId(JsonNode jsonNode) {
         JsonNode swapsNode = jsonNode.get(SWAPS_FIELD);
-        return swapsNode.get(swapsNode.size()-1).get("id").asText();
+        return swapsNode.get(swapsNode.size()-1).get(ID_FIELD).asText();
     }
 
     @Override
