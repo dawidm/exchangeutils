@@ -77,6 +77,9 @@ public class TheGraphHttpRequest {
         } else {
             List<JsonNode> resultsList = new LinkedList<>();
             JsonNode firstPage = sendSingle(theGraphQuery, null);
+            if (theGraphQuery.numReturnedElements(firstPage) == 0) {
+                return resultsList;
+            }
             resultsList.add(firstPage);
             String lastId = theGraphQuery.lastElemendId(firstPage);
             boolean lastRequestEmpty = false;
