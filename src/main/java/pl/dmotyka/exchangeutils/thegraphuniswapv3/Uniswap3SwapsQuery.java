@@ -13,26 +13,40 @@
 
 package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
+import java.util.Arrays;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import pl.dmotyka.exchangeutils.thegraphdex.TheGraphQuery;
 
 public class Uniswap3SwapsQuery extends TheGraphQuery {
 
-    private static final String QUERY_STRING = "";
+    private static final String QUERY_STRING = "{swaps(where:{timestamp_gt: %d, timestamp_lt: %d,pool_in:[%s]},orderBy: timestamp, orderDirection: asc){id,timestamp,token0{symbol},token1{symbol},amount0,amount1,amountUSD}}";
+    private static final String QUERY_STRING_PAGINATED = "{swaps(where:{timestamp_gt: %d, timestamp_lt: %d,pool_in:[%s],id_gt: \"%s\"},orderBy: timestamp, orderDirection: asc){id,timestamp,token0{symbol},token1{symbol},amount0,amount1,amountUSD}}";
 
-    private final String apiSymbol;
+    private static final String SWAPS_FIELD = "swaps";
+    private static final String ID_FIELD = "id";
+
+    private final String[] poolsAddresses;
     private final int beginTimestampSeconds;
     private final int endTimestampSeconds;
 
-    public Uniswap3SwapsQuery(String apiSymbol, int beginTimestampSeconds, int endTimestampSeconds) {
-        this.apiSymbol = apiSymbol;
+    public Uniswap3SwapsQuery(String[] poolsAddresses, int beginTimestampSeconds, int endTimestampSeconds) {
+        this.poolsAddresses = poolsAddresses;
         this.beginTimestampSeconds = beginTimestampSeconds;
         this.endTimestampSeconds = endTimestampSeconds;
     }
 
+    private String formatPoolsAddresses(String[] poolsAddresses) {
+        String[] poolsAddressesCopy = Arrays.copyOf(poolsAddresses, poolsAddresses.length);
+        for(int i=0; i<poolsAddressesCopy.length; i++) {
+            poolsAddressesCopy[i] = String.format("\"%s\"",poolsAddressesCopy[i]);
+        }
+        return String.join(",", poolsAddressesCopy);
+    }
+
     @Override
     protected String getGraphQLQuery() {
-        return null;
+        return String.format(QUERY_STRING, beginTimestampSeconds, endTimestampSeconds, formatPoolsAddresses(poolsAddresses));
     }
 
     @Override
@@ -42,16 +56,17 @@ public class Uniswap3SwapsQuery extends TheGraphQuery {
 
     @Override
     protected int numReturnedElements(JsonNode jsonNode) {
-        return 0;
+        return jsonNode.get(SWAPS_FIELD).size();
     }
 
     @Override
     protected String lastElemendId(JsonNode jsonNode) {
-        return null;
+        JsonNode swapsNode = jsonNode.get(SWAPS_FIELD);
+        return swapsNode.get(swapsNode.size()-1).get("id").asText();
     }
 
     @Override
     protected String getGraphQLQuery(String lastPaginationId) {
-        return null;
+        return String.format(QUERY_STRING_PAGINATED, beginTimestampSeconds, endTimestampSeconds, formatPoolsAddresses(poolsAddresses), lastPaginationId);
     }
 }
