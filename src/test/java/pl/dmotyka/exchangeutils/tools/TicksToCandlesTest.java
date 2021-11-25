@@ -35,6 +35,7 @@ class TicksToCandlesTest {
 
     @Test
     void generateCandles() throws ExchangeCommunicationException {
+        long periodSeconds = 3600;
         TheGraphHttpRequest req = new TheGraphHttpRequest(new Uniswap3ExchangeSpecs());
         PairSymbolConverter pairSymbolConverter = new Uniswap3ExchangeSpecs().getPairSymbolConverter();
         // USDC/WETH and WETH/USDT pools
@@ -48,9 +49,16 @@ class TicksToCandlesTest {
             Ticker[] tickers = Uniswap3SwapsToTickers.generateTickers(resultNode);
             tickersList.addAll(Arrays.asList(tickers));
         }
-        ChartCandle[] candles = TicksToCandles.generateCandles(tickersList.stream().filter(t -> t.getPair().startsWith("WETH_")).toArray(Ticker[]::new), 3600);
+        ChartCandle[] candles = TicksToCandles.generateCandles(tickersList.stream().filter(t -> t.getPair().startsWith("WETH_")).toArray(Ticker[]::new), periodSeconds);
         assertNotNull(candles);
         assertTrue(candles.length > 0);
+        for (ChartCandle candle : candles) {
+            assertTrue(candle.getOpen() > 0);
+            assertTrue(candle.getClose() > 0);
+            assertTrue(candle.getHigh() > 0);
+            assertTrue(candle.getLow() > 0);
+            assertTrue(candle.getTimestampSeconds() >= dayAgoTimestamp - periodSeconds);
+        }
 
     }
 }
