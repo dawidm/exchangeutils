@@ -27,7 +27,7 @@ class Uniswap3PairSymbolConverter implements PairSymbolConverter {
 
     @Override
     public String toApiSymbol(CurrencyPair currencyPair) {
-        return formatApiSymbol(currencyPair.base.getSymbol(), currencyPair.counter.getSymbol());
+        return formatApiSymbol(currencyPair.base.getCurrencyCode(), currencyPair.counter.getCurrencyCode());
     }
 
     @Override
