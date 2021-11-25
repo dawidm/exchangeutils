@@ -73,7 +73,7 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
         return Collections.unmodifiableMap(dexCurrencyPairMap);
     }
 
-    private void updatePairsMapWithNewData(List<JsonNode> poolsJsonNodes) {
+    private synchronized void updatePairsMapWithNewData(List<JsonNode> poolsJsonNodes) {
         for(JsonNode poolsNode : poolsJsonNodes) {
             for (JsonNode poolNode : poolsNode.get("pools")) {
                 String token0Symbol = poolNode.get("token0").get("symbol").textValue();

@@ -13,22 +13,53 @@
 
 package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
+import com.fasterxml.jackson.databind.JsonNode;
 import pl.dmotyka.exchangeutils.chartinfo.ChartCandle;
 import pl.dmotyka.exchangeutils.chartinfo.ChartTimePeriod;
 import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import pl.dmotyka.exchangeutils.chartinfo.NoSuchTimePeriodException;
 import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
+import pl.dmotyka.exchangeutils.thegraphdex.TheGraphHttpRequest;
+import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
+import pl.dmotyka.exchangeutils.tools.TicksToCandles;
 
-public class Uniswap3ChartInfo implements ExchangeChartInfo {
+class Uniswap3ChartInfo implements ExchangeChartInfo {
+
+    private Uniswap3PairDataProvider pairDataProvider;
+
+    public Uniswap3ChartInfo(Uniswap3PairDataProvider pairDataProvider) {
+        this.pairDataProvider = pairDataProvider;
+    }
 
     @Override
-    public ChartCandle[] getCandles(String symbol, long timePeriodSeconds, long beginTimestampSeconds, long endTimestampSeconds) throws NoSuchTimePeriodException, ExchangeCommunicationException, ConnectionProblemException {
-        return new ChartCandle[0];
+    public ChartCandle[] getCandles(String apiSymbol, long timePeriodSeconds, long beginTimestampSeconds, long endTimestampSeconds) throws NoSuchTimePeriodException, ExchangeCommunicationException, ConnectionProblemException {
+        if (timePeriodSeconds > (long)Integer.MAX_VALUE || beginTimestampSeconds > (long)Integer.MAX_VALUE || endTimestampSeconds > (long)Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("At least one of time values is too big (they should be in seconds)");
+        }
+        TheGraphHttpRequest req = new TheGraphHttpRequest(new Uniswap3ExchangeSpecs());
+        String[] pools = pairDataProvider.getDexCurrencyPairMap().get(apiSymbol).getPoolsAddresses().toArray(new String[0]);
+        Uniswap3SwapsQuery swapsQuery = new Uniswap3SwapsQuery(pools, (int)beginTimestampSeconds, (int)endTimestampSeconds);
+        List<JsonNode> swapsJsonNodes = req.send(swapsQuery);
+        List<Ticker> tickerList = new LinkedList<>();
+        for (JsonNode swapsJsonNode : swapsJsonNodes) {
+            tickerList.addAll(Arrays.asList(Uniswap3SwapsToTickers.generateTickers(swapsJsonNode)));
+        }
+        Ticker[] tickers = tickerList.stream().filter(t -> t.getPair().equals(apiSymbol)).toArray(Ticker[]::new);
+        return TicksToCandles.generateCandles(tickers, timePeriodSeconds);
     }
 
     @Override
     public ChartTimePeriod[] getAvailablePeriods() {
-        return new ChartTimePeriod[0];
+        return new ChartTimePeriod[] {
+                new ChartTimePeriod("m5", 300, "m5"),
+                new ChartTimePeriod("m30", 1800, "m30"),
+                new ChartTimePeriod("h1", 3600, "h1"),
+                new ChartTimePeriod("d1", 24*3600, "d1")
+        };
     }
 }

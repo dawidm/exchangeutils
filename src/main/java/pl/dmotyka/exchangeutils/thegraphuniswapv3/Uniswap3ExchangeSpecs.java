@@ -34,7 +34,7 @@ public class Uniswap3ExchangeSpecs extends TheGraphExchangeSpecs {
 
     @Override
     public ExchangeChartInfo getChartInfo() {
-        return null;
+        return new Uniswap3ChartInfo(uniswap3PairDataProvider);
     }
 
     @Override
