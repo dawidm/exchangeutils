@@ -13,16 +13,18 @@
 
 package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
+import java.util.Set;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairSelectionCriteria;
 import pl.dmotyka.exchangeutils.thegraphdex.TheGraphQuery;
 
 public class Uniswap3PairsQuery extends TheGraphQuery {
 
-    private final String QUERY_STRING = "{pools(where:{volumeUSD_gt:10000.0}){id,token0{id,symbol},token1{id,symbol}}}";
-    private final String QUERY_STRING_PAGINATED = "{pools(where:{id_gt:\"%s\",volumeUSD_gt:10000.0}){id,token0{id,symbol},token1{id,symbol}}}";
-    private final String QUERY_STRING_FILTERED = "{pools(where:{token1:\"%s\",totalValueLockedToken1_gt:%.2f}){id,token0{id,symbol},token1{id,symbol}}}";
-    private final String QUERY_STRING_FILTERED_PAGINATED = "{pools(where:{id_gt:\"%s\",token1:\"%s\",totalValueLockedToken1_gt:%.2f}){id,token0{id,symbol},token1{id,symbol}}}";
+    public static final double DEFAULT_MIN_USD_VOLUME = 1000.0;
+
+    private final String QUERY_STRING = "{pools(where:{volumeUSD_gt:%.2f}){id,token0{id,symbol},token1{id,symbol}}}";
+    private final String QUERY_STRING_PAGINATED = "{pools(where:{id_gt:\"%s\",volumeUSD_gt:%.2f}){id,token0{id,symbol},token1{id,symbol}}}";
     private final String POOLS_FIELD = "pools";
     private final String ID_FIELD = "id";
 
@@ -31,18 +33,18 @@ public class Uniswap3PairsQuery extends TheGraphQuery {
     @Override
     public String getGraphQLQuery() {
         if (pairSelectionCriteria == null) {
-            return QUERY_STRING;
+            return String.format(QUERY_STRING, DEFAULT_MIN_USD_VOLUME);
         } else {
-            return String.format(QUERY_STRING_FILTERED, pairSelectionCriteria.getCounterCurrencySymbol(), pairSelectionCriteria.getMinVolume());
+            return String.format(QUERY_STRING, pairSelectionCriteria.getMinVolume());
         }
     }
 
     @Override
     protected String getGraphQLQuery(String lastPaginationId) {
         if (pairSelectionCriteria == null) {
-            return String.format(QUERY_STRING_PAGINATED, lastPaginationId);
+            return String.format(QUERY_STRING_PAGINATED, lastPaginationId, DEFAULT_MIN_USD_VOLUME);
         } else {
-            return String.format(QUERY_STRING_FILTERED_PAGINATED, lastPaginationId, pairSelectionCriteria.getCounterCurrencySymbol(), pairSelectionCriteria.getMinVolume());
+            return String.format(QUERY_STRING_PAGINATED, lastPaginationId, pairSelectionCriteria.getMinVolume());
         }
     }
 
@@ -62,7 +64,11 @@ public class Uniswap3PairsQuery extends TheGraphQuery {
     }
 
     public void setPairSelectionCriteria(PairSelectionCriteria pairSelectionCriteria) {
-        this.pairSelectionCriteria = pairSelectionCriteria;
+        if (Set.of(Uniswap3ExchangeSpecs.SUPPORTED_COUNTER_CURR).contains(pairSelectionCriteria.getCounterCurrencySymbol())) {
+            this.pairSelectionCriteria = pairSelectionCriteria;
+        } else {
+            throw new IllegalArgumentException("Currency not supported, use only supported currencies provided by Uniswap3ExchangeSpecs");
+        }
     }
 
 }
