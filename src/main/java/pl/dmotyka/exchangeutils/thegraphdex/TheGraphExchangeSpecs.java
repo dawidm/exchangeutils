@@ -22,4 +22,7 @@ public abstract class TheGraphExchangeSpecs extends ExchangeSpecs {
     }
 
     public abstract String getTheGraphApiURL();
+
+    // get symbols (not addresses) of supported counter currencies, e.g. USD
+    public abstract String[] getSupportedCounterCurrencies();
 }
