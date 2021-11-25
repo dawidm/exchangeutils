@@ -15,10 +15,10 @@ package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
@@ -31,12 +31,11 @@ import pl.dmotyka.exchangeutils.thegraphdex.TheGraphHttpRequest;
 public class Uniswap3PairDataProvider implements PairDataProvider {
 
     private final Map<String, DexCurrencyPair> dexCurrencyPairMap = new HashMap<>();
+    private final String COUNTER_CURRENCY_SYMBOL = Uniswap3ExchangeSpecs.SUPPORTED_COUNTER_CURR[0];
 
-    // api symbol is a pool address
-    // minVolume in PairSelectionCriteria is total locked volume in counter currency (token1)
     @Override
     public synchronized String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws ConnectionProblemException, ExchangeCommunicationException {
-        List<String> symbols = new LinkedList<>();
+        Set<String> symbols = new HashSet<>();
         for (PairSelectionCriteria currentCriteria : pairSelectionCriteria) {
             TheGraphHttpRequest theGraphHttpRequest = new TheGraphHttpRequest(new Uniswap3ExchangeSpecs());
             Uniswap3PairsQuery uniswap3PairsQuery = new Uniswap3PairsQuery();
@@ -44,7 +43,8 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
             List<JsonNode> poolsNodes = theGraphHttpRequest.send(uniswap3PairsQuery);
             for (JsonNode poolsNode : poolsNodes) {
                 for (JsonNode poolNode : poolsNode.get("pools")) {
-                    symbols.add(poolNode.get("id").textValue());
+                    symbols.add(Uniswap3PairSymbolConverter.formatApiSymbol(poolNode.get("token0").get("symbol").textValue(),COUNTER_CURRENCY_SYMBOL));
+                    symbols.add(Uniswap3PairSymbolConverter.formatApiSymbol(poolNode.get("token1").get("symbol").textValue(),COUNTER_CURRENCY_SYMBOL));
                 }
             }
             updatePairsMapWithNewData(poolsNodes);
@@ -57,10 +57,11 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
     public synchronized String[] getPairsApiSymbols() throws ConnectionProblemException, ExchangeCommunicationException {
         TheGraphHttpRequest theGraphHttpRequest = new TheGraphHttpRequest(new Uniswap3ExchangeSpecs());
         List<JsonNode> poolsNodes = theGraphHttpRequest.send(new Uniswap3PairsQuery());
-        List<String> symbols = new LinkedList<>();
+        Set<String> symbols = new HashSet<>();
         for(JsonNode poolsNode : poolsNodes) {
             for (JsonNode poolNode : poolsNode.get("pools")) {
-                symbols.add(poolNode.get("id").textValue());
+                symbols.add(Uniswap3PairSymbolConverter.formatApiSymbol(poolNode.get("token0").get("symbol").textValue(),COUNTER_CURRENCY_SYMBOL));
+                symbols.add(Uniswap3PairSymbolConverter.formatApiSymbol(poolNode.get("token1").get("symbol").textValue(),COUNTER_CURRENCY_SYMBOL));
             }
         }
         updatePairsMapWithNewData(poolsNodes);
@@ -75,14 +76,22 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
     private void updatePairsMapWithNewData(List<JsonNode> poolsJsonNodes) {
         for(JsonNode poolsNode : poolsJsonNodes) {
             for (JsonNode poolNode : poolsNode.get("pools")) {
-                String id = poolNode.get("id").textValue();
-                if (!dexCurrencyPairMap.containsKey(id)) {
-                    DexCurrencyPair pair = new DexCurrencyPair(poolNode.get("token0").get("symbol").textValue().toUpperCase(Locale.ROOT),
-                            poolNode.get("token0").get("id").textValue(),
-                            poolNode.get("token1").get("symbol").textValue().toUpperCase(Locale.ROOT),
-                            poolNode.get("token1").get("id").textValue(),
-                            poolNode.get("id").textValue());
-                    dexCurrencyPairMap.put(pair.getPoolAddress(), pair);
+                String token0Symbol = poolNode.get("token0").get("symbol").textValue();
+                String token0ApiSymbol = Uniswap3PairSymbolConverter.formatApiSymbol(token0Symbol, COUNTER_CURRENCY_SYMBOL);
+                String token0address = poolNode.get("token0").textValue();
+                String token1Symbol = poolNode.get("token1").get("symbol").textValue();
+                String token1ApiSymbol = Uniswap3PairSymbolConverter.formatApiSymbol(token1Symbol, COUNTER_CURRENCY_SYMBOL);
+                String token1address = poolNode.get("token1").textValue();
+                String poolAddress = poolNode.get("id").textValue();
+                if (dexCurrencyPairMap.containsKey(token0ApiSymbol)) {
+                    dexCurrencyPairMap.get(token0ApiSymbol).addPool(poolAddress);
+                } else {
+                    dexCurrencyPairMap.put(token0ApiSymbol, new DexCurrencyPair(token0Symbol, token0address, COUNTER_CURRENCY_SYMBOL, poolAddress));
+                }
+                if (dexCurrencyPairMap.containsKey(token1ApiSymbol)) {
+                    dexCurrencyPairMap.get(token1ApiSymbol).addPool(poolAddress);
+                } else {
+                    dexCurrencyPairMap.put(token1ApiSymbol, new DexCurrencyPair(token1Symbol, token1address, COUNTER_CURRENCY_SYMBOL, poolAddress));
                 }
             }
         }

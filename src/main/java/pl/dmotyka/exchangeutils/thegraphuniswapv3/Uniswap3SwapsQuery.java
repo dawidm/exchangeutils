@@ -11,44 +11,47 @@
  *
  */
 
-package pl.dmotyka.exchangeutils.thegraphdex;
+package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import com.fasterxml.jackson.databind.JsonNode;
+import pl.dmotyka.exchangeutils.thegraphdex.TheGraphQuery;
 
-public class DexCurrencyPair {
+public class Uniswap3SwapsQuery extends TheGraphQuery {
 
-    private final String baseSymbol;
-    private final String baseTokenAddress;
-    private final String counterSymbol;
-    private final Set<String> poolsAddresses = new HashSet<>();
+    private static final String QUERY_STRING = "";
 
-    public DexCurrencyPair(String baseSymbol, String baseTokenAddress, String counterSymbol, String poolAddress) {
-        this.baseSymbol = baseSymbol;
-        this.baseTokenAddress = baseTokenAddress;
-        this.counterSymbol = counterSymbol;
-        poolsAddresses.add(poolAddress);
+    private final String apiSymbol;
+    private final int beginTimestampSeconds;
+    private final int endTimestampSeconds;
+
+    public Uniswap3SwapsQuery(String apiSymbol, int beginTimestampSeconds, int endTimestampSeconds) {
+        this.apiSymbol = apiSymbol;
+        this.beginTimestampSeconds = beginTimestampSeconds;
+        this.endTimestampSeconds = endTimestampSeconds;
     }
 
-    public void addPool(String poolAddress) {
-        poolsAddresses.add(poolAddress);
+    @Override
+    protected String getGraphQLQuery() {
+        return null;
     }
 
-    public String getBaseSymbol() {
-        return baseSymbol;
+    @Override
+    protected boolean isPaginated() {
+        return true;
     }
 
-    public String getBaseTokenAddress() {
-        return baseTokenAddress;
+    @Override
+    protected int numReturnedElements(JsonNode jsonNode) {
+        return 0;
     }
 
-    public String getCounterSymbol() {
-        return counterSymbol;
+    @Override
+    protected String lastElemendId(JsonNode jsonNode) {
+        return null;
     }
 
-    public Set<String> getPoolsAddresses() {
-        return Collections.unmodifiableSet(poolsAddresses);
+    @Override
+    protected String getGraphQLQuery(String lastPaginationId) {
+        return null;
     }
-
 }

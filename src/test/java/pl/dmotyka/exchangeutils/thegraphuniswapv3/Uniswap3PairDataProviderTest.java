@@ -13,6 +13,8 @@
 
 package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
+import java.util.Arrays;
+
 import org.junit.jupiter.api.Test;
 import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
@@ -25,23 +27,23 @@ class Uniswap3PairDataProviderTest {
     @Test
     void getPairsApiSymbols() throws ConnectionProblemException, ExchangeCommunicationException {
         Uniswap3PairDataProvider dp = new Uniswap3PairDataProvider();
-        String[] pools = dp.getPairsApiSymbols();
-        assertTrue(pools.length > 0);
-        for (String pool : pools) {
-            assertTrue(pool.startsWith("0x"));
+        String[] symbols = dp.getPairsApiSymbols();
+        assertTrue(symbols.length > 0);
+        for (String symbol : symbols) {
+            assertTrue(symbol.split("_").length > 1);
         }
-        assertTrue(dp.getDexCurrencyPairMap().size() == pools.length);
+        assertTrue(dp.getDexCurrencyPairMap().keySet().containsAll(Arrays.asList(symbols)));
     }
 
     @Test
     void getPairsApiSymbolsWCriteria() throws ConnectionProblemException, ExchangeCommunicationException {
         Uniswap3PairDataProvider dp = new Uniswap3PairDataProvider();
-        // use USDT token address
-        String[] pools = dp.getPairsApiSymbols(new PairSelectionCriteria[] {new PairSelectionCriteria("0xdac17f958d2ee523a2206206994597c13d831ec7", 1000)});
-        assertTrue(pools.length > 0);
-        for (String pool : pools) {
-            assertTrue(pool.startsWith("0x"));
+        String[] symbols = dp.getPairsApiSymbols(new PairSelectionCriteria[] {new PairSelectionCriteria("USD", 10000)});
+        assertTrue(symbols.length > 0);
+        for (String symbol : symbols) {
+            assertTrue(symbol.split("_").length > 1);
+            assertTrue(symbol.endsWith("_USD"));
         }
-        assertTrue(dp.getDexCurrencyPairMap().size() == pools.length);
+        assertTrue(dp.getDexCurrencyPairMap().keySet().containsAll(Arrays.asList(symbols)));
     }
 }

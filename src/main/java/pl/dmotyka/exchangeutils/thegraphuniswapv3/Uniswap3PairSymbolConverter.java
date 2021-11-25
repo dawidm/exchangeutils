@@ -13,17 +13,12 @@
 
 package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
+import java.util.Arrays;
+
 import org.knowm.xchange.currency.CurrencyPair;
 import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
-import pl.dmotyka.exchangeutils.thegraphdex.DexCurrencyPair;
 
 class Uniswap3PairSymbolConverter implements PairSymbolConverter {
-
-    private final Uniswap3PairDataProvider uniswap3PairDataProvider;
-
-    public Uniswap3PairSymbolConverter(Uniswap3PairDataProvider uniswap3PairDataProvider) {
-        this.uniswap3PairDataProvider = uniswap3PairDataProvider;
-    }
 
     @Override
     public String toFormattedString(String apiSymbol) {
@@ -32,12 +27,7 @@ class Uniswap3PairSymbolConverter implements PairSymbolConverter {
 
     @Override
     public String toApiSymbol(CurrencyPair currencyPair) {
-        for (DexCurrencyPair dexCurrencyPair : uniswap3PairDataProvider.getDexCurrencyPairMap().values()) {
-            if (dexCurrencyPair.getToken0Symbol().equals(currencyPair.base.getSymbol()) && dexCurrencyPair.getToken1Symbol().equals(currencyPair.counter.getSymbol())) {
-                return dexCurrencyPair.getPoolAddress();
-            }
-        }
-        throw new IllegalStateException("No such currency pair (could happen when currency pair wasn't acquired using PairDataProvider)");
+        return formatApiSymbol(currencyPair.base.getSymbol(), currencyPair.counter.getSymbol());
     }
 
     @Override
@@ -47,24 +37,22 @@ class Uniswap3PairSymbolConverter implements PairSymbolConverter {
 
     @Override
     public String apiSymbolToCounterCurrencySymbol(String apiSymbol) {
-        DexCurrencyPair cp = uniswap3PairDataProvider.getDexCurrencyPairMap().get(apiSymbol);
-        if (cp == null) {
-            throw new IllegalStateException("No such symbol (pool) (could happen when currency pair wasn't acquired using PairDataProvider)");
-        }
-        return cp.getToken1Symbol();
+        String[] splitArray = apiSymbol.split("_");
+        return splitArray[splitArray.length-1];
     }
 
     @Override
     public String apiSymbolToBaseCurrencySymbol(String apiSymbol) {
-        DexCurrencyPair cp = uniswap3PairDataProvider.getDexCurrencyPairMap().get(apiSymbol);
-        if (cp == null) {
-            throw new IllegalStateException("No such symbol (pool) (could happen when currency pair wasn't acquired using PairDataProvider)");
-        }
-        return cp.getToken0Symbol();
+        String[] splitArray = apiSymbol.split("_");
+        return String.join("",Arrays.copyOfRange(splitArray,0, splitArray.length-1));
     }
 
     @Override
     public CurrencyPair apiSymbolToXchangeCurrencyPair(String apiSymbol) {
         return new CurrencyPair(apiSymbolToBaseCurrencySymbol(apiSymbol), apiSymbolToCounterCurrencySymbol(apiSymbol));
+    }
+
+    public static String formatApiSymbol(String baseSymbol, String counterSymbol) {
+        return String.format("%s_%s", baseSymbol, counterSymbol);
     }
 }

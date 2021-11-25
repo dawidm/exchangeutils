@@ -11,44 +11,24 @@
  *
  */
 
-package pl.dmotyka.exchangeutils.thegraphdex;
+package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import pl.dmotyka.exchangeutils.chartinfo.ChartCandle;
+import pl.dmotyka.exchangeutils.chartinfo.ChartTimePeriod;
+import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
+import pl.dmotyka.exchangeutils.chartinfo.NoSuchTimePeriodException;
+import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
+import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 
-public class DexCurrencyPair {
+public class Uniswap3ChartInfo implements ExchangeChartInfo {
 
-    private final String baseSymbol;
-    private final String baseTokenAddress;
-    private final String counterSymbol;
-    private final Set<String> poolsAddresses = new HashSet<>();
-
-    public DexCurrencyPair(String baseSymbol, String baseTokenAddress, String counterSymbol, String poolAddress) {
-        this.baseSymbol = baseSymbol;
-        this.baseTokenAddress = baseTokenAddress;
-        this.counterSymbol = counterSymbol;
-        poolsAddresses.add(poolAddress);
+    @Override
+    public ChartCandle[] getCandles(String symbol, long timePeriodSeconds, long beginTimestampSeconds, long endTimestampSeconds) throws NoSuchTimePeriodException, ExchangeCommunicationException, ConnectionProblemException {
+        return new ChartCandle[0];
     }
 
-    public void addPool(String poolAddress) {
-        poolsAddresses.add(poolAddress);
+    @Override
+    public ChartTimePeriod[] getAvailablePeriods() {
+        return new ChartTimePeriod[0];
     }
-
-    public String getBaseSymbol() {
-        return baseSymbol;
-    }
-
-    public String getBaseTokenAddress() {
-        return baseTokenAddress;
-    }
-
-    public String getCounterSymbol() {
-        return counterSymbol;
-    }
-
-    public Set<String> getPoolsAddresses() {
-        return Collections.unmodifiableSet(poolsAddresses);
-    }
-
 }
