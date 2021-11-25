@@ -47,17 +47,20 @@ public class Uniswap3TickerProvider implements TickerProvider {
     private Set<String> pairsSet;
     private TickerProviderConnectionStateReceiver connectionStateReceiver;
     private Uniswap3ExchangeSpecs exchangeSpecs;
+    private int pastTicksSecondsAgo;
     TheGraphHttpRequest theGraphHttpRequest;
 
     private int lastRefreshTimestampSeconds;
 
-    public Uniswap3TickerProvider(TickerReceiver tickerReceiver, String[] pairsApiSymbols, Uniswap3ExchangeSpecs exchangeSpecs) {
+    // pastTickSecondsAgo - when connected, provider will get past tick for specified time
+    public Uniswap3TickerProvider(TickerReceiver tickerReceiver, String[] pairsApiSymbols, Uniswap3ExchangeSpecs exchangeSpecs, int pastTickSecondsAgo) {
         this.tickerReceiver = tickerReceiver;
         this.pairsApiSymbols = pairsApiSymbols;
         this.pairsSet = Set.of(pairsApiSymbols);
         this.exchangeSpecs = exchangeSpecs;
+        this.pastTicksSecondsAgo = pastTickSecondsAgo;
         theGraphHttpRequest = new TheGraphHttpRequest(exchangeSpecs);
-        lastRefreshTimestampSeconds = (int)Instant.now().getEpochSecond() - TICKER_REFRESH_RATE_SEC;
+        lastRefreshTimestampSeconds = (int)Instant.now().getEpochSecond() - pastTickSecondsAgo;
     }
 
     @Override

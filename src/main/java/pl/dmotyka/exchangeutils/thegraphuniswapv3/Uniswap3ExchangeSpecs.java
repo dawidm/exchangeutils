@@ -28,6 +28,8 @@ public class Uniswap3ExchangeSpecs extends TheGraphExchangeSpecs {
     private static final int API_PORT = 443;
     static final String[] SUPPORTED_COUNTER_CURR = new String[] {"USD"};
 
+    private static final int TICKER_PROVIDER_PAST_TICKS_SECONDS_AGO = 300;
+
     private final Uniswap3PairDataProvider uniswap3PairDataProvider = new Uniswap3PairDataProvider();
 
     public Uniswap3ExchangeSpecs() {
@@ -71,7 +73,7 @@ public class Uniswap3ExchangeSpecs extends TheGraphExchangeSpecs {
 
     @Override
     public TickerProvider getTickerProvider(TickerReceiver tickerReceiver, String[] pairs) {
-        return new Uniswap3TickerProvider(tickerReceiver, pairs, this);
+        return new Uniswap3TickerProvider(tickerReceiver, pairs, this, TICKER_PROVIDER_PAST_TICKS_SECONDS_AGO);
     }
 
     @Override
