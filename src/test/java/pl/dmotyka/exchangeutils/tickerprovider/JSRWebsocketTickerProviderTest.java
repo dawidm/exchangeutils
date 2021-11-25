@@ -35,6 +35,9 @@ class JSRWebsocketTickerProviderTest {
                     for (Ticker ticker : tickers) {
                         System.out.print(ticker.getPair() + " ");
                         System.out.println(ticker.getValue());
+                        synchronized (JSRWebsocketTickerProviderTest.this) {
+                            JSRWebsocketTickerProviderTest.this.notify();
+                        }
                     }
             }
 
@@ -44,7 +47,9 @@ class JSRWebsocketTickerProviderTest {
             }
         }, new String[] {"btcusdt"}, new HuobiExchangeMethods());
         tp.connect(state -> System.out.println(state.toString()));
-        Thread.sleep(5000);
+        synchronized (this) {
+            this.wait();
+        }
         tp.disconnect();
 
     }
