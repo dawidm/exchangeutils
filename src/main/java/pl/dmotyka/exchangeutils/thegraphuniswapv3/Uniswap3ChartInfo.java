@@ -42,7 +42,7 @@ class Uniswap3ChartInfo implements ExchangeChartInfo {
             throw new IllegalArgumentException("At least one of time values is too big (they should be in seconds)");
         }
         TheGraphHttpRequest req = new TheGraphHttpRequest(new Uniswap3ExchangeSpecs());
-        String[] pools = pairDataProvider.getDexCurrencyPairMap().get(apiSymbol).getPoolsAddresses().toArray(new String[0]);
+        String[] pools = pairDataProvider.getPools(new String[] {apiSymbol});
         Uniswap3SwapsQuery swapsQuery = new Uniswap3SwapsQuery(pools, (int)beginTimestampSeconds, (int)endTimestampSeconds);
         List<JsonNode> swapsJsonNodes = req.send(swapsQuery);
         List<Ticker> tickerList = new LinkedList<>();

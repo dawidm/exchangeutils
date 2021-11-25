@@ -13,14 +13,12 @@
 
 package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
-import java.util.Arrays;
-
 import org.junit.jupiter.api.Test;
 import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairSelectionCriteria;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class Uniswap3PairDataProviderTest {
 
@@ -32,7 +30,9 @@ class Uniswap3PairDataProviderTest {
         for (String symbol : symbols) {
             assertTrue(symbol.split("_").length > 1);
         }
-        assertTrue(dp.getDexCurrencyPairMap().keySet().containsAll(Arrays.asList(symbols)));
+        for (String symbol : symbols) {
+            assertTrue(dp.getPools(new String[] {symbol}).length > 0);
+        }
     }
 
     @Test
@@ -44,6 +44,8 @@ class Uniswap3PairDataProviderTest {
             assertTrue(symbol.split("_").length > 1);
             assertTrue(symbol.endsWith("_USD"));
         }
-        assertTrue(dp.getDexCurrencyPairMap().keySet().containsAll(Arrays.asList(symbols)));
+        for (String symbol : symbols) {
+            assertTrue(dp.getPools(new String[] {symbol}).length > 0);
+        }
     }
 }

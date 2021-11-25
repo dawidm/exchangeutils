@@ -69,7 +69,7 @@ public class Uniswap3ExchangeSpecs extends TheGraphExchangeSpecs {
 
     @Override
     public TickerProvider getTickerProvider(TickerReceiver tickerReceiver, String[] pairs) {
-        return null;
+        return new Uniswap3TickerProvider(tickerReceiver, pairs, this);
     }
 
     @Override

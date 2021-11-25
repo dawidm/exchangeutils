@@ -13,9 +13,9 @@
 
 package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,9 +68,12 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
         return symbols.toArray(String[]::new);
     }
 
-    // Returns a map with dex currency pairs. All pairs that were returned at any time by current instance of this class are stored in this map.
-    public Map<String, DexCurrencyPair> getDexCurrencyPairMap() {
-        return Collections.unmodifiableMap(dexCurrencyPairMap);
+    public String[] getPools(String[] symbols) {
+        List<String> pools = new LinkedList<>();
+        for (String symbol : symbols) {
+            pools.addAll(dexCurrencyPairMap.get(symbol).getPoolsAddresses());
+        }
+        return pools.toArray(String[]::new);
     }
 
     private synchronized void updatePairsMapWithNewData(List<JsonNode> poolsJsonNodes) {
