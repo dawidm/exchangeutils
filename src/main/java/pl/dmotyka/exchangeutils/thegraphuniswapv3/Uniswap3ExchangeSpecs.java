@@ -24,6 +24,8 @@ import pl.dmotyka.exchangeutils.tickerprovider.TickerReceiver;
 public class Uniswap3ExchangeSpecs extends TheGraphExchangeSpecs {
 
     private static final String THE_GRAPH_URL = "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3";
+    private static final String THE_GRAPH_HOSTNAME = "api.thegraph.com";
+    private static final int API_PORT = 443;
     static final String[] SUPPORTED_COUNTER_CURR = new String[] {"USD"};
 
     private final Uniswap3PairDataProvider uniswap3PairDataProvider = new Uniswap3PairDataProvider();
@@ -74,12 +76,12 @@ public class Uniswap3ExchangeSpecs extends TheGraphExchangeSpecs {
 
     @Override
     public String getApiHostname() {
-        return null;
+        return THE_GRAPH_HOSTNAME;
     }
 
     @Override
     public int getApiPort() {
-        return 0;
+        return API_PORT;
     }
 
     @Override
