@@ -23,8 +23,8 @@ public class Uniswap3PairsQuery extends TheGraphQuery {
 
     public static final double DEFAULT_MIN_USD_VOLUME = 1000.0;
 
-    private final String QUERY_STRING = "{pools(where:{volumeUSD_gt:%.2f}){id,token0{id,symbol},token1{id,symbol}}}";
-    private final String QUERY_STRING_PAGINATED = "{pools(where:{id_gt:\"%s\",volumeUSD_gt:%.2f}){id,token0{id,symbol},token1{id,symbol}}}";
+    private final String QUERY_STRING = "{pools(where:{volumeUSD_gt:%.2f}){id,token0{id,symbol},token1{id,symbol},volumeUSD}}";
+    private final String QUERY_STRING_PAGINATED = "{pools(where:{id_gt:\"%s\",volumeUSD_gt:%.2f}){id,token0{id,symbol},token1{id,symbol},volumeUSD}}";
     private final String POOLS_FIELD = "pools";
     private final String ID_FIELD = "id";
 

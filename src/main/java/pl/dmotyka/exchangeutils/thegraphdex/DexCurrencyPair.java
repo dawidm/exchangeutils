@@ -14,25 +14,33 @@
 package pl.dmotyka.exchangeutils.thegraphdex;
 
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class DexCurrencyPair {
+
+    private static final int POOLS_LIMIT = 3;
 
     private final String baseSymbol;
     private final String baseTokenAddress;
     private final String counterSymbol;
-    private final Set<String> poolsAddresses = new HashSet<>();
+    private final LinkedList<DexPool> poolsAddresses = new LinkedList<>();
 
-    public DexCurrencyPair(String baseSymbol, String baseTokenAddress, String counterSymbol, String poolAddress) {
+    public DexCurrencyPair(String baseSymbol, String baseTokenAddress, String counterSymbol, DexPool dexPool) {
         this.baseSymbol = baseSymbol;
         this.baseTokenAddress = baseTokenAddress;
         this.counterSymbol = counterSymbol;
-        poolsAddresses.add(poolAddress);
+        poolsAddresses.add(dexPool);
     }
 
-    public void addPool(String poolAddress) {
-        poolsAddresses.add(poolAddress);
+    public void addPool(DexPool dexPool) {
+        poolsAddresses.add(dexPool);
+        Collections.sort(poolsAddresses, Comparator.comparingDouble(DexPool::getVolume));
+        if (poolsAddresses.size() > POOLS_LIMIT) {
+            poolsAddresses.pop();
+        }
     }
 
     public String getBaseSymbol() {
@@ -48,7 +56,7 @@ public class DexCurrencyPair {
     }
 
     public Set<String> getPoolsAddresses() {
-        return Collections.unmodifiableSet(poolsAddresses);
+        return poolsAddresses.stream().map(DexPool::getAddress).collect(Collectors.toUnmodifiableSet());
     }
 
 }

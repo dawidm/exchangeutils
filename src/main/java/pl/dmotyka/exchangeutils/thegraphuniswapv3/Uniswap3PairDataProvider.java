@@ -26,6 +26,7 @@ import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairSelectionCriteria;
 import pl.dmotyka.exchangeutils.thegraphdex.DexCurrencyPair;
+import pl.dmotyka.exchangeutils.thegraphdex.DexPool;
 import pl.dmotyka.exchangeutils.thegraphdex.TheGraphHttpRequest;
 
 public class Uniswap3PairDataProvider implements PairDataProvider {
@@ -86,15 +87,17 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
                 String token1ApiSymbol = Uniswap3PairSymbolConverter.formatApiSymbol(token1Symbol, COUNTER_CURRENCY_SYMBOL);
                 String token1address = poolNode.get("token1").get("id").textValue();
                 String poolAddress = poolNode.get("id").textValue();
+                double poolUSDVolume = poolNode.get("volumeUSD").asDouble();
+                DexPool dexPool = new DexPool(poolAddress, poolUSDVolume);
                 if (dexCurrencyPairMap.containsKey(token0ApiSymbol)) {
-                    dexCurrencyPairMap.get(token0ApiSymbol).addPool(poolAddress);
+                    dexCurrencyPairMap.get(token0ApiSymbol).addPool(dexPool);
                 } else {
-                    dexCurrencyPairMap.put(token0ApiSymbol, new DexCurrencyPair(token0Symbol, token0address, COUNTER_CURRENCY_SYMBOL, poolAddress));
+                    dexCurrencyPairMap.put(token0ApiSymbol, new DexCurrencyPair(token0Symbol, token0address, COUNTER_CURRENCY_SYMBOL, dexPool));
                 }
                 if (dexCurrencyPairMap.containsKey(token1ApiSymbol)) {
-                    dexCurrencyPairMap.get(token1ApiSymbol).addPool(poolAddress);
+                    dexCurrencyPairMap.get(token1ApiSymbol).addPool(dexPool);
                 } else {
-                    dexCurrencyPairMap.put(token1ApiSymbol, new DexCurrencyPair(token1Symbol, token1address, COUNTER_CURRENCY_SYMBOL, poolAddress));
+                    dexCurrencyPairMap.put(token1ApiSymbol, new DexCurrencyPair(token1Symbol, token1address, COUNTER_CURRENCY_SYMBOL, dexPool));
                 }
             }
         }
