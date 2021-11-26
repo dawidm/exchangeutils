@@ -47,6 +47,7 @@ public class Uniswap3TickerProvider implements TickerProvider {
     private Set<String> pairsSet;
     private TickerProviderConnectionStateReceiver connectionStateReceiver;
     private Uniswap3ExchangeSpecs exchangeSpecs;
+    private Uniswap3PairSymbolConverter pairSymbolConverter;
     private int pastTicksSecondsAgo;
     TheGraphHttpRequest theGraphHttpRequest;
 
@@ -58,6 +59,7 @@ public class Uniswap3TickerProvider implements TickerProvider {
         this.pairsApiSymbols = pairsApiSymbols;
         this.pairsSet = Set.of(pairsApiSymbols);
         this.exchangeSpecs = exchangeSpecs;
+        this.pairSymbolConverter = (Uniswap3PairSymbolConverter) exchangeSpecs.getPairSymbolConverter();
         this.pastTicksSecondsAgo = pastTickSecondsAgo;
         theGraphHttpRequest = new TheGraphHttpRequest(exchangeSpecs);
         lastRefreshTimestampSeconds = (int)Instant.now().getEpochSecond() - pastTickSecondsAgo;
@@ -78,13 +80,19 @@ public class Uniswap3TickerProvider implements TickerProvider {
 
     private void executorTask() {
         try {
-            String[] pools = ((Uniswap3PairDataProvider)exchangeSpecs.getPairDataProvider()).getPools(pairsApiSymbols);
-            Uniswap3SwapsQuery swapsQuery = new Uniswap3SwapsQuery(pools, lastRefreshTimestampSeconds, Integer.MAX_VALUE);
-            List<JsonNode> swapsNodes = theGraphHttpRequest.send(swapsQuery);
+            String[] addresses = Arrays.stream(pairsApiSymbols).map(apiSymbol -> pairSymbolConverter.apiSymbolToTokenAddress(apiSymbol)).toArray(String[]::new);
+            Uniswap3TokenSwapsQuery swaps0Query = new Uniswap3TokenSwapsQuery(Uniswap3TokenSwapsQuery.WhichToken.TOKEN0, addresses, lastRefreshTimestampSeconds, Integer.MAX_VALUE);
+            Uniswap3TokenSwapsQuery swaps1Query = new Uniswap3TokenSwapsQuery(Uniswap3TokenSwapsQuery.WhichToken.TOKEN1, addresses, lastRefreshTimestampSeconds, Integer.MAX_VALUE);
+            List<JsonNode> swaps0Nodes = theGraphHttpRequest.send(swaps0Query);
+            List<JsonNode> swaps1Nodes = theGraphHttpRequest.send(swaps1Query);
             List<Ticker> tickerList = new LinkedList<>();
-            for (JsonNode swapsNode : swapsNodes) {
+            for (JsonNode swapsNode : swaps0Nodes) {
                 Ticker[] tickers = Uniswap3SwapsToTickers.generateTickers(swapsNode);
-                tickerList.addAll(Arrays.asList(tickers).stream().filter(t -> pairsSet.contains(t.getPair())).collect(Collectors.toList()));
+                tickerList.addAll(Arrays.stream(tickers).filter(t -> pairsSet.contains(t.getPair())).collect(Collectors.toList()));
+            }
+            for (JsonNode swapsNode : swaps1Nodes) {
+                Ticker[] tickers = Uniswap3SwapsToTickers.generateTickers(swapsNode);
+                tickerList.addAll(Arrays.stream(tickers).filter(t -> pairsSet.contains(t.getPair())).collect(Collectors.toList()));
             }
             if (tickerList.isEmpty()) {
                 return;

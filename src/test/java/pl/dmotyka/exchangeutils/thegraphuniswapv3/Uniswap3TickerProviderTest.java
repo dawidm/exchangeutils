@@ -33,15 +33,17 @@ class Uniswap3TickerProviderTest {
     void tickerProviderTest() throws ConnectionProblemException, ExchangeCommunicationException, IOException, InterruptedException {
         Uniswap3ExchangeSpecs exchangeSpecs = new Uniswap3ExchangeSpecs();
         String[] symbols = exchangeSpecs.getPairDataProvider().getPairsApiSymbols(new PairSelectionCriteria[] {new PairSelectionCriteria("USD", 100000)});
-        Optional<String> optionalSymbol = Arrays.stream(symbols).filter(s -> s.equals("WETH_USD")).findAny();
-        Optional<String> optional1Symbol = Arrays.stream(symbols).filter(s -> s.equals("DAI_USD")).findAny();
+        // WETH
+        Optional<String> optionalSymbol = Arrays.stream(symbols).filter(s -> s.equals("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2_USD")).findAny();
+        // USDC
+        Optional<String> optional1Symbol = Arrays.stream(symbols).filter(s -> s.equals("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48_USD")).findAny();
         String symbol = optionalSymbol.orElseGet(() -> symbols[0]);
         String symbol1 = optional1Symbol.orElseGet(() -> symbols[1]);
         Set<String> resultsSymbolsSet = new HashSet<>();
         TickerProvider tickerProvider = exchangeSpecs.getTickerProvider(new TickerReceiver() {
             @Override
             public void receiveTicker(Ticker ticker) {
-                System.out.println(ticker.getPair() + " " + ticker.getValue());
+                System.out.println(exchangeSpecs.getPairSymbolConverter().toFormattedString(ticker.getPair()) + " " + ticker.getValue());
                 resultsSymbolsSet.add(ticker.getPair());
                 if (resultsSymbolsSet.size() == 2) {
                     synchronized (Uniswap3TickerProviderTest.this) {
@@ -53,7 +55,7 @@ class Uniswap3TickerProviderTest {
             @Override
             public void receiveTickers(Ticker[] tickers) {
                 for (Ticker ticker : tickers) {
-                    System.out.println(ticker.getPair() + " " + ticker.getValue());
+                    System.out.println(exchangeSpecs.getPairSymbolConverter().toFormattedString(ticker.getPair()) + " " + ticker.getValue());
                     resultsSymbolsSet.add(ticker.getPair());
                     if (resultsSymbolsSet.size() == 2) {
                         synchronized (Uniswap3TickerProviderTest.this) {
