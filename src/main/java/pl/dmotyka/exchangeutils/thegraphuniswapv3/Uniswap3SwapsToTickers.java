@@ -31,11 +31,17 @@ public class Uniswap3SwapsToTickers {
             long timestampSec = swapNode.get("timestamp").asLong();
             String token0Address = swapNode.get("token0").get("id").textValue();
             String token1Address = swapNode.get("token1").get("id").textValue();
+            double token0derivedETH = swapNode.get("token0").get("derivedETH").asDouble(0.0);
+            double token1derivedETH = swapNode.get("token1").get("derivedETH").asDouble(0.0);
             String token0ApiSymbol = Uniswap3PairSymbolConverter.formatApiSymbol(token0Address, Uniswap3ExchangeSpecs.SUPPORTED_COUNTER_CURR[0]);
             String token1ApiSymbol = Uniswap3PairSymbolConverter.formatApiSymbol(token1Address, Uniswap3ExchangeSpecs.SUPPORTED_COUNTER_CURR[0]);
             if (amountUsd > 0) {
-                tickers.add(new Ticker(token0ApiSymbol, amountUsd/Math.abs(amountToken0), timestampSec));
-                tickers.add(new Ticker(token1ApiSymbol, amountUsd/Math.abs(amountToken1), timestampSec));
+                if (token1derivedETH != 0.0) { // when derived value of second token is 0, tick value will be wrong
+                    tickers.add(new Ticker(token0ApiSymbol, amountUsd / Math.abs(amountToken0), timestampSec));
+                }
+                if (token0derivedETH != 0.0) {
+                    tickers.add(new Ticker(token1ApiSymbol, amountUsd / Math.abs(amountToken1), timestampSec));
+                }
             }
         }
         return tickers.toArray(Ticker[]::new);

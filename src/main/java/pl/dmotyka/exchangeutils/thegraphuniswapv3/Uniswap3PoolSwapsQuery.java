@@ -20,8 +20,8 @@ import pl.dmotyka.exchangeutils.thegraphdex.TheGraphQuery;
 
 public class Uniswap3PoolSwapsQuery extends TheGraphQuery {
 
-    private static final String QUERY_STRING = "{swaps(where:{timestamp_gt: %d, timestamp_lt: %d,pool_in:[%s]},orderBy: timestamp, orderDirection: asc){id,timestamp,token0{symbol},token1{symbol},amount0,amount1,amountUSD}}";
-    private static final String QUERY_STRING_PAGINATED = "{swaps(where:{timestamp_gt: %d, timestamp_lt: %d,pool_in:[%s],id_gt: \"%s\"},orderBy: timestamp, orderDirection: asc){id,timestamp,token0{symbol},token1{symbol},amount0,amount1,amountUSD}}";
+    private static final String QUERY_STRING = "{swaps(where:{timestamp_gt: %d, timestamp_lt: %d,pool_in:[%s]},orderBy: timestamp, orderDirection: asc){id,timestamp,token0{symbol,derivedETH},token1{symbol,derivedETH},amount0,amount1,amountUSD}}";
+    private static final String QUERY_STRING_PAGINATED = "{swaps(where:{timestamp_gt: %d, timestamp_lt: %d,pool_in:[%s],id_gt: \"%s\"},orderBy: timestamp, orderDirection: asc){id,timestamp,token0{symbol,derivedETH},token1{symbol,derivedETH},amount0,amount1,amountUSD}}";
 
     private static final String SWAPS_FIELD = "swaps";
     private static final String ID_FIELD = "id";
