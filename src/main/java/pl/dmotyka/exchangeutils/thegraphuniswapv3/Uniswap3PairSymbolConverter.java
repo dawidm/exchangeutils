@@ -29,7 +29,11 @@ class Uniswap3PairSymbolConverter implements PairSymbolConverter {
     @Override
     public String toFormattedString(String apiSymbol) {
         String address = apiSymbolToTokenAddress(apiSymbol);
-        return String.format("%s/%s", pairDataProvider.getTokenSymbol(address), apiSymbolToCounterCurrencySymbol(apiSymbol));
+        String symbol = pairDataProvider.getTokenSymbol(address);
+        if (symbol.length() > 10) {
+            symbol = symbol.substring(0,10) + "...";
+        }
+        return String.format("%s/%s", symbol, apiSymbolToCounterCurrencySymbol(apiSymbol));
     }
 
     @Override
