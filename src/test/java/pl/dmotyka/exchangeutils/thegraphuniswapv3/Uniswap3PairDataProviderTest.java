@@ -18,6 +18,7 @@ import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairSelectionCriteria;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class Uniswap3PairDataProviderTest {
@@ -25,27 +26,29 @@ class Uniswap3PairDataProviderTest {
     @Test
     void getPairsApiSymbols() throws ConnectionProblemException, ExchangeCommunicationException {
         Uniswap3PairDataProvider dp = new Uniswap3PairDataProvider();
-        String[] symbols = dp.getPairsApiSymbols();
-        assertTrue(symbols.length > 0);
-        for (String symbol : symbols) {
-            assertTrue(symbol.split("_").length > 1);
+        String[] apiSymbols = dp.getPairsApiSymbols();
+        assertTrue(apiSymbols.length > 0);
+        for (String apiSymbol : apiSymbols) {
+            assertTrue(apiSymbol.split("_").length > 1);
+            assertTrue(apiSymbol.startsWith("0x"));
         }
-        for (String symbol : symbols) {
-            assertTrue(dp.getPools(new String[] {symbol}).length > 0);
+        for (String apiSymbol : apiSymbols) {
+            assertDoesNotThrow(() -> dp.getTokenSymbol(apiSymbol));
         }
     }
 
     @Test
     void getPairsApiSymbolsWCriteria() throws ConnectionProblemException, ExchangeCommunicationException {
         Uniswap3PairDataProvider dp = new Uniswap3PairDataProvider();
-        String[] symbols = dp.getPairsApiSymbols(new PairSelectionCriteria[] {new PairSelectionCriteria("USD", 10000)});
-        assertTrue(symbols.length > 0);
-        for (String symbol : symbols) {
-            assertTrue(symbol.split("_").length > 1);
-            assertTrue(symbol.endsWith("_USD"));
+        String[] apiSymbols = dp.getPairsApiSymbols(new PairSelectionCriteria[] {new PairSelectionCriteria("USD", 10000)});
+        assertTrue(apiSymbols.length > 0);
+        for (String apiSymbol : apiSymbols) {
+            assertTrue(apiSymbol.split("_").length > 1);
+            assertTrue(apiSymbol.startsWith("0x"));
+            assertTrue(apiSymbol.endsWith("_USD"));
         }
-        for (String symbol : symbols) {
-            assertTrue(dp.getPools(new String[] {symbol}).length > 0);
+        for (String apiSymbol : apiSymbols) {
+            assertDoesNotThrow(() -> dp.getTokenSymbol(apiSymbol));
         }
     }
 }
