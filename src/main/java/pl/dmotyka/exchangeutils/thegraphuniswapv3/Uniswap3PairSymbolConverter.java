@@ -38,7 +38,7 @@ class Uniswap3PairSymbolConverter implements PairSymbolConverter {
 
     @Override
     public String toApiSymbol(CurrencyPair currencyPair) {
-        return formatApiSymbol(pairDataProvider.getTokenAddress(currencyPair.base.getCurrencyCode()), currencyPair.counter.getCurrencyCode());
+        return formatApiSymbol(currencyPair.base.getCurrencyCode(), currencyPair.counter.getCurrencyCode());
     }
 
     @Override
@@ -58,7 +58,7 @@ class Uniswap3PairSymbolConverter implements PairSymbolConverter {
 
     @Override
     public CurrencyPair apiSymbolToXchangeCurrencyPair(String apiSymbol) {
-        return new CurrencyPair(apiSymbolToBaseCurrencySymbol(apiSymbol), apiSymbolToCounterCurrencySymbol(apiSymbol));
+        return new CurrencyPair(pairDataProvider.getTokenAddress(apiSymbolToBaseCurrencySymbol(apiSymbol)), apiSymbolToCounterCurrencySymbol(apiSymbol));
     }
 
     public String apiSymbolToTokenAddress(String apiSymbol) {
