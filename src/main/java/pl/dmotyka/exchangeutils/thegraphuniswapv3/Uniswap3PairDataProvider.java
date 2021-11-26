@@ -30,7 +30,7 @@ import pl.dmotyka.exchangeutils.thegraphdex.TheGraphHttpRequest;
 
 public class Uniswap3PairDataProvider implements PairDataProvider {
 
-    private final Map<String, String> tokenAddressesBiMap = new HashMap<>();
+    private final Map<String, String> tokenAddressesMap = new HashMap<>();
     private final String COUNTER_CURRENCY_SYMBOL = Uniswap3ExchangeSpecs.SUPPORTED_COUNTER_CURR[0];
 
     @Override
@@ -76,18 +76,11 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
         return volumes.toArray(MarketQuoteVolume[]::new);
     }
 
-    public String getTokenSymbol(String tokenAddress) {
-        if (!tokenAddressesBiMap.containsKey(tokenAddress)) {
+    public synchronized String getTokenSymbol(String tokenAddress) {
+        if (!tokenAddressesMap.containsKey(tokenAddress)) {
             throw new IllegalStateException("No such address. Use this method only for tokens acquired by the same instance of this object.");
         }
-        return tokenAddressesBiMap.get(tokenAddress);
-    }
-
-    public String getTokenAddress(String tokenSymbol) {
-        if (!tokenAddressesBiMap.containsKey(tokenSymbol)) {
-            throw new IllegalStateException("No such token. Use this method only for tokens acquired by the same instance of this object.");
-        }
-        return tokenAddressesBiMap.get(tokenSymbol);
+        return tokenAddressesMap.get(tokenAddress);
     }
 
     private synchronized void updatePairsMapWithNewData(List<JsonNode> tokensJsonNodes) {
@@ -95,8 +88,7 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
             for(JsonNode tokenJsonNode : tokensJsonNode.get("tokens")) {
                 String tokenAddress = tokenJsonNode.get("id").textValue();
                 String tokenSymbol = tokenJsonNode.get("symbol").textValue();
-                tokenAddressesBiMap.put(tokenSymbol, tokenAddress);
-                tokenAddressesBiMap.put(tokenAddress, tokenSymbol);
+                tokenAddressesMap.put(tokenAddress, tokenSymbol);
             }
         }
     }
