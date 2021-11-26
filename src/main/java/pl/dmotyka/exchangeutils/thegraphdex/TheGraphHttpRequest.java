@@ -30,6 +30,8 @@ public class TheGraphHttpRequest {
 
     public static final Logger logger = Logger.getLogger(TheGraphHttpRequest.class.getName());
 
+    private static final int PAGINATION_RESULTS_LIMIT = 100;
+
     private final TheGraphExchangeSpecs theGraphExchangeSpecs;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -81,6 +83,9 @@ public class TheGraphHttpRequest {
                 return resultsList;
             }
             resultsList.add(firstPage);
+            if (theGraphQuery.numReturnedElements(firstPage) < PAGINATION_RESULTS_LIMIT) {
+                return resultsList;
+            }
             String lastId = theGraphQuery.lastElemendId(firstPage);
             boolean lastRequestEmpty = false;
             while (!lastRequestEmpty) {
