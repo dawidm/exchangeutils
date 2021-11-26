@@ -26,6 +26,8 @@ public class Uniswap3ExchangeSpecs extends TheGraphExchangeSpecs {
     private static final String THE_GRAPH_URL = "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3";
     private static final String THE_GRAPH_HOSTNAME = "api.thegraph.com";
     private static final int API_PORT = 443;
+    private static final String MARKET_URL = "https://info.uniswap.org/#/tokens/";
+    private static final String COLOR_HEX = "B10DC9";
     static final String[] SUPPORTED_COUNTER_CURR = new String[] {"USD"};
 
     private static final int TICKER_PROVIDER_PAST_TICKS_SECONDS_AGO = 300;
@@ -53,17 +55,17 @@ public class Uniswap3ExchangeSpecs extends TheGraphExchangeSpecs {
 
     @Override
     public String getMarketUrl() {
-        return null;
+        return MARKET_URL;
     }
 
     @Override
     public Exchange getXchangeExchange() {
-        return null;
+        throw  new RuntimeException("not supported");
     }
 
     @Override
     public String getColorHash() {
-        return null;
+        return COLOR_HEX;
     }
 
     @Override

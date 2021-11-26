@@ -45,7 +45,7 @@ class Uniswap3PairSymbolConverter implements PairSymbolConverter {
 
     @Override
     public String apiSymbolToChartUrlSymbol(String apiSymbol) {
-        throw new RuntimeException("not applicable");
+        return apiSymbolToBaseCurrencySymbol(apiSymbol);
     }
 
     @Override
