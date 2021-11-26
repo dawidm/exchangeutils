@@ -25,7 +25,9 @@ class Uniswap3PairDataProviderTest {
 
     @Test
     void getPairsApiSymbols() throws ConnectionProblemException, ExchangeCommunicationException {
-        Uniswap3PairDataProvider dp = new Uniswap3PairDataProvider();
+        Uniswap3ExchangeSpecs exchangeSpecs = new Uniswap3ExchangeSpecs();
+        Uniswap3PairDataProvider dp = (Uniswap3PairDataProvider) exchangeSpecs.getPairDataProvider();
+        Uniswap3PairSymbolConverter pairSymbolConverter = (Uniswap3PairSymbolConverter) exchangeSpecs.getPairSymbolConverter();
         String[] apiSymbols = dp.getPairsApiSymbols();
         assertTrue(apiSymbols.length > 0);
         for (String apiSymbol : apiSymbols) {
@@ -33,13 +35,15 @@ class Uniswap3PairDataProviderTest {
             assertTrue(apiSymbol.startsWith("0x"));
         }
         for (String apiSymbol : apiSymbols) {
-            assertDoesNotThrow(() -> dp.getTokenSymbol(apiSymbol));
+            assertDoesNotThrow(() -> dp.getTokenSymbol(pairSymbolConverter.apiSymbolToTokenAddress(apiSymbol)));
         }
     }
 
     @Test
     void getPairsApiSymbolsWCriteria() throws ConnectionProblemException, ExchangeCommunicationException {
-        Uniswap3PairDataProvider dp = new Uniswap3PairDataProvider();
+        Uniswap3ExchangeSpecs exchangeSpecs = new Uniswap3ExchangeSpecs();
+        Uniswap3PairDataProvider dp = (Uniswap3PairDataProvider) exchangeSpecs.getPairDataProvider();
+        Uniswap3PairSymbolConverter pairSymbolConverter = (Uniswap3PairSymbolConverter) exchangeSpecs.getPairSymbolConverter();
         String[] apiSymbols = dp.getPairsApiSymbols(new PairSelectionCriteria[] {new PairSelectionCriteria("USD", 10000)});
         assertTrue(apiSymbols.length > 0);
         for (String apiSymbol : apiSymbols) {
@@ -48,7 +52,7 @@ class Uniswap3PairDataProviderTest {
             assertTrue(apiSymbol.endsWith("_USD"));
         }
         for (String apiSymbol : apiSymbols) {
-            assertDoesNotThrow(() -> dp.getTokenSymbol(apiSymbol));
+            assertDoesNotThrow(() -> dp.getTokenSymbol(pairSymbolConverter.apiSymbolToTokenAddress(apiSymbol)));
         }
     }
 }

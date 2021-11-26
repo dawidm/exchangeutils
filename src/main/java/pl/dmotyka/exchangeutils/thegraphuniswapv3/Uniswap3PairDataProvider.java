@@ -30,7 +30,7 @@ import pl.dmotyka.exchangeutils.thegraphdex.TheGraphHttpRequest;
 
 public class Uniswap3PairDataProvider implements PairDataProvider {
 
-    private final Map<String, String> tokenAddressesMap = new HashMap<>();
+    private final Map<String, String> tokenAddressesBiMap = new HashMap<>();
     private final String COUNTER_CURRENCY_SYMBOL = Uniswap3ExchangeSpecs.SUPPORTED_COUNTER_CURR[0];
 
     @Override
@@ -77,17 +77,26 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
     }
 
     public String getTokenSymbol(String tokenAddress) {
-        if (!tokenAddressesMap.containsKey(tokenAddress)) {
+        if (!tokenAddressesBiMap.containsKey(tokenAddress)) {
             throw new IllegalStateException("No such address. Use this method only for tokens acquired by the same instance of this object.");
         }
-        return tokenAddressesMap.get(tokenAddress);
+        return tokenAddressesBiMap.get(tokenAddress);
+    }
+
+    public String getTokenAddress(String tokenSymbol) {
+        if (!tokenAddressesBiMap.containsKey(tokenSymbol)) {
+            throw new IllegalStateException("No such token. Use this method only for tokens acquired by the same instance of this object.");
+        }
+        return tokenAddressesBiMap.get(tokenSymbol);
     }
 
     private synchronized void updatePairsMapWithNewData(List<JsonNode> tokensJsonNodes) {
         for (JsonNode tokensJsonNode : tokensJsonNodes) {
             for(JsonNode tokenJsonNode : tokensJsonNode.get("tokens")) {
-                String symbol = Uniswap3PairSymbolConverter.formatApiSymbol(tokenJsonNode.get("id").textValue(), COUNTER_CURRENCY_SYMBOL);
-                tokenAddressesMap.put(symbol, tokenJsonNode.get("symbol").textValue());
+                String tokenAddress = tokenJsonNode.get("id").textValue();
+                String tokenSymbol = tokenJsonNode.get("symbol").textValue();
+                tokenAddressesBiMap.put(tokenSymbol, tokenAddress);
+                tokenAddressesBiMap.put(tokenAddress, tokenSymbol);
             }
         }
     }

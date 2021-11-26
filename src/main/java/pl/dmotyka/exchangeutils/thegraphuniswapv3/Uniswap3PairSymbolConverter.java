@@ -13,22 +13,23 @@
 
 package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
-import java.util.Arrays;
-
 import org.knowm.xchange.currency.CurrencyPair;
 import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
 
 class Uniswap3PairSymbolConverter implements PairSymbolConverter {
 
     private Uniswap3ExchangeSpecs exchangeSpecs;
+    private Uniswap3PairDataProvider pairDataProvider;
 
     public Uniswap3PairSymbolConverter(Uniswap3ExchangeSpecs exchangeSpecs) {
         this.exchangeSpecs = exchangeSpecs;
+        pairDataProvider = (Uniswap3PairDataProvider) exchangeSpecs.getPairDataProvider();
     }
 
     @Override
     public String toFormattedString(String apiSymbol) {
-        return String.format("%s/%s", apiSymbolToBaseCurrencySymbol(apiSymbol), apiSymbolToCounterCurrencySymbol(apiSymbol));
+        String address = apiSymbolToTokenAddress(apiSymbol);
+        return String.format("%s/%s", pairDataProvider.getTokenSymbol(address), apiSymbolToCounterCurrencySymbol(apiSymbol));
     }
 
     @Override
@@ -43,14 +44,12 @@ class Uniswap3PairSymbolConverter implements PairSymbolConverter {
 
     @Override
     public String apiSymbolToCounterCurrencySymbol(String apiSymbol) {
-        String[] splitArray = apiSymbol.split("_");
-        return splitArray[splitArray.length-1];
+        return apiSymbol.split("_")[1];
     }
 
     @Override
     public String apiSymbolToBaseCurrencySymbol(String apiSymbol) {
-        String[] splitArray = apiSymbol.split("_");
-        return String.join("",Arrays.copyOfRange(splitArray,0, splitArray.length-1));
+        return pairDataProvider.getTokenSymbol(apiSymbol.split("_")[0]);
     }
 
     @Override
