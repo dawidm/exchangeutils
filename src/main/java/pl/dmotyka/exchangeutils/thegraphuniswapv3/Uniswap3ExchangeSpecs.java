@@ -33,7 +33,7 @@ public class Uniswap3ExchangeSpecs extends TheGraphExchangeSpecs {
     private final Uniswap3PairDataProvider uniswap3PairDataProvider = new Uniswap3PairDataProvider();
 
     public Uniswap3ExchangeSpecs() {
-        super("Uniswap V3");
+        super("UniswapV3");
     }
 
     @Override
