@@ -48,7 +48,7 @@ public class Uniswap3ExchangeSpecs extends TheGraphExchangeSpecs {
 
     @Override
     public PairSymbolConverter getPairSymbolConverter() {
-        return new Uniswap3PairSymbolConverter();
+        return new Uniswap3PairSymbolConverter(this);
     }
 
     @Override

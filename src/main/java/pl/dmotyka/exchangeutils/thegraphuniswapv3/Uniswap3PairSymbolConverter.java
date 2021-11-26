@@ -20,6 +20,12 @@ import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
 
 class Uniswap3PairSymbolConverter implements PairSymbolConverter {
 
+    private Uniswap3ExchangeSpecs exchangeSpecs;
+
+    public Uniswap3PairSymbolConverter(Uniswap3ExchangeSpecs exchangeSpecs) {
+        this.exchangeSpecs = exchangeSpecs;
+    }
+
     @Override
     public String toFormattedString(String apiSymbol) {
         return String.format("%s/%s", apiSymbolToBaseCurrencySymbol(apiSymbol), apiSymbolToCounterCurrencySymbol(apiSymbol));
@@ -52,7 +58,11 @@ class Uniswap3PairSymbolConverter implements PairSymbolConverter {
         return new CurrencyPair(apiSymbolToBaseCurrencySymbol(apiSymbol), apiSymbolToCounterCurrencySymbol(apiSymbol));
     }
 
-    public static String formatApiSymbol(String baseSymbol, String counterSymbol) {
-        return String.format("%s_%s", baseSymbol, counterSymbol);
+    public String apiSymbolToTokenAddress(String apiSymbol) {
+        return apiSymbol.split("_")[0];
+    }
+
+    public static String formatApiSymbol(String tokenAddress, String counterSymbol) {
+        return String.format("%s_%s", tokenAddress, counterSymbol);
     }
 }

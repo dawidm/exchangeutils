@@ -34,7 +34,8 @@ class Uniswap3ChartInfoTest {
         String[] symbols = exchangeSpecs.getPairDataProvider().getPairsApiSymbols(new PairSelectionCriteria[] {new PairSelectionCriteria("USD", 100000)});
         int currentTimestampSec = (int) Instant.now().getEpochSecond();
         int dayAgoTimestamp = currentTimestampSec - 24 * 3600;
-        Optional<String> optionalSymbol = Arrays.stream(symbols).filter(s -> s.equals("WETH_USD")).findAny();
+        // WETH token
+        Optional<String> optionalSymbol = Arrays.stream(symbols).filter(s -> s.equals("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2_USD")).findAny();
         String symbol;
         symbol = optionalSymbol.orElseGet(() -> symbols[0]);
         ChartCandle[] candles = exchangeSpecs.getChartInfo().getCandles(symbol,3600, dayAgoTimestamp, currentTimestampSec);

@@ -14,6 +14,7 @@
 package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,18 +39,25 @@ class Uniswap3ChartInfo implements ExchangeChartInfo {
 
     @Override
     public ChartCandle[] getCandles(String apiSymbol, long timePeriodSeconds, long beginTimestampSeconds, long endTimestampSeconds) throws NoSuchTimePeriodException, ExchangeCommunicationException, ConnectionProblemException {
+        Uniswap3ExchangeSpecs exchangeSpecs = new Uniswap3ExchangeSpecs();
         if (timePeriodSeconds > (long)Integer.MAX_VALUE || beginTimestampSeconds > (long)Integer.MAX_VALUE || endTimestampSeconds > (long)Integer.MAX_VALUE) {
             throw new IllegalArgumentException("At least one of time values is too big (they should be in seconds)");
         }
         TheGraphHttpRequest req = new TheGraphHttpRequest(new Uniswap3ExchangeSpecs());
-        String[] pools = pairDataProvider.getPools(new String[] {apiSymbol});
-        Uniswap3SwapsQuery swapsQuery = new Uniswap3SwapsQuery(pools, (int)beginTimestampSeconds, (int)endTimestampSeconds);
-        List<JsonNode> swapsJsonNodes = req.send(swapsQuery);
+        Uniswap3PairSymbolConverter pairSymbolConverter = (Uniswap3PairSymbolConverter) exchangeSpecs.getPairSymbolConverter();
+        String tokenAddress = pairSymbolConverter.apiSymbolToTokenAddress(apiSymbol);
+        Uniswap3TokenSwapsQuery swapsToken0Query = new Uniswap3TokenSwapsQuery(Uniswap3TokenSwapsQuery.WhichToken.TOKEN0, new String[]{tokenAddress}, (int)beginTimestampSeconds, (int)endTimestampSeconds);
+        Uniswap3TokenSwapsQuery swapsToken1Query = new Uniswap3TokenSwapsQuery(Uniswap3TokenSwapsQuery.WhichToken.TOKEN1, new String[]{tokenAddress}, (int)beginTimestampSeconds, (int)endTimestampSeconds);
+        List<JsonNode> swaps0JsonNodes = req.send(swapsToken0Query);
+        List<JsonNode> swaps1JsonNodes = req.send(swapsToken1Query);
         List<Ticker> tickerList = new LinkedList<>();
-        for (JsonNode swapsJsonNode : swapsJsonNodes) {
+        for (JsonNode swapsJsonNode : swaps0JsonNodes) {
             tickerList.addAll(Arrays.asList(Uniswap3SwapsToTickers.generateTickers(swapsJsonNode)));
         }
-        Ticker[] tickers = tickerList.stream().filter(t -> t.getPair().equals(apiSymbol)).toArray(Ticker[]::new);
+        for (JsonNode swapsJsonNode : swaps1JsonNodes) {
+            tickerList.addAll(Arrays.asList(Uniswap3SwapsToTickers.generateTickers(swapsJsonNode)));
+        }
+        Ticker[] tickers = tickerList.stream().sorted(Comparator.comparingLong(Ticker::getTimestampSeconds)).toArray(Ticker[]::new);
         return TicksToCandles.generateCandles(tickers, timePeriodSeconds);
     }
 

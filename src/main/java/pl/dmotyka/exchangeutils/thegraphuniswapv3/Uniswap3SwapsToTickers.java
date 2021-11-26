@@ -29,10 +29,10 @@ public class Uniswap3SwapsToTickers {
             double amountToken0 = swapNode.get("amount0").asDouble();
             double amountToken1 = swapNode.get("amount1").asDouble();
             long timestampSec = swapNode.get("timestamp").asLong();
-            String token0Symbol = swapNode.get("token0").get("symbol").textValue();
-            String token1Symbol = swapNode.get("token1").get("symbol").textValue();
-            String token0ApiSymbol = Uniswap3PairSymbolConverter.formatApiSymbol(token0Symbol, Uniswap3ExchangeSpecs.SUPPORTED_COUNTER_CURR[0]);
-            String token1ApiSymbol = Uniswap3PairSymbolConverter.formatApiSymbol(token1Symbol, Uniswap3ExchangeSpecs.SUPPORTED_COUNTER_CURR[0]);
+            String token0Address = swapNode.get("token0").get("id").textValue();
+            String token1Address = swapNode.get("token1").get("id").textValue();
+            String token0ApiSymbol = Uniswap3PairSymbolConverter.formatApiSymbol(token0Address, Uniswap3ExchangeSpecs.SUPPORTED_COUNTER_CURR[0]);
+            String token1ApiSymbol = Uniswap3PairSymbolConverter.formatApiSymbol(token1Address, Uniswap3ExchangeSpecs.SUPPORTED_COUNTER_CURR[0]);
             tickers.add(new Ticker(token0ApiSymbol, amountUsd/Math.abs(amountToken0), timestampSec));
             tickers.add(new Ticker(token1ApiSymbol, amountUsd/Math.abs(amountToken1), timestampSec));
         }
