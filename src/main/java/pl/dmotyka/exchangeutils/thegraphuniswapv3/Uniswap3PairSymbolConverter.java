@@ -28,7 +28,7 @@ class Uniswap3PairSymbolConverter implements PairSymbolConverter {
 
     @Override
     public String toFormattedString(String apiSymbol) {
-        String address = apiSymbolToTokenAddress(apiSymbol);
+        String address = apiSymbolToBaseCurrencySymbol(apiSymbol);
         String symbol = pairDataProvider.getTokenSymbol(address);
         if (symbol.length() > 10) {
             symbol = symbol.substring(0,10) + "...";
@@ -53,16 +53,12 @@ class Uniswap3PairSymbolConverter implements PairSymbolConverter {
 
     @Override
     public String apiSymbolToBaseCurrencySymbol(String apiSymbol) {
-        return pairDataProvider.getTokenSymbol(apiSymbol.split("_")[0]);
+        return apiSymbol.split("_")[0];
     }
 
     @Override
     public CurrencyPair apiSymbolToXchangeCurrencyPair(String apiSymbol) {
         return new CurrencyPair(apiSymbolToBaseCurrencySymbol(apiSymbol), apiSymbolToCounterCurrencySymbol(apiSymbol));
-    }
-
-    public String apiSymbolToTokenAddress(String apiSymbol) {
-        return apiSymbol.split("_")[0];
     }
 
     public static String formatApiSymbol(String tokenAddress, String counterSymbol) {

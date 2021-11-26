@@ -45,7 +45,7 @@ class Uniswap3ChartInfo implements ExchangeChartInfo {
         }
         TheGraphHttpRequest req = new TheGraphHttpRequest(new Uniswap3ExchangeSpecs());
         Uniswap3PairSymbolConverter pairSymbolConverter = (Uniswap3PairSymbolConverter) exchangeSpecs.getPairSymbolConverter();
-        String tokenAddress = pairSymbolConverter.apiSymbolToTokenAddress(apiSymbol);
+        String tokenAddress = pairSymbolConverter.apiSymbolToBaseCurrencySymbol(apiSymbol);
         Uniswap3TokenSwapsQuery swapsToken0Query = new Uniswap3TokenSwapsQuery(Uniswap3TokenSwapsQuery.WhichToken.TOKEN0, new String[]{tokenAddress}, (int)beginTimestampSeconds, (int)endTimestampSeconds);
         Uniswap3TokenSwapsQuery swapsToken1Query = new Uniswap3TokenSwapsQuery(Uniswap3TokenSwapsQuery.WhichToken.TOKEN1, new String[]{tokenAddress}, (int)beginTimestampSeconds, (int)endTimestampSeconds);
         List<JsonNode> swaps0JsonNodes = req.send(swapsToken0Query);

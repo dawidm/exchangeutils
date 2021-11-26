@@ -80,7 +80,7 @@ public class Uniswap3TickerProvider implements TickerProvider {
 
     private void executorTask() {
         try {
-            String[] addresses = Arrays.stream(pairsApiSymbols).map(apiSymbol -> pairSymbolConverter.apiSymbolToTokenAddress(apiSymbol)).toArray(String[]::new);
+            String[] addresses = Arrays.stream(pairsApiSymbols).map(apiSymbol -> pairSymbolConverter.apiSymbolToBaseCurrencySymbol(apiSymbol)).toArray(String[]::new);
             Uniswap3TokenSwapsQuery swaps0Query = new Uniswap3TokenSwapsQuery(Uniswap3TokenSwapsQuery.WhichToken.TOKEN0, addresses, lastRefreshTimestampSeconds, Integer.MAX_VALUE);
             Uniswap3TokenSwapsQuery swaps1Query = new Uniswap3TokenSwapsQuery(Uniswap3TokenSwapsQuery.WhichToken.TOKEN1, addresses, lastRefreshTimestampSeconds, Integer.MAX_VALUE);
             List<JsonNode> swaps0Nodes = theGraphHttpRequest.send(swaps0Query);
