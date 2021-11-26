@@ -18,26 +18,24 @@ import org.knowm.xchange.currency.CurrencyPair;
 import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
-import pl.dmotyka.exchangeutils.pairdataprovider.PairSelectionCriteria;
 import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Uniswap3PairSymbolConverterTest {
 
     @Test
     void testConvertingPairs() throws ConnectionProblemException, ExchangeCommunicationException {
         String ethAddress = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
+        String apiSymbol = ethAddress + "_USD";
         Uniswap3ExchangeSpecs exchangeSpecs = new Uniswap3ExchangeSpecs();
         PairDataProvider pairDataProvider = exchangeSpecs.getPairDataProvider();
-        String[] pools = pairDataProvider.getPairsApiSymbols(new PairSelectionCriteria[] {new PairSelectionCriteria(ethAddress, 100)});
+        //String[] pools = pairDataProvider.getPairsApiSymbols(new PairSelectionCriteria[] {new PairSelectionCriteria(ethAddress, 100)});
         PairSymbolConverter converter = exchangeSpecs.getPairSymbolConverter();
-        assertEquals("WETH", converter.apiSymbolToCounterCurrencySymbol(pools[0]));
-        assertNotEquals("WETH", converter.apiSymbolToBaseCurrencySymbol(pools[0]));
-        assertTrue(converter.toFormattedString(pools[0]).endsWith("/WETH"));
-        String base = converter.apiSymbolToBaseCurrencySymbol(pools[0]);
-        String counter = converter.apiSymbolToCounterCurrencySymbol(pools[0]);
-        assertEquals(converter.toApiSymbol(new CurrencyPair(base, counter)), pools[0]);
+        CurrencyPair cp = converter.apiSymbolToXchangeCurrencyPair(apiSymbol);
+        assertEquals(converter.toApiSymbol(cp), apiSymbol);
+        assertEquals(ethAddress, converter.apiSymbolToBaseCurrencySymbol(apiSymbol));
+        assertEquals("USD", converter.apiSymbolToCounterCurrencySymbol(apiSymbol));
     }
 
 }

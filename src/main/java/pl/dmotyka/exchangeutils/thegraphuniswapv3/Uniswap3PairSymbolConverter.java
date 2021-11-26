@@ -13,6 +13,8 @@
 
 package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
+import java.util.Locale;
+
 import org.knowm.xchange.currency.CurrencyPair;
 import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
 
@@ -38,7 +40,7 @@ class Uniswap3PairSymbolConverter implements PairSymbolConverter {
 
     @Override
     public String toApiSymbol(CurrencyPair currencyPair) {
-        return formatApiSymbol(currencyPair.base.getCurrencyCode(), currencyPair.counter.getCurrencyCode());
+        return formatApiSymbol(currencyPair.base.getCurrencyCode().toLowerCase(Locale.ROOT), currencyPair.counter.getCurrencyCode());
     }
 
     @Override
