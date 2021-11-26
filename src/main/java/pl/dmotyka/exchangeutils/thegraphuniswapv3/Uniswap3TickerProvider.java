@@ -39,7 +39,7 @@ public class Uniswap3TickerProvider implements TickerProvider {
 
     public static final Logger logger = Logger.getLogger(Uniswap3PairDataProvider.class.getName());
 
-    private static final int TICKER_REFRESH_RATE_SEC = 6;
+    private static final int TICKER_REFRESH_RATE_SEC = 8;
 
     private ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
     private TickerReceiver tickerReceiver;
