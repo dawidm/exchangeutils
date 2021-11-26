@@ -21,22 +21,44 @@ import org.junit.jupiter.api.Test;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.thegraphdex.TheGraphHttpRequest;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class Uniswap3SwapsQueryTest {
+class Uniswap3TokenSwapsQueryTest {
 
     @Test
-    void testQuerySwaps() throws ExchangeCommunicationException {
+    void testQuerySwapsToken0() throws ExchangeCommunicationException {
         TheGraphHttpRequest req = new TheGraphHttpRequest(new Uniswap3ExchangeSpecs());
-        // USDC/WETH and WETH/USDT pools
-        String[] pools = new String[] {"0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8", "0x11b815efb8f581194ae79006d24e0d814b7697f6"};
+        // WETH and USDT
+        String[] tokensAddr = new String[] {"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", "0xdac17f958d2ee523a2206206994597c13d831ec7"};
         int currentTimestamp = (int)Instant.now().getEpochSecond();
         int dayAgoTimestamp = currentTimestamp - 24*60*60;
-        Uniswap3SwapsQuery swapsQuery = new Uniswap3SwapsQuery(pools, dayAgoTimestamp, currentTimestamp);
+        Uniswap3TokenSwapsQuery swapsQuery = new Uniswap3TokenSwapsQuery(Uniswap3TokenSwapsQuery.WhichToken.TOKEN0, tokensAddr, dayAgoTimestamp, currentTimestamp);
+        List<JsonNode> resultNodes = req.send(swapsQuery);
+        for(JsonNode resultNode : resultNodes) {
+            for (JsonNode swapNode : resultNode.get("swaps")) {
+                assertTrue(swapNode.get("token0").get("symbol").asText().equals("WETH") || swapNode.get("token0").get("symbol").asText().equals("USDT"));
+                assertTrue(swapNode.has("amountUSD"));
+                assertTrue(swapNode.has("amount0"));
+                assertTrue(swapNode.has("amount1"));
+            }
+        }
+    }
+
+    @Test
+    void testQuerySwapsToken1() throws ExchangeCommunicationException {
+        TheGraphHttpRequest req = new TheGraphHttpRequest(new Uniswap3ExchangeSpecs());
+        // WETH and USDT
+        String[] tokensAddr = new String[] {"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", "0xdac17f958d2ee523a2206206994597c13d831ec7"};
+        int currentTimestamp = (int)Instant.now().getEpochSecond();
+        int dayAgoTimestamp = currentTimestamp - 24*60*60;
+        Uniswap3TokenSwapsQuery swapsQuery = new Uniswap3TokenSwapsQuery(Uniswap3TokenSwapsQuery.WhichToken.TOKEN1, tokensAddr, dayAgoTimestamp, currentTimestamp);
         List<JsonNode> resultNodes = req.send(swapsQuery);
         for(JsonNode resultNode : resultNodes) {
             for (JsonNode swapNode : resultNode.get("swaps")) {
                 assertTrue(swapNode.get("token1").get("symbol").asText().equals("WETH") || swapNode.get("token1").get("symbol").asText().equals("USDT"));
+                assertTrue(swapNode.has("amountUSD"));
+                assertTrue(swapNode.has("amount0"));
+                assertTrue(swapNode.has("amount1"));
             }
         }
     }

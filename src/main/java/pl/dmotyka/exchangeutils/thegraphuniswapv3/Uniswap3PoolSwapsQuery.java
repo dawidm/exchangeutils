@@ -18,7 +18,7 @@ import java.util.Arrays;
 import com.fasterxml.jackson.databind.JsonNode;
 import pl.dmotyka.exchangeutils.thegraphdex.TheGraphQuery;
 
-public class Uniswap3SwapsQuery extends TheGraphQuery {
+public class Uniswap3PoolSwapsQuery extends TheGraphQuery {
 
     private static final String QUERY_STRING = "{swaps(where:{timestamp_gt: %d, timestamp_lt: %d,pool_in:[%s]},orderBy: timestamp, orderDirection: asc){id,timestamp,token0{symbol},token1{symbol},amount0,amount1,amountUSD}}";
     private static final String QUERY_STRING_PAGINATED = "{swaps(where:{timestamp_gt: %d, timestamp_lt: %d,pool_in:[%s],id_gt: \"%s\"},orderBy: timestamp, orderDirection: asc){id,timestamp,token0{symbol},token1{symbol},amount0,amount1,amountUSD}}";
@@ -30,7 +30,7 @@ public class Uniswap3SwapsQuery extends TheGraphQuery {
     private final int beginTimestampSeconds;
     private final int endTimestampSeconds;
 
-    public Uniswap3SwapsQuery(String[] poolsAddresses, int beginTimestampSeconds, int endTimestampSeconds) {
+    public Uniswap3PoolSwapsQuery(String[] poolsAddresses, int beginTimestampSeconds, int endTimestampSeconds) {
         this.poolsAddresses = poolsAddresses;
         this.beginTimestampSeconds = beginTimestampSeconds;
         this.endTimestampSeconds = endTimestampSeconds;
