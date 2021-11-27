@@ -60,6 +60,8 @@ public class TicksToCandles {
                 }
             }
         }
+        tmpMutableCandle.close = sortedTickers[sortedTickers.length-1].getValue();
+        chartCandles.add(new ChartCandle(tmpMutableCandle.high, tmpMutableCandle.low, tmpMutableCandle.open, tmpMutableCandle.close, tmpMutableCandle.timestampSeconds));
         return chartCandles.toArray(new ChartCandle[0]);
     }
 
