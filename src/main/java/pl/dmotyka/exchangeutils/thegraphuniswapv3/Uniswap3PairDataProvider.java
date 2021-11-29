@@ -16,6 +16,7 @@ package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,8 +31,9 @@ import pl.dmotyka.exchangeutils.thegraphdex.TheGraphHttpRequest;
 
 public class Uniswap3PairDataProvider implements PairDataProvider {
 
-    private final Map<String, String> tokenAddressesMap = new HashMap<>();
-    private final String COUNTER_CURRENCY_SYMBOL = Uniswap3ExchangeSpecs.SUPPORTED_COUNTER_CURR[0];
+    private final Map<String, DexTokenInfo> tokenAddressesMap = new HashMap<>();
+    private static final String COUNTER_CURRENCY_SYMBOL = Uniswap3ExchangeSpecs.SUPPORTED_COUNTER_CURR[0];
+    private static final double MIN_WHITELIST_POOL_TO_BIGGEST_POOL_USD_VOL_PROPORTION = 0.01;
 
     @Override
     public synchronized String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws ConnectionProblemException, ExchangeCommunicationException {
@@ -76,7 +78,7 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
         return volumes.toArray(MarketQuoteVolume[]::new);
     }
 
-    public synchronized String getTokenSymbol(String tokenAddress) {
+    public synchronized DexTokenInfo getTokenInfo(String tokenAddress) {
         if (!tokenAddressesMap.containsKey(tokenAddress)) {
             throw new IllegalStateException("No such address. Use this method only for tokens acquired by the same instance of this object.");
         }
@@ -88,7 +90,17 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
             for(JsonNode tokenJsonNode : tokensJsonNode.get("tokens")) {
                 String tokenAddress = tokenJsonNode.get("id").textValue();
                 String tokenSymbol = tokenJsonNode.get("symbol").textValue();
-                tokenAddressesMap.put(tokenAddress, tokenSymbol);
+                List<String> poolsAddresses = new LinkedList<>();
+                JsonNode poolsNode = tokenJsonNode.get("whitelistPools");
+                if (poolsNode.size() > 0) {
+                    double firstUSDVolume = poolsNode.get(0).get("totalValueLockedUSD").asDouble();
+                    for (JsonNode poolNode : poolsNode) {
+                        if (poolNode.get("totalValueLockedUSD").asDouble() > firstUSDVolume * MIN_WHITELIST_POOL_TO_BIGGEST_POOL_USD_VOL_PROPORTION) {
+                            poolsAddresses.add(poolNode.get("id").textValue());
+                        }
+                    }
+                }
+                tokenAddressesMap.put(tokenAddress, new DexTokenInfo(tokenAddress, tokenSymbol, poolsAddresses.toArray(String[]::new)));
             }
         }
     }

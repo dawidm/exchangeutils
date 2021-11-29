@@ -13,31 +13,28 @@
 
 package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
-import java.util.List;
+public class DexTokenInfo {
 
-import com.fasterxml.jackson.databind.JsonNode;
-import org.junit.jupiter.api.Test;
-import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
-import pl.dmotyka.exchangeutils.thegraphdex.TheGraphHttpRequest;
-import pl.dmotyka.exchangeutils.thegraphdex.TheGraphQuery;
+    private String tokenAddress;
+    private String tokenSymbol;
+    private String[] whitelistPoolsAddresses;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+    public DexTokenInfo(String tokenAddress, String tokenSymbol, String[] whitelistPoolsAddresses) {
+        this.tokenAddress = tokenAddress;
+        this.tokenSymbol = tokenSymbol;
+        this.whitelistPoolsAddresses = whitelistPoolsAddresses;
+    }
 
-class Uniswap3TokensQueryTest {
+    public String getTokenAddress() {
+        return tokenAddress;
+    }
 
-    @Test
-    void testQueryTokens() throws ExchangeCommunicationException {
-        TheGraphHttpRequest req = new TheGraphHttpRequest(new Uniswap3ExchangeSpecs());
-        TheGraphQuery tokensQuery = new Uniswap3TokensQuery();
-        List<JsonNode> resultNodes = req.send(tokensQuery);
-        for(JsonNode resultNode : resultNodes) {
-            assertTrue(resultNode.get("tokens").size() > 0);
-            for (JsonNode tokenNode : resultNode.get("tokens")) {
-                assertTrue(tokenNode.has("tokenDayData"));
-                assertTrue(tokenNode.has("symbol"));
-                assertTrue(tokenNode.has("id"));
-                assertTrue(tokenNode.has("whitelistPools"));
-            }
-        }
+    public String getTokenSymbol() {
+        return tokenSymbol;
+    }
+
+    // pool that are whitelisted for getting price info for this token (pools with largest TVL)
+    public String[] getWhitelistPoolsAddresses() {
+        return whitelistPoolsAddresses;
     }
 }

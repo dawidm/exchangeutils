@@ -18,8 +18,8 @@ import pl.dmotyka.exchangeutils.thegraphdex.TheGraphQuery;
 
 public class Uniswap3TokensQuery extends TheGraphQuery {
 
-    private final String QUERY_STRING = "{tokens(where: {totalValueLockedUSD_gt: 0}) {id,symbol,tokenDayData(orderBy: date, orderDirection: desc, first: 2) {date,volumeUSD}}}";
-    private final String QUERY_STRING_PAGINATED = "{tokens(where:{id_gt:\"%s\",totalValueLockedUSD_gt: 0}){id,symbol,tokenDayData(orderBy: date, orderDirection: desc, first: 2) {date,volumeUSD}}}";
+    private final String QUERY_STRING = "{tokens(where: {totalValueLockedUSD_gt: 0}) {id,symbol,tokenDayData(orderBy: date, orderDirection: desc, first: 2) {date,volumeUSD}, whitelistPools(orderBy: totalValueLockedUSD, orderDirection:desc) {id,totalValueLockedUSD}}}";
+    private final String QUERY_STRING_PAGINATED = "{tokens(where:{id_gt:\"%s\",totalValueLockedUSD_gt: 0}){id,symbol,tokenDayData(orderBy: date, orderDirection: desc, first: 2) {date,volumeUSD}, whitelistPools(orderBy: totalValueLockedUSD, orderDirection:desc) {id,totalValueLockedUSD}}}";
     private final String TOKENS_FIELD = "tokens";
     private final String ID_FIELD = "id";
 

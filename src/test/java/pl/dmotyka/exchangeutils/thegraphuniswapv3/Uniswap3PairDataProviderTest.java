@@ -35,7 +35,7 @@ class Uniswap3PairDataProviderTest {
             assertTrue(apiSymbol.startsWith("0x"));
         }
         for (String apiSymbol : apiSymbols) {
-            assertDoesNotThrow(() -> dp.getTokenSymbol(pairSymbolConverter.apiSymbolToBaseCurrencySymbol(apiSymbol)));
+            assertDoesNotThrow(() -> dp.getTokenInfo(pairSymbolConverter.apiSymbolToBaseCurrencySymbol(apiSymbol)));
         }
     }
 
@@ -52,7 +52,7 @@ class Uniswap3PairDataProviderTest {
             assertTrue(apiSymbol.endsWith("_USD"));
         }
         for (String apiSymbol : apiSymbols) {
-            assertDoesNotThrow(() -> dp.getTokenSymbol(pairSymbolConverter.apiSymbolToBaseCurrencySymbol(apiSymbol)));
+            assertDoesNotThrow(() -> dp.getTokenInfo(pairSymbolConverter.apiSymbolToBaseCurrencySymbol(apiSymbol)));
         }
     }
 }
