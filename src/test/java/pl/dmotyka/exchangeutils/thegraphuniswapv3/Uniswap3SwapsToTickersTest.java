@@ -14,37 +14,40 @@
 package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
+import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
+import pl.dmotyka.exchangeutils.pairdataprovider.PairSelectionCriteria;
 import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
 import pl.dmotyka.exchangeutils.thegraphdex.TheGraphHttpRequest;
 import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class Uniswap3SwapsToTickersTest {
 
     @Test
-    public void testSwapsToTickers() throws ExchangeCommunicationException {
+    public void testSwapsToTickers() throws ExchangeCommunicationException, ConnectionProblemException {
         TheGraphHttpRequest req = new TheGraphHttpRequest(new Uniswap3ExchangeSpecs());
-        PairSymbolConverter pairSymbolConverter = new Uniswap3ExchangeSpecs().getPairSymbolConverter();
-        // USDC/WETH and WETH/USDT pools
-        String[] pools = new String[] {"0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8", "0x11b815efb8f581194ae79006d24e0d814b7697f6"};
+        Uniswap3ExchangeSpecs exchangeSpecs = new Uniswap3ExchangeSpecs();
+        PairSymbolConverter pairSymbolConverter = exchangeSpecs.getPairSymbolConverter();
+        String[] tokensApiSymbols = exchangeSpecs.getPairDataProvider().getPairsApiSymbols(new PairSelectionCriteria[] {new PairSelectionCriteria("USD", 1000000)});
         int currentTimestamp = (int) Instant.now().getEpochSecond();
         int dayAgoTimestamp = currentTimestamp - 24*60*60;
-        Uniswap3PoolSwapsQuery swapsQuery = new Uniswap3PoolSwapsQuery(pools, dayAgoTimestamp, currentTimestamp);
+        String[] tokenAddresses = Arrays.stream(tokensApiSymbols).map(pairSymbolConverter::apiSymbolToBaseCurrencySymbol).toArray(String[]::new);
+        Uniswap3TokenSwapsQuery swapsQuery = new Uniswap3TokenSwapsQuery(Uniswap3TokenSwapsQuery.WhichToken.TOKEN0, tokenAddresses, dayAgoTimestamp, currentTimestamp);
         List<JsonNode> resultNodes = req.send(swapsQuery);
         for(JsonNode resultNode : resultNodes) {
-            Ticker[] tickers = Uniswap3SwapsToTickers.generateTickers(resultNode);
+            Ticker[] tickers = Uniswap3SwapsToTickers.generateTickers(resultNode, exchangeSpecs);
             assertTrue(tickers.length > 0);
             for (Ticker ticker : tickers) {
-                String baseSymbol = pairSymbolConverter.apiSymbolToBaseCurrencySymbol(ticker.getPair());
                 String counterSymbol = pairSymbolConverter.apiSymbolToCounterCurrencySymbol(ticker.getPair());
                 assertEquals("USD", counterSymbol);
-                assertTrue(baseSymbol.equals("WETH") || baseSymbol.equals("USDT") || baseSymbol.equals("USDC"));
                 assertTrue(ticker.getTimestampSeconds() >= dayAgoTimestamp && ticker.getTimestampSeconds() <= currentTimestamp);
                 assertTrue(ticker.getValue() >= 0.0);
             }

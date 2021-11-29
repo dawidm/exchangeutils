@@ -21,7 +21,7 @@ import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
 
 public class Uniswap3SwapsToTickers {
 
-    public static Ticker[] generateTickers(JsonNode swapsNode) {
+    public static Ticker[] generateTickers(JsonNode swapsNode, Uniswap3ExchangeSpecs uniswap3ExchangeSpecs) {
 
         List<Ticker> tickers = new LinkedList<>();
         for (JsonNode swapNode : swapsNode.get("swaps")) {
@@ -31,17 +31,22 @@ public class Uniswap3SwapsToTickers {
             long timestampSec = swapNode.get("timestamp").asLong();
             String token0Address = swapNode.get("token0").get("id").textValue();
             String token1Address = swapNode.get("token1").get("id").textValue();
-            double token0derivedETH = swapNode.get("token0").get("derivedETH").asDouble(0.0);
-            double token1derivedETH = swapNode.get("token1").get("derivedETH").asDouble(0.0);
             String token0ApiSymbol = Uniswap3PairSymbolConverter.formatApiSymbol(token0Address, Uniswap3ExchangeSpecs.SUPPORTED_COUNTER_CURR[0]);
             String token1ApiSymbol = Uniswap3PairSymbolConverter.formatApiSymbol(token1Address, Uniswap3ExchangeSpecs.SUPPORTED_COUNTER_CURR[0]);
+            String poolAddress = swapNode.get("pool").get("id").textValue();
             if (amountUsd > 0) {
-                if (token1derivedETH != 0.0) { // when derived value of second token is 0, tick value will be wrong
-                    tickers.add(new Ticker(token0ApiSymbol, amountUsd / Math.abs(amountToken0), timestampSec));
-                }
-                if (token0derivedETH != 0.0) {
-                    tickers.add(new Ticker(token1ApiSymbol, amountUsd / Math.abs(amountToken1), timestampSec));
-                }
+                try {
+                    DexTokenInfo token0Info = ((Uniswap3PairDataProvider)uniswap3ExchangeSpecs.getPairDataProvider()).getTokenInfo(token0Address);
+                    if (token0Info.checkIsPoolWhitelisted(poolAddress)) {
+                        tickers.add(new Ticker(token0ApiSymbol, amountUsd / Math.abs(amountToken0), timestampSec));
+                    }
+                } catch (IllegalStateException ignored) {}
+                try {
+                    DexTokenInfo token1Info = ((Uniswap3PairDataProvider)uniswap3ExchangeSpecs.getPairDataProvider()).getTokenInfo(token1Address);
+                    if (token1Info.checkIsPoolWhitelisted(poolAddress)) {
+                        tickers.add(new Ticker(token1ApiSymbol, amountUsd / Math.abs(amountToken1), timestampSec));
+                    }
+                } catch (IllegalStateException ignored) {}
             }
         }
         return tickers.toArray(Ticker[]::new);

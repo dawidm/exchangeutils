@@ -13,16 +13,19 @@
 
 package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
+import java.util.Set;
+
 public class DexTokenInfo {
 
-    private String tokenAddress;
-    private String tokenSymbol;
-    private String[] whitelistPoolsAddresses;
+    private final String tokenAddress;
+    private final String tokenSymbol;
+    // pool that are whitelisted for getting price info for this token (pools with largest TVL)
+    private final Set<String> whitelistPoolsAddresses;
 
     public DexTokenInfo(String tokenAddress, String tokenSymbol, String[] whitelistPoolsAddresses) {
         this.tokenAddress = tokenAddress;
         this.tokenSymbol = tokenSymbol;
-        this.whitelistPoolsAddresses = whitelistPoolsAddresses;
+        this.whitelistPoolsAddresses = Set.of(whitelistPoolsAddresses);
     }
 
     public String getTokenAddress() {
@@ -33,8 +36,7 @@ public class DexTokenInfo {
         return tokenSymbol;
     }
 
-    // pool that are whitelisted for getting price info for this token (pools with largest TVL)
-    public String[] getWhitelistPoolsAddresses() {
-        return whitelistPoolsAddresses;
+    public boolean checkIsPoolWhitelisted(String poolAddress) {
+        return whitelistPoolsAddresses.contains(poolAddress);
     }
 }

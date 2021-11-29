@@ -31,15 +31,14 @@ import pl.dmotyka.exchangeutils.tools.TicksToCandles;
 
 class Uniswap3ChartInfo implements ExchangeChartInfo {
 
-    private Uniswap3PairDataProvider pairDataProvider;
+    private Uniswap3ExchangeSpecs exchangeSpecs;
 
-    public Uniswap3ChartInfo(Uniswap3PairDataProvider pairDataProvider) {
-        this.pairDataProvider = pairDataProvider;
+    public Uniswap3ChartInfo(Uniswap3ExchangeSpecs exchangeSpecs) {
+        this.exchangeSpecs = exchangeSpecs;
     }
 
     @Override
     public ChartCandle[] getCandles(String apiSymbol, long timePeriodSeconds, long beginTimestampSeconds, long endTimestampSeconds) throws NoSuchTimePeriodException, ExchangeCommunicationException, ConnectionProblemException {
-        Uniswap3ExchangeSpecs exchangeSpecs = new Uniswap3ExchangeSpecs();
         if (timePeriodSeconds > (long)Integer.MAX_VALUE || beginTimestampSeconds > (long)Integer.MAX_VALUE || endTimestampSeconds > (long)Integer.MAX_VALUE) {
             throw new IllegalArgumentException("At least one of time values is too big (they should be in seconds)");
         }
@@ -52,10 +51,10 @@ class Uniswap3ChartInfo implements ExchangeChartInfo {
         List<JsonNode> swaps1JsonNodes = req.send(swapsToken1Query);
         List<Ticker> tickerList = new LinkedList<>();
         for (JsonNode swapsJsonNode : swaps0JsonNodes) {
-            tickerList.addAll(Arrays.asList(Uniswap3SwapsToTickers.generateTickers(swapsJsonNode)));
+            tickerList.addAll(Arrays.asList(Uniswap3SwapsToTickers.generateTickers(swapsJsonNode, exchangeSpecs)));
         }
         for (JsonNode swapsJsonNode : swaps1JsonNodes) {
-            tickerList.addAll(Arrays.asList(Uniswap3SwapsToTickers.generateTickers(swapsJsonNode)));
+            tickerList.addAll(Arrays.asList(Uniswap3SwapsToTickers.generateTickers(swapsJsonNode, exchangeSpecs)));
         }
         Ticker[] tickers = tickerList.stream().filter(t -> t.getPair().equals(apiSymbol)).sorted(Comparator.comparingLong(Ticker::getTimestampSeconds)).toArray(Ticker[]::new);
         return TicksToCandles.generateCandles(tickers, timePeriodSeconds);

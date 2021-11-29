@@ -87,11 +87,11 @@ public class Uniswap3TickerProvider implements TickerProvider {
             List<JsonNode> swaps1Nodes = theGraphHttpRequest.send(swaps1Query);
             List<Ticker> tickerList = new LinkedList<>();
             for (JsonNode swapsNode : swaps0Nodes) {
-                Ticker[] tickers = Uniswap3SwapsToTickers.generateTickers(swapsNode);
+                Ticker[] tickers = Uniswap3SwapsToTickers.generateTickers(swapsNode, exchangeSpecs);
                 tickerList.addAll(Arrays.stream(tickers).filter(t -> pairsSet.contains(t.getPair())).collect(Collectors.toList()));
             }
             for (JsonNode swapsNode : swaps1Nodes) {
-                Ticker[] tickers = Uniswap3SwapsToTickers.generateTickers(swapsNode);
+                Ticker[] tickers = Uniswap3SwapsToTickers.generateTickers(swapsNode, exchangeSpecs);
                 tickerList.addAll(Arrays.stream(tickers).filter(t -> pairsSet.contains(t.getPair())).collect(Collectors.toList()));
             }
             if (tickerList.isEmpty()) {

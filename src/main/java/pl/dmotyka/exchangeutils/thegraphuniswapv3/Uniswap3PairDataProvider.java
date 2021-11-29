@@ -31,7 +31,7 @@ import pl.dmotyka.exchangeutils.thegraphdex.TheGraphHttpRequest;
 
 public class Uniswap3PairDataProvider implements PairDataProvider {
 
-    private final Map<String, DexTokenInfo> tokenAddressesMap = new HashMap<>();
+    private final Map<String, DexTokenInfo> tokenInfoMap = new HashMap<>();
     private static final String COUNTER_CURRENCY_SYMBOL = Uniswap3ExchangeSpecs.SUPPORTED_COUNTER_CURR[0];
     private static final double MIN_WHITELIST_POOL_TO_BIGGEST_POOL_USD_VOL_PROPORTION = 0.01;
 
@@ -54,6 +54,9 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
         Set<MarketQuoteVolume> volumes = new HashSet<>();
         for(JsonNode poolsNode : tokensNodes) {
             for (JsonNode tokenNode : poolsNode.get("tokens")) {
+                if (tokenNode.get("whitelistPools").size() == 0) {
+                    continue;
+                }
                 String symbol = Uniswap3PairSymbolConverter.formatApiSymbol(tokenNode.get("id").textValue(),COUNTER_CURRENCY_SYMBOL);
                 long currentTimestampSec = System.currentTimeMillis() / 1000;
                 long todayTimestampSec = currentTimestampSec - currentTimestampSec % (24*3600);
@@ -79,10 +82,10 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
     }
 
     public synchronized DexTokenInfo getTokenInfo(String tokenAddress) {
-        if (!tokenAddressesMap.containsKey(tokenAddress)) {
+        if (!tokenInfoMap.containsKey(tokenAddress)) {
             throw new IllegalStateException("No such address. Use this method only for tokens acquired by the same instance of this object.");
         }
-        return tokenAddressesMap.get(tokenAddress);
+        return tokenInfoMap.get(tokenAddress);
     }
 
     private synchronized void updatePairsMapWithNewData(List<JsonNode> tokensJsonNodes) {
@@ -100,7 +103,7 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
                         }
                     }
                 }
-                tokenAddressesMap.put(tokenAddress, new DexTokenInfo(tokenAddress, tokenSymbol, poolsAddresses.toArray(String[]::new)));
+                tokenInfoMap.put(tokenAddress, new DexTokenInfo(tokenAddress, tokenSymbol, poolsAddresses.toArray(String[]::new)));
             }
         }
     }
