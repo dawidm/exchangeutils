@@ -57,7 +57,11 @@ class Uniswap3ChartInfo implements ExchangeChartInfo {
             tickerList.addAll(Arrays.asList(Uniswap3SwapsToTickers.generateTickers(swapsJsonNode, exchangeSpecs)));
         }
         Ticker[] tickers = tickerList.stream().filter(t -> t.getPair().equals(apiSymbol)).sorted(Comparator.comparingLong(Ticker::getTimestampSeconds)).toArray(Ticker[]::new);
-        return TicksToCandles.generateCandles(tickers, timePeriodSeconds);
+        if (tickers.length == 0) {
+            return new ChartCandle[0];
+        } else {
+            return TicksToCandles.generateCandles(tickers, timePeriodSeconds);
+        }
     }
 
     @Override
