@@ -34,6 +34,7 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
     private final Map<String, DexTokenInfo> tokenInfoMap = new HashMap<>();
     private static final String COUNTER_CURRENCY_SYMBOL = Uniswap3ExchangeSpecs.SUPPORTED_COUNTER_CURR[0];
     private static final double MIN_WHITELIST_POOL_TO_BIGGEST_POOL_USD_VOL_PROPORTION = 0.01;
+    private static final int MAX_WHITELIST_POOLS = 8;
 
     @Override
     public synchronized String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws ConnectionProblemException, ExchangeCommunicationException {
@@ -100,6 +101,9 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
                     for (JsonNode poolNode : poolsNode) {
                         if (poolNode.get("totalValueLockedUSD").asDouble() > firstUSDVolume * MIN_WHITELIST_POOL_TO_BIGGEST_POOL_USD_VOL_PROPORTION) {
                             poolsAddresses.add(poolNode.get("id").textValue());
+                        }
+                        if (poolsAddresses.size() >= MAX_WHITELIST_POOLS) {
+                            break;
                         }
                     }
                 }
