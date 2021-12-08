@@ -20,10 +20,10 @@ import pl.dmotyka.exchangeutils.thegraphdex.TheGraphQuery;
 
 public class Uniswap3TokenSwapsQuery extends TheGraphQuery {
 
-    private static final String QUERY_STRING_TOKEN0 = "{ swaps(where:{timestamp_gt: %d, timestamp_lt: %d, token0_in:[%s]}, orderBy: timestamp, orderDirection: asc) { id, pool{id}, timestamp, amount0, amount1, amountUSD, sqrtPriceX96, token0 {id,symbol,derivedETH,decimals}, token1 {id,symbol,derivedETH,decimals}}}";
-    private static final String QUERY_STRING_TOKEN1 = "{ swaps(where:{timestamp_gt: %d, timestamp_lt: %d, token1_in:[%s]}, orderBy: timestamp, orderDirection: asc) { id, pool{id}, timestamp, amount0, amount1, amountUSD, sqrtPriceX96, token0 {id,symbol,derivedETH,decimals}, token1 {id,symbol,derivedETH,decimals}}}";
-    private static final String QUERY_STRING_TOKEN0_PAGINATED = "{ swaps(where:{timestamp_gt: %d, timestamp_lt: %d, token0_in:[%s],id_gt: \"%s\"}, orderBy: timestamp, orderDirection: asc) { id, pool{id}, timestamp, amount0, amount1, amountUSD, sqrtPriceX96, token0 {id,symbol,derivedETH,decimals}, token1 {id,symbol,derivedETH,decimals}}}";
-    private static final String QUERY_STRING_TOKEN1_PAGINATED = "{ swaps(where:{timestamp_gt: %d, timestamp_lt: %d, token1_in:[%s],id_gt: \"%s\"}, orderBy: timestamp, orderDirection: asc) { id, pool{id}, timestamp, amount0, amount1, amountUSD, sqrtPriceX96, token0 {id,symbol,derivedETH,decimals}, token1 {id,symbol,derivedETH,decimals}}}";
+    private static final String QUERY_STRING_TOKEN0 = "{ swaps(where:{timestamp_gt: %d, timestamp_lt: %d, token0_in:[%s]}, orderBy: timestamp, orderDirection: asc) { id, pool{id}, timestamp, amount0, amount1, amountUSD, token0 {id,symbol,derivedETH}, token1 {id,symbol,derivedETH}}}";
+    private static final String QUERY_STRING_TOKEN1 = "{ swaps(where:{timestamp_gt: %d, timestamp_lt: %d, token1_in:[%s]}, orderBy: timestamp, orderDirection: asc) { id, pool{id}, timestamp, amount0, amount1, amountUSD, token0 {id,symbol,derivedETH}, token1 {id,symbol,derivedETH}}}";
+    private static final String QUERY_STRING_TOKEN0_PAGINATED = "{ swaps(where:{timestamp_gt: %d, timestamp_lt: %d, token0_in:[%s],id_gt: \"%s\"}, orderBy: timestamp, orderDirection: asc) { id, pool{id}, timestamp, amount0, amount1, amountUSD, token0 {id,symbol,derivedETH}, token1 {id,symbol,derivedETH}}}";
+    private static final String QUERY_STRING_TOKEN1_PAGINATED = "{ swaps(where:{timestamp_gt: %d, timestamp_lt: %d, token1_in:[%s],id_gt: \"%s\"}, orderBy: timestamp, orderDirection: asc) { id, pool{id}, timestamp, amount0, amount1, amountUSD, token0 {id,symbol,derivedETH}, token1 {id,symbol,derivedETH}}}";
 
     private static final String SWAPS_FIELD = "swaps";
     private static final String ID_FIELD = "id";

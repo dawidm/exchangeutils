@@ -41,10 +41,7 @@ class Uniswap3TokenSwapsQueryTest {
                 assertTrue(swapNode.has("amount0"));
                 assertTrue(swapNode.has("amount1"));
                 assertTrue(swapNode.has("token0"));
-                assertTrue(swapNode.has("sqrtPriceX96"));
-                assertTrue(swapNode.get("token0").has("decimals"));
                 assertTrue(swapNode.has("token1"));
-                assertTrue(swapNode.get("token1").has("decimals"));
             }
         }
     }
@@ -64,10 +61,7 @@ class Uniswap3TokenSwapsQueryTest {
                 assertTrue(swapNode.has("amountUSD"));
                 assertTrue(swapNode.has("amount0"));
                 assertTrue(swapNode.has("amount1"));
-                assertTrue(swapNode.has("sqrtPriceX96"));
-                assertTrue(swapNode.get("token0").has("decimals"));
                 assertTrue(swapNode.has("token1"));
-                assertTrue(swapNode.get("token1").has("decimals"));
             }
         }
     }
