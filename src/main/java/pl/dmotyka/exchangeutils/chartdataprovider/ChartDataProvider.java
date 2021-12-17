@@ -29,6 +29,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,6 +52,8 @@ public class ChartDataProvider {
 
     public static final int NUM_RETRIES_FOR_PAIR=2;
     public static final int WAIT_FOR_CONNECTION_RETRY_MILLIS = 60000;
+    public static final int GET_DATA_RETRY_INTERVAL_MILLIS = 3000;
+    public static final int MAX_DELAY_BETWEEN_SINGLE_CHART_DATA_SEC = 60;
 
     private final ExchangeSpecs exchangeSpecs;
     private String[] pairs;
@@ -73,7 +76,7 @@ public class ChartDataProvider {
         exchangeChartInfo = exchangeSpecs.getChartInfo();
         for(PeriodNumCandles periodNumCandles : periodsNumCandles) {
             long periodSeconds = periodNumCandles.getPeriodSeconds();
-            long timestampSnapshot = System.currentTimeMillis()/1000;
+            long timestampSnapshot = currentTimeSec();
             lastGeneratedCandlesTimestamps.put(periodNumCandles.getPeriodSeconds(),timestampSnapshot-timestampSnapshot%periodSeconds-periodSeconds);
         }
         if (exchangeSpecs instanceof ExchangeWithTradingHours)
@@ -98,30 +101,42 @@ public class ChartDataProvider {
                 tickersMap.put(pair, Collections.synchronizedList(new LinkedList<>()));
         }
         isRefreshingChartData.set(true);
-        for (String currentPair : pairs) {
-            for(PeriodNumCandles currentPeriodNumCandles : periodsNumCandles) {
-                if (abortAtomicBoolean.get())
-                    return;
-                logger.fine("getting data for " + currentPair);
-                RepeatTillSuccess.planTask(() -> {
-                            if (abortAtomicBoolean.get())
-                                return;
-                            getChartData(currentPair, currentPeriodNumCandles.getNumCandles(), currentPeriodNumCandles.getPeriodSeconds());
-                        },
-                        e -> {
-                            logger.log(Level.WARNING, "when getting data for " + currentPair, e);
-                            waitForConnection();
-                        },
-                        exchangeSpecs.getDelayBetweenChartDataRequestsMs(),
-                        NUM_RETRIES_FOR_PAIR,
-                        () -> {
-                            logger.log(Level.WARNING, String.format("reached maximum retires for getting data for %s", currentPair));
-                            chartCandlesMap.put(new CurrencyPairTimePeriod(currentPair, currentPeriodNumCandles.getPeriodSeconds()), new ChartCandle[0]);
-                        });
-                //delay before next api call
-                try {Thread.sleep(exchangeSpecs.getDelayBetweenChartDataRequestsMs());} catch (InterruptedException e) {return;};
+        RepeatTillSuccess.planTask(() -> {
+            AtomicLong lastChartDataTimestampSec = new AtomicLong(currentTimeSec());
+            // flag for unexpected delay when getting chart data
+            AtomicBoolean unexpectedDelayError = new AtomicBoolean(false);
+            for (String currentPair : pairs) {
+                for(PeriodNumCandles currentPeriodNumCandles : periodsNumCandles) {
+                    if (abortAtomicBoolean.get())
+                        return;
+                    logger.fine("getting data for " + currentPair);
+                    RepeatTillSuccess.planTask(() -> {
+                                if (abortAtomicBoolean.get())
+                                    return;
+                                getChartData(currentPair, currentPeriodNumCandles.getNumCandles(), currentPeriodNumCandles.getPeriodSeconds());
+                                if (currentTimeSec() - lastChartDataTimestampSec.get() > MAX_DELAY_BETWEEN_SINGLE_CHART_DATA_SEC) {
+                                    unexpectedDelayError.set(true);
+                                }
+                                lastChartDataTimestampSec.set(currentTimeSec());
+                            },
+                            e -> {
+                                logger.log(Level.WARNING, "when getting data for " + currentPair, e);
+                                waitForConnection();
+                            },
+                            exchangeSpecs.getDelayBetweenChartDataRequestsMs(),
+                            NUM_RETRIES_FOR_PAIR,
+                            () -> {
+                                logger.log(Level.WARNING, String.format("reached maximum retires for getting data for %s", currentPair));
+                                chartCandlesMap.put(new CurrencyPairTimePeriod(currentPair, currentPeriodNumCandles.getPeriodSeconds()), new ChartCandle[0]);
+                            });
+                    if (unexpectedDelayError.get()) {
+                        throw new GettingSingleChartDataException("Unexpected delay when getting chart data");
+                    }
+                    //delay before next api call
+                    try {Thread.sleep(exchangeSpecs.getDelayBetweenChartDataRequestsMs());} catch (InterruptedException e) {return;};
+                }
             }
-        }
+        }, e -> logger.log(Level.WARNING, "Error when refreshing data, retrying", e), GET_DATA_RETRY_INTERVAL_MILLIS);
         if (abortAtomicBoolean.get())
             return;
         notifyChartDataReceivers();
@@ -211,7 +226,7 @@ public class ChartDataProvider {
     private synchronized void chartCandlesGenerator() {
         if(isRefreshingChartData.get())
             return;
-        int currentTimestampSnapshot=(int)(System.currentTimeMillis()/1000);
+        int currentTimestampSnapshot=(int)(currentTimeSec());
         boolean longestPeriodUpdated=false;
         boolean anyPeriodUpdated=false;
         long longestTimePeriod=periodsNumCandles[periodsNumCandles.length-1].getPeriodSeconds();
@@ -243,7 +258,7 @@ public class ChartDataProvider {
     }
 
     private synchronized void generateCandles(String pair, long timePeriodSeconds) {
-        long currentTimestampSnapshot=(System.currentTimeMillis()/1000);
+        long currentTimestampSnapshot=(currentTimeSec());
         long newCandleTimestamp = (currentTimestampSnapshot-currentTimestampSnapshot%timePeriodSeconds) - timePeriodSeconds;
         ChartCandle newChartCandle;
         List<Ticker> tickerList = tickersMap.get(pair);
@@ -314,10 +329,10 @@ public class ChartDataProvider {
             // TODO add methods (ChartInfo) for getting specified number of candles (e.g. xtb has api method to get N last candles instead of specifying timeframe)
             // now it tries to take enough candles but it could fail for longer time periods
             if (exchangeSpecs instanceof ExchangeWithTradingHours)
-                startTime = Math.min(System.currentTimeMillis() / 1000 - 7*24*60*60, (System.currentTimeMillis() / 1000) - (numCandles * periodSeconds));
+                startTime = Math.min(currentTimeSec() - 7*24*60*60, currentTimeSec() - (numCandles * periodSeconds));
             else
-                startTime = (System.currentTimeMillis() / 1000) - (numCandles * periodSeconds);
-            long endTime = (System.currentTimeMillis() / 1000);
+                startTime = (currentTimeSec()) - (numCandles * periodSeconds);
+            long endTime = currentTimeSec();
             ChartCandle[] chartCandles = exchangeChartInfo.getCandles(pair,periodSeconds,startTime,endTime);
             if(chartCandles.length==0) {
                 logger.warning(String.format("got 0 candles for %s,%d", pair, periodSeconds));
@@ -382,12 +397,11 @@ public class ChartDataProvider {
             }
             TradingHours.TradingSession currentSession = optCurrentSession.get();
             LinkedList<Long> currentSessionTimestamps = new LinkedList<>();
-            long currentTimeSec = System.currentTimeMillis()/1000;
-            if (currentCandle.getTimestampSeconds() > currentTimeSec) {
+            if (currentCandle.getTimestampSeconds() > currentTimeSec()) {
                 logger.severe("chart candle from a future, timestamp: " + currentCandle.getTimestampSeconds() + ", aborting inserting missing candles for trading hours exchange");
                 return candles;
             }
-            long maxSessionEnd = Math.min(currentSession.getTimestampEndSeconds(), currentTimeSec - currentTimeSec % periodSec);
+            long maxSessionEnd = Math.min(currentSession.getTimestampEndSeconds(), currentTimeSec() - currentTimeSec() % periodSec);
             long startTimestamp = currentSession.getTimestampStartSeconds() - currentSession.getTimestampStartSeconds() % periodSec;
             for (long currentTimestamp=startTimestamp; currentTimestamp<maxSessionEnd; currentTimestamp+=periodSec) {
                 currentSessionTimestamps.add(currentTimestamp);
@@ -414,6 +428,10 @@ public class ChartDataProvider {
             }
         }
         return newChartCandles.toArray(new ChartCandle[0]);
+    }
+
+    private static long currentTimeSec() {
+        return System.currentTimeMillis()/1000;
     }
 
  }
