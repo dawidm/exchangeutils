@@ -49,7 +49,8 @@ public class Uniswap3TickerProvider implements TickerProvider {
     private Uniswap3ExchangeSpecs exchangeSpecs;
     private Uniswap3PairSymbolConverter pairSymbolConverter;
     private int pastTicksSecondsAgo;
-    TheGraphHttpRequest theGraphHttpRequest;
+    private TheGraphHttpRequest theGraphHttpRequest;
+    private Uniswap3SwapsToTickers uniswap3SwapsToTickers = new Uniswap3SwapsToTickers();
 
     private int lastRefreshTimestampSeconds;
 
@@ -86,14 +87,10 @@ public class Uniswap3TickerProvider implements TickerProvider {
             List<JsonNode> swaps0Nodes = theGraphHttpRequest.send(swaps0Query);
             List<JsonNode> swaps1Nodes = theGraphHttpRequest.send(swaps1Query);
             List<Ticker> tickerList = new LinkedList<>();
-            for (JsonNode swapsNode : swaps0Nodes) {
-                Ticker[] tickers = Uniswap3SwapsToTickers.generateTickers(swapsNode, exchangeSpecs);
-                tickerList.addAll(Arrays.stream(tickers).filter(t -> pairsSet.contains(t.getPair())).collect(Collectors.toList()));
-            }
-            for (JsonNode swapsNode : swaps1Nodes) {
-                Ticker[] tickers = Uniswap3SwapsToTickers.generateTickers(swapsNode, exchangeSpecs);
-                tickerList.addAll(Arrays.stream(tickers).filter(t -> pairsSet.contains(t.getPair())).collect(Collectors.toList()));
-            }
+            Ticker[] tickers = uniswap3SwapsToTickers.generateTickers(swaps0Nodes, exchangeSpecs);
+            tickerList.addAll(Arrays.stream(tickers).filter(t -> pairsSet.contains(t.getPair())).collect(Collectors.toList()));
+            tickers = uniswap3SwapsToTickers.generateTickers(swaps1Nodes, exchangeSpecs);
+            tickerList.addAll(Arrays.stream(tickers).filter(t -> pairsSet.contains(t.getPair())).collect(Collectors.toList()));
             if (tickerList.isEmpty()) {
                 return;
             }

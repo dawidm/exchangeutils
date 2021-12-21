@@ -13,46 +13,94 @@
 
 package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
 
 public class Uniswap3SwapsToTickers {
 
-    public static Ticker[] generateTickers(JsonNode swapsNode, Uniswap3ExchangeSpecs uniswap3ExchangeSpecs) {
+    private static class AmountTokenUSD {
+        private final double amountToken;
+        private final double amountUSD;
 
+        public AmountTokenUSD(double amountToken, double amountUSD) {
+            this.amountToken = amountToken;
+            this.amountUSD = amountUSD;
+        }
+
+        public double getAmountToken() {
+            return amountToken;
+        }
+
+        public double getAmountUSD() {
+            return amountUSD;
+        }
+    }
+
+    // the key is timestampSec_tokenAddress (assuming that timestamp represents a block)
+    // This map is used to use only a swap with the lowest token amount to calculate token price for given block.
+    //  This is for better USD price approximation which is problematic with used api and big swaps produce
+    //  more inaccurate USD prices
+    private final Map<String, AmountTokenUSD> tmpAmountsMap = new HashMap<>();
+
+    public Ticker[] generateTickers(List<JsonNode> swapsNodes, Uniswap3ExchangeSpecs uniswap3ExchangeSpecs) {
         List<Ticker> tickers = new LinkedList<>();
-        for (JsonNode swapNode : swapsNode.get("swaps")) {
-            double amountUsd = swapNode.get("amountUSD").asDouble();
-            if (amountUsd > 0) {
-                double amountToken0 = swapNode.get("amount0").asDouble();
-                double amountToken1 = swapNode.get("amount1").asDouble();
-                long timestampSec = swapNode.get("timestamp").asLong();
-                String token0Address = swapNode.get("token0").get("id").textValue();
-                String token1Address = swapNode.get("token1").get("id").textValue();
-                String token0ApiSymbol = Uniswap3PairSymbolConverter.formatApiSymbol(token0Address, Uniswap3ExchangeSpecs.SUPPORTED_COUNTER_CURR[0]);
-                String token1ApiSymbol = Uniswap3PairSymbolConverter.formatApiSymbol(token1Address, Uniswap3ExchangeSpecs.SUPPORTED_COUNTER_CURR[0]);
-                String poolAddress = swapNode.get("pool").get("id").textValue();
-                try {
-                    DexTokenInfo token0Info = ((Uniswap3PairDataProvider)uniswap3ExchangeSpecs.getPairDataProvider()).getTokenInfo(token0Address);
-                    if (token0Info.checkIsPoolWhitelisted(poolAddress)) {
-                        double token0ApproxUSDPrice = amountUsd / Math.abs(amountToken0);
-                        tickers.add(new Ticker(token0ApiSymbol, token0ApproxUSDPrice, timestampSec));
+        for (JsonNode swapsNode : swapsNodes) {
+            for (JsonNode swapNode : swapsNode.get("swaps")) {
+                double amountUsd = swapNode.get("amountUSD").asDouble();
+                if (amountUsd > 0) {
+                    double amountToken0 = swapNode.get("amount0").asDouble();
+                    double amountToken1 = swapNode.get("amount1").asDouble();
+                    long timestampSec = swapNode.get("timestamp").asLong();
+                    String token0Address = swapNode.get("token0").get("id").textValue();
+                    String token1Address = swapNode.get("token1").get("id").textValue();
+                    String poolAddress = swapNode.get("pool").get("id").textValue();
+                    try {
+                        DexTokenInfo token0Info = ((Uniswap3PairDataProvider) uniswap3ExchangeSpecs.getPairDataProvider()).getTokenInfo(token0Address);
+                        if (token0Info.checkIsPoolWhitelisted(poolAddress)) {
+                            AmountTokenUSD oldAmountTokenUSD = tmpAmountsMap.get(formatMapKey(timestampSec, token0Address));
+                            if (oldAmountTokenUSD == null || oldAmountTokenUSD.amountToken > amountToken0) {
+                                tmpAmountsMap.put(formatMapKey(timestampSec, token0Address), new AmountTokenUSD(amountToken0, amountUsd));
+                            }
+                        }
+                    } catch (IllegalStateException ignored) {
                     }
-                } catch (IllegalStateException ignored) {}
-                try {
-                    DexTokenInfo token1Info = ((Uniswap3PairDataProvider)uniswap3ExchangeSpecs.getPairDataProvider()).getTokenInfo(token1Address);
-                    if (token1Info.checkIsPoolWhitelisted(poolAddress)) {
-                        double token1ApproxUSDPrice = amountUsd / Math.abs(amountToken1);
-                        tickers.add(new Ticker(token1ApiSymbol, token1ApproxUSDPrice, timestampSec));
+                    try {
+                        DexTokenInfo token1Info = ((Uniswap3PairDataProvider) uniswap3ExchangeSpecs.getPairDataProvider()).getTokenInfo(token1Address);
+                        if (token1Info.checkIsPoolWhitelisted(poolAddress)) {
+                            AmountTokenUSD oldAmountTokenUSD = tmpAmountsMap.get(formatMapKey(timestampSec, token1Address));
+                            if (oldAmountTokenUSD == null || oldAmountTokenUSD.amountToken > amountToken1) {
+                                tmpAmountsMap.put(formatMapKey(timestampSec, token1Address), new AmountTokenUSD(amountToken1, amountUsd));
+                            }
+                        }
+                    } catch (IllegalStateException ignored) {
                     }
-                } catch (IllegalStateException ignored) {}
+                }
             }
         }
+        for (Map.Entry<String, AmountTokenUSD> amountEntry : tmpAmountsMap.entrySet()) {
+            double approxUsdPrice = amountEntry.getValue().amountUSD / Math.abs(amountEntry.getValue().amountToken);
+            String apiSymbol = Uniswap3PairSymbolConverter.formatApiSymbol(tokenAddressFromMapKey(amountEntry.getKey()), Uniswap3ExchangeSpecs.SUPPORTED_COUNTER_CURR[0]);
+            tickers.add(new Ticker(apiSymbol, approxUsdPrice, timestampFromMapKey(amountEntry.getKey())));
+        }
+        tmpAmountsMap.clear();
         return tickers.toArray(Ticker[]::new);
+    }
 
+    private static String formatMapKey(long timestampSec, String tokenAddress) {
+        return String.format("%d_%s", timestampSec, tokenAddress);
+    }
+
+    private static String tokenAddressFromMapKey(String key) {
+        return key.split("_")[1];
+    }
+
+    private static long timestampFromMapKey(String key) {
+        return Long.parseLong(key.split("_")[0]);
     }
 
 }

@@ -15,7 +15,9 @@ package pl.dmotyka.exchangeutils.thegraphuniswapv3;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
@@ -27,12 +29,14 @@ import pl.dmotyka.exchangeutils.thegraphdex.TheGraphHttpRequest;
 import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class Uniswap3SwapsToTickersTest {
 
     @Test
     public void testSwapsToTickers() throws ExchangeCommunicationException, ConnectionProblemException {
+        Uniswap3SwapsToTickers uniswap3SwapsToTickers = new Uniswap3SwapsToTickers();
         TheGraphHttpRequest req = new TheGraphHttpRequest(new Uniswap3ExchangeSpecs());
         Uniswap3ExchangeSpecs exchangeSpecs = new Uniswap3ExchangeSpecs();
         PairSymbolConverter pairSymbolConverter = exchangeSpecs.getPairSymbolConverter();
@@ -42,15 +46,16 @@ class Uniswap3SwapsToTickersTest {
         String[] tokenAddresses = Arrays.stream(tokensApiSymbols).map(pairSymbolConverter::apiSymbolToBaseCurrencySymbol).toArray(String[]::new);
         Uniswap3TokenSwapsQuery swapsQuery = new Uniswap3TokenSwapsQuery(Uniswap3TokenSwapsQuery.WhichToken.TOKEN0, tokenAddresses, dayAgoTimestamp, currentTimestamp);
         List<JsonNode> resultNodes = req.send(swapsQuery);
-        for(JsonNode resultNode : resultNodes) {
-            Ticker[] tickers = Uniswap3SwapsToTickers.generateTickers(resultNode, exchangeSpecs);
-            assertTrue(tickers.length > 0);
-            for (Ticker ticker : tickers) {
-                String counterSymbol = pairSymbolConverter.apiSymbolToCounterCurrencySymbol(ticker.getPair());
-                assertEquals("USD", counterSymbol);
-                assertTrue(ticker.getTimestampSeconds() >= dayAgoTimestamp && ticker.getTimestampSeconds() <= currentTimestamp);
-                assertTrue(ticker.getValue() >= 0.0);
-            }
+        Set<String> timestampTestSet = new HashSet<>(); // there should be only one ticker for given timestamp (representing a block)
+        Ticker[] tickers = uniswap3SwapsToTickers.generateTickers(resultNodes, exchangeSpecs);
+        assertTrue(tickers.length > 0);
+        for (Ticker ticker : tickers) {
+            assertFalse(timestampTestSet.contains(String.format("%d_%s", ticker.getTimestampSeconds(), ticker.getPair())));
+            timestampTestSet.add(String.format("%d_%s", ticker.getTimestampSeconds(), ticker.getPair()));
+            String counterSymbol = pairSymbolConverter.apiSymbolToCounterCurrencySymbol(ticker.getPair());
+            assertEquals("USD", counterSymbol);
+            assertTrue(ticker.getTimestampSeconds() >= dayAgoTimestamp && ticker.getTimestampSeconds() <= currentTimestamp);
+            assertTrue(ticker.getValue() >= 0.0);
         }
     }
 

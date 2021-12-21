@@ -32,6 +32,7 @@ import pl.dmotyka.exchangeutils.tools.TicksToCandles;
 class Uniswap3ChartInfo implements ExchangeChartInfo {
 
     private Uniswap3ExchangeSpecs exchangeSpecs;
+    private Uniswap3SwapsToTickers uniswap3SwapsToTickers = new Uniswap3SwapsToTickers();
 
     public Uniswap3ChartInfo(Uniswap3ExchangeSpecs exchangeSpecs) {
         this.exchangeSpecs = exchangeSpecs;
@@ -50,12 +51,8 @@ class Uniswap3ChartInfo implements ExchangeChartInfo {
         List<JsonNode> swaps0JsonNodes = req.send(swapsToken0Query);
         List<JsonNode> swaps1JsonNodes = req.send(swapsToken1Query);
         List<Ticker> tickerList = new LinkedList<>();
-        for (JsonNode swapsJsonNode : swaps0JsonNodes) {
-            tickerList.addAll(Arrays.asList(Uniswap3SwapsToTickers.generateTickers(swapsJsonNode, exchangeSpecs)));
-        }
-        for (JsonNode swapsJsonNode : swaps1JsonNodes) {
-            tickerList.addAll(Arrays.asList(Uniswap3SwapsToTickers.generateTickers(swapsJsonNode, exchangeSpecs)));
-        }
+        tickerList.addAll(Arrays.asList(uniswap3SwapsToTickers.generateTickers(swaps0JsonNodes, exchangeSpecs)));
+        tickerList.addAll(Arrays.asList(uniswap3SwapsToTickers.generateTickers(swaps1JsonNodes, exchangeSpecs)));
         Ticker[] tickers = tickerList.stream().filter(t -> t.getPair().equals(apiSymbol)).sorted(Comparator.comparingLong(Ticker::getTimestampSeconds)).toArray(Ticker[]::new);
         if (tickers.length == 0) {
             return new ChartCandle[0];
