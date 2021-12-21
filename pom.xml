@@ -19,7 +19,7 @@
 
     <groupId>pl.dmotyka</groupId>
     <artifactId>exchangeutils</artifactId>
-    <version>1.18.10-SNAPSHOT</version>
+    <version>1.18.10</version>
     <packaging>jar</packaging>
 
     <properties>
