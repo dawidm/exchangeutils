@@ -27,19 +27,24 @@ import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
 import pl.dmotyka.exchangeutils.pairdataprovider.MarketQuoteVolume;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairSelectionCriteria;
+import pl.dmotyka.exchangeutils.thegraphdex.TheGraphExchangeSpecs;
 import pl.dmotyka.exchangeutils.thegraphdex.TheGraphHttpRequest;
 
 public class Uniswap3PairDataProvider implements PairDataProvider {
 
+    private final TheGraphExchangeSpecs theGraphExchangeSpecs;
     private final Map<String, DexTokenInfo> tokenInfoMap = new HashMap<>();
-    private static final String COUNTER_CURRENCY_SYMBOL = Uniswap3ExchangeSpecs.SUPPORTED_COUNTER_CURR[0];
     private static final double MIN_WHITELIST_POOL_TO_BIGGEST_POOL_USD_VOL_PROPORTION = 0.1;
     private static final int MAX_WHITELIST_POOLS = 10;
 
+    public Uniswap3PairDataProvider(TheGraphExchangeSpecs theGraphExchangeSpecs) {
+        this.theGraphExchangeSpecs = theGraphExchangeSpecs;
+    }
+
     @Override
     public synchronized String[] getPairsApiSymbols(PairSelectionCriteria[] pairSelectionCriteria) throws ConnectionProblemException, ExchangeCommunicationException {
-        if (pairSelectionCriteria.length > 1 || !pairSelectionCriteria[0].getCounterCurrencySymbol().equals(COUNTER_CURRENCY_SYMBOL)) {
-            throw new IllegalArgumentException(String.format("Only %s counter currency symbol and single pairs criteria are supported", COUNTER_CURRENCY_SYMBOL));
+        if (pairSelectionCriteria.length > 1 || !pairSelectionCriteria[0].getCounterCurrencySymbol().equals(theGraphExchangeSpecs.getSupportedCounterCurrencies()[0])) {
+            throw new IllegalArgumentException(String.format("Only %s counter currency symbol and single pairs criteria are supported", theGraphExchangeSpecs.getSupportedCounterCurrencies()[0]));
         }
         return Arrays.stream(getQuoteVolumes24h()).filter(q -> q.getQuoteVolume() > pairSelectionCriteria[0].getMinVolume()).map(MarketQuoteVolume::getPairApiSymbol).toArray(String[]::new);
     }
@@ -50,7 +55,7 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
     }
 
     private MarketQuoteVolume[] getQuoteVolumes24h() throws ExchangeCommunicationException {
-        TheGraphHttpRequest theGraphHttpRequest = new TheGraphHttpRequest(new Uniswap3ExchangeSpecs());
+        TheGraphHttpRequest theGraphHttpRequest = new TheGraphHttpRequest(theGraphExchangeSpecs);
         List<JsonNode> tokensNodes = theGraphHttpRequest.send(new Uniswap3TokensQuery());
         Set<MarketQuoteVolume> volumes = new HashSet<>();
         for(JsonNode poolsNode : tokensNodes) {
@@ -58,7 +63,7 @@ public class Uniswap3PairDataProvider implements PairDataProvider {
                 if (tokenNode.get("whitelistPools").size() == 0) {
                     continue;
                 }
-                String symbol = Uniswap3PairSymbolConverter.formatApiSymbol(tokenNode.get("id").textValue(),COUNTER_CURRENCY_SYMBOL);
+                String symbol = Uniswap3PairSymbolConverter.formatApiSymbol(tokenNode.get("id").textValue(), theGraphExchangeSpecs.getSupportedCounterCurrencies()[0]);
                 long currentTimestampSec = System.currentTimeMillis() / 1000;
                 long todayTimestampSec = currentTimestampSec - currentTimestampSec % (24*3600);
                 long yesterdayTimestampSec = todayTimestampSec - 24*3600;

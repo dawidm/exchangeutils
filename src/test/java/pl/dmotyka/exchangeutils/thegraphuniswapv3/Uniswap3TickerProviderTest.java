@@ -76,4 +76,52 @@ class Uniswap3TickerProviderTest {
             wait();
         }
     }
+
+    @Test
+    void polygonTickerProviderTest() throws ConnectionProblemException, ExchangeCommunicationException, IOException, InterruptedException {
+        Uniswap3PolygonExchangeSpecs exchangeSpecs = new Uniswap3PolygonExchangeSpecs();
+        String[] symbols = exchangeSpecs.getPairDataProvider().getPairsApiSymbols(new PairSelectionCriteria[] {new PairSelectionCriteria("USD", 100000)});
+        // WETH
+        Optional<String> optionalSymbol = Arrays.stream(symbols).filter(s -> s.equals("0x7ceb23fd6bc0add59e62ac25578270cff1b9f619_USD")).findAny();
+        // WMATIC
+        Optional<String> optional1Symbol = Arrays.stream(symbols).filter(s -> s.equals("0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270_USD")).findAny();
+        String symbol = optionalSymbol.orElseGet(() -> symbols[0]);
+        String symbol1 = optional1Symbol.orElseGet(() -> symbols[1]);
+        Set<String> resultsSymbolsSet = new HashSet<>();
+        TickerProvider tickerProvider = exchangeSpecs.getTickerProvider(new TickerReceiver() {
+            @Override
+            public void receiveTicker(Ticker ticker) {
+                System.out.println(exchangeSpecs.getPairSymbolConverter().toFormattedString(ticker.getPair()) + " " + ticker.getValue());
+                resultsSymbolsSet.add(ticker.getPair());
+                if (resultsSymbolsSet.size() == 2) {
+                    synchronized (Uniswap3TickerProviderTest.this) {
+                        Uniswap3TickerProviderTest.this.notify();
+                    }
+                }
+            }
+
+            @Override
+            public void receiveTickers(Ticker[] tickers) {
+                for (Ticker ticker : tickers) {
+                    System.out.println(exchangeSpecs.getPairSymbolConverter().toFormattedString(ticker.getPair()) + " " + ticker.getValue());
+                    resultsSymbolsSet.add(ticker.getPair());
+                    if (resultsSymbolsSet.size() == 2) {
+                        synchronized (Uniswap3TickerProviderTest.this) {
+                            Uniswap3TickerProviderTest.this.notify();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void error(Throwable error) {
+                throw new RuntimeException("", error);
+            }
+        }, new String[] {symbol, symbol1});
+        tickerProvider.connect(System.out::println);
+        synchronized(this) {
+            // waiting to get tickers for 2 symbols
+            wait();
+        }
+    }
 }

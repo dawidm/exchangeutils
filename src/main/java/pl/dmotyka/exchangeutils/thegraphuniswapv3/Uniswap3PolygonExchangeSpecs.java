@@ -32,10 +32,11 @@ public class Uniswap3PolygonExchangeSpecs extends TheGraphExchangeSpecs {
 
     private static final int TICKER_PROVIDER_PAST_TICKS_SECONDS_AGO = 300;
 
-    private final Uniswap3PairDataProvider uniswap3PairDataProvider = new Uniswap3PairDataProvider();
+    private final Uniswap3PairDataProvider uniswap3PairDataProvider;
 
     public Uniswap3PolygonExchangeSpecs() {
         super("UniswapV3 Polygon");
+        uniswap3PairDataProvider = new Uniswap3PairDataProvider(this);
     }
 
     @Override
