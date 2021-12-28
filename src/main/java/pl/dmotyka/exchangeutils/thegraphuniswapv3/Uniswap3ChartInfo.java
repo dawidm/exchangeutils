@@ -44,7 +44,7 @@ class Uniswap3ChartInfo implements ExchangeChartInfo {
         if (timePeriodSeconds > (long)Integer.MAX_VALUE || beginTimestampSeconds > (long)Integer.MAX_VALUE || endTimestampSeconds > (long)Integer.MAX_VALUE) {
             throw new IllegalArgumentException("At least one of time values is too big (they should be in seconds)");
         }
-        TheGraphHttpRequest req = new TheGraphHttpRequest(new Uniswap3ExchangeSpecs());
+        TheGraphHttpRequest req = new TheGraphHttpRequest(exchangeSpecs);
         Uniswap3PairSymbolConverter pairSymbolConverter = (Uniswap3PairSymbolConverter) exchangeSpecs.getPairSymbolConverter();
         String tokenAddress = pairSymbolConverter.apiSymbolToBaseCurrencySymbol(apiSymbol);
         Uniswap3TokenSwapsQuery swapsToken0Query = new Uniswap3TokenSwapsQuery(Uniswap3TokenSwapsQuery.WhichToken.TOKEN0, new String[]{tokenAddress}, (int)beginTimestampSeconds, (int)endTimestampSeconds);
