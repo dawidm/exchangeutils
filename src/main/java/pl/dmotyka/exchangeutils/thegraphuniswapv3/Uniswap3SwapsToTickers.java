@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import pl.dmotyka.exchangeutils.thegraphdex.TheGraphExchangeSpecs;
 import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
 
 public class Uniswap3SwapsToTickers {
@@ -47,7 +48,7 @@ public class Uniswap3SwapsToTickers {
     //  more inaccurate USD prices
     private final Map<String, AmountTokenUSD> tmpAmountsMap = new HashMap<>();
 
-    public Ticker[] generateTickers(List<JsonNode> swapsNodes, Uniswap3ExchangeSpecs uniswap3ExchangeSpecs) {
+    public Ticker[] generateTickers(List<JsonNode> swapsNodes, TheGraphExchangeSpecs uniswap3ExchangeSpecs) {
         List<Ticker> tickers = new LinkedList<>();
         for (JsonNode swapsNode : swapsNodes) {
             for (JsonNode swapNode : swapsNode.get("swaps")) {

@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
+import pl.dmotyka.exchangeutils.thegraphdex.TheGraphExchangeSpecs;
 import pl.dmotyka.exchangeutils.thegraphdex.TheGraphHttpRequest;
 import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
 import pl.dmotyka.exchangeutils.tickerprovider.TickerProvider;
@@ -41,21 +42,21 @@ public class Uniswap3TickerProvider implements TickerProvider {
 
     private static final int TICKER_REFRESH_RATE_SEC = 8;
 
-    private ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-    private TickerReceiver tickerReceiver;
-    private String[] pairsApiSymbols;
-    private Set<String> pairsSet;
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+    private final TickerReceiver tickerReceiver;
+    private final String[] pairsApiSymbols;
+    private final Set<String> pairsSet;
     private TickerProviderConnectionStateReceiver connectionStateReceiver;
-    private Uniswap3ExchangeSpecs exchangeSpecs;
-    private Uniswap3PairSymbolConverter pairSymbolConverter;
+    private final TheGraphExchangeSpecs exchangeSpecs;
+    private final Uniswap3PairSymbolConverter pairSymbolConverter;
     private int pastTicksSecondsAgo;
-    private TheGraphHttpRequest theGraphHttpRequest;
-    private Uniswap3SwapsToTickers uniswap3SwapsToTickers = new Uniswap3SwapsToTickers();
+    private final TheGraphHttpRequest theGraphHttpRequest;
+    private final Uniswap3SwapsToTickers uniswap3SwapsToTickers = new Uniswap3SwapsToTickers();
 
     private int lastRefreshTimestampSeconds;
 
     // pastTickSecondsAgo - when connected, provider will get past tick for specified time
-    public Uniswap3TickerProvider(TickerReceiver tickerReceiver, String[] pairsApiSymbols, Uniswap3ExchangeSpecs exchangeSpecs, int pastTickSecondsAgo) {
+    public Uniswap3TickerProvider(TickerReceiver tickerReceiver, String[] pairsApiSymbols, TheGraphExchangeSpecs exchangeSpecs, int pastTickSecondsAgo) {
         this.tickerReceiver = tickerReceiver;
         this.pairsApiSymbols = pairsApiSymbols;
         this.pairsSet = Set.of(pairsApiSymbols);

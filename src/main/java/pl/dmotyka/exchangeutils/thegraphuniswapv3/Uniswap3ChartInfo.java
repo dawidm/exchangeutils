@@ -25,16 +25,17 @@ import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import pl.dmotyka.exchangeutils.chartinfo.NoSuchTimePeriodException;
 import pl.dmotyka.exchangeutils.exceptions.ConnectionProblemException;
 import pl.dmotyka.exchangeutils.exceptions.ExchangeCommunicationException;
+import pl.dmotyka.exchangeutils.thegraphdex.TheGraphExchangeSpecs;
 import pl.dmotyka.exchangeutils.thegraphdex.TheGraphHttpRequest;
 import pl.dmotyka.exchangeutils.tickerprovider.Ticker;
 import pl.dmotyka.exchangeutils.tools.TicksToCandles;
 
 class Uniswap3ChartInfo implements ExchangeChartInfo {
 
-    private Uniswap3ExchangeSpecs exchangeSpecs;
+    private TheGraphExchangeSpecs exchangeSpecs;
     private Uniswap3SwapsToTickers uniswap3SwapsToTickers = new Uniswap3SwapsToTickers();
 
-    public Uniswap3ChartInfo(Uniswap3ExchangeSpecs exchangeSpecs) {
+    public Uniswap3ChartInfo(TheGraphExchangeSpecs exchangeSpecs) {
         this.exchangeSpecs = exchangeSpecs;
     }
 

@@ -17,13 +17,14 @@ import java.util.Locale;
 
 import org.knowm.xchange.currency.CurrencyPair;
 import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
+import pl.dmotyka.exchangeutils.thegraphdex.TheGraphExchangeSpecs;
 
 class Uniswap3PairSymbolConverter implements PairSymbolConverter {
 
-    private Uniswap3ExchangeSpecs exchangeSpecs;
+    private TheGraphExchangeSpecs exchangeSpecs;
     private Uniswap3PairDataProvider pairDataProvider;
 
-    public Uniswap3PairSymbolConverter(Uniswap3ExchangeSpecs exchangeSpecs) {
+    public Uniswap3PairSymbolConverter(TheGraphExchangeSpecs exchangeSpecs) {
         this.exchangeSpecs = exchangeSpecs;
         pairDataProvider = (Uniswap3PairDataProvider) exchangeSpecs.getPairDataProvider();
     }
