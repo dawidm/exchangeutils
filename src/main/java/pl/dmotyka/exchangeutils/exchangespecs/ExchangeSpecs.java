@@ -20,7 +20,6 @@ import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.lang3.StringUtils;
 import org.knowm.xchange.Exchange;
 import pl.dmotyka.exchangeutils.chartinfo.ExchangeChartInfo;
 import pl.dmotyka.exchangeutils.pairdataprovider.PairDataProvider;
@@ -103,11 +102,6 @@ public abstract class ExchangeSpecs {
         if(obj instanceof ExchangeSpecs)
             return name.equals(((ExchangeSpecs)obj).getName());
         return false;
-    }
-
-    // get css class for styling pairs names
-    public String getCssClass() {
-        return StringUtils.deleteWhitespace(this.getName().toLowerCase())+"-color";
     }
 
     public static ExchangeSpecs[] getAll() {
