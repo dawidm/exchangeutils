@@ -1,7 +1,7 @@
 /*
  * Cryptonose
  *
- * Copyright © 2019-2021 Dawid Motyka
+ * Copyright © 2019-2022 Dawid Motyka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
@@ -48,6 +48,11 @@ import pl.dmotyka.exchangeutils.tradinghoursprovider.TradingHoursProvider;
 
 public class ChartDataProvider {
 
+    public interface RefreshDataProgressReceiver {
+        // from 0 to 100
+        void sendProgress(double progress);
+    }
+
     private static final Logger logger = Logger.getLogger(ChartDataProvider.class.getName());
 
     public static final int NUM_RETRIES_FOR_PAIR=2;
@@ -90,10 +95,10 @@ public class ChartDataProvider {
     };
 
     public synchronized void refreshData() {
-        refreshData(null);
+        refreshData(null, null);
     }
 
-    public synchronized void refreshData(String[] newPairs) {
+    public synchronized void refreshData(String[] newPairs, RefreshDataProgressReceiver progressReceiver) {
         logger.info("refreshing ChartDataProvider data");
         if (newPairs != null) {
             pairs = newPairs;
@@ -105,7 +110,11 @@ public class ChartDataProvider {
             AtomicLong lastChartDataTimestampSec = new AtomicLong(currentTimeSec());
             // flag for unexpected delay when getting chart data
             AtomicBoolean unexpectedDelayError = new AtomicBoolean(false);
+            int pairNumber = 0;
             for (String currentPair : pairs) {
+                if (progressReceiver!=null) {
+                    progressReceiver.sendProgress(100* (double) pairNumber++ / pairs.length);
+                }
                 for(PeriodNumCandles currentPeriodNumCandles : periodsNumCandles) {
                     if (abortAtomicBoolean.get())
                         return;
