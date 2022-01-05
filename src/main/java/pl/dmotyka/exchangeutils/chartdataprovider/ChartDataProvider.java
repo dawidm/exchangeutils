@@ -94,8 +94,8 @@ public class ChartDataProvider {
         return exchangeSpecs.getChartInfo().getAvailablePeriods();
     };
 
-    public synchronized void refreshData() {
-        refreshData(null, null);
+    public synchronized void refreshData(RefreshDataProgressReceiver progressReceiver) {
+        refreshData(null, progressReceiver);
     }
 
     public synchronized void refreshData(String[] newPairs, RefreshDataProgressReceiver progressReceiver) {
