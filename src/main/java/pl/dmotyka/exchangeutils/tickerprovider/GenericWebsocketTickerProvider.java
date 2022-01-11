@@ -136,7 +136,9 @@ public class GenericWebsocketTickerProvider implements TickerProvider {
             logger.warning("unexpected websocketclient state: isClosing");
             return;
         }
-        pingScheduledFuture.cancel(true);
+        if (pingScheduledFuture != null && !pingScheduledFuture.isCancelled()) {
+            pingScheduledFuture.cancel(true);
+        }
         try {
             isConnectedAtomicBoolean.set(false);
             webSocketClient.closeBlocking();
