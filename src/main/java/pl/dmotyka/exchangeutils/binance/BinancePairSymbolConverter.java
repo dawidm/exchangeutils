@@ -20,7 +20,7 @@ import pl.dmotyka.exchangeutils.pairsymbolconverter.PairSymbolConverter;
 
 class BinancePairSymbolConverter implements PairSymbolConverter {
 
-    private static final Set<String> COUNTER_CURRENCY_4_DIGIT_SET = Set.of("USDT", "TUSD", "USDC", "BKRW", "BUSD", "IDRT");
+    private static final Set<String> COUNTER_CURRENCY_EXCEPTIONS_SET = Set.of("USDT", "TUSD", "USDC", "BKRW", "BUSD", "IDRT", "FDUSD");
 
     @Override
     public String toFormattedString(String apiSymbol) {
@@ -39,15 +39,17 @@ class BinancePairSymbolConverter implements PairSymbolConverter {
 
     @Override
     public String apiSymbolToCounterCurrencySymbol(String apiSymbol) {
-        if (endsW4DigCounterCurr(apiSymbol))
-            return apiSymbol.substring(apiSymbol.length() - 4);
+        int endsWithExceptionCounterResult = endsWithExceptionCounter(apiSymbol);
+        if (endsWithExceptionCounterResult > 0)
+            return apiSymbol.substring(apiSymbol.length()-endsWithExceptionCounterResult);
         return apiSymbol.substring(apiSymbol.length() - 3);
     }
 
     @Override
     public String apiSymbolToBaseCurrencySymbol(String apiSymbol) {
-        if (endsW4DigCounterCurr(apiSymbol))
-            return apiSymbol.substring(0,apiSymbol.length()-4);
+        int endsWithExceptionCounterResult = endsWithExceptionCounter(apiSymbol);
+        if (endsWithExceptionCounterResult > 0)
+            return apiSymbol.substring(0,apiSymbol.length()-endsWithExceptionCounterResult);
         return apiSymbol.substring(0,apiSymbol.length()-3);
     }
 
@@ -59,11 +61,11 @@ class BinancePairSymbolConverter implements PairSymbolConverter {
         );
     }
 
-    private boolean endsW4DigCounterCurr(String pairSymbol) {
-        for(String counter : COUNTER_CURRENCY_4_DIGIT_SET) {
+    private int endsWithExceptionCounter(String pairSymbol) {
+        for(String counter : COUNTER_CURRENCY_EXCEPTIONS_SET) {
             if (pairSymbol.endsWith(counter))
-                return true;
+                return counter.length();
         }
-        return false;
+        return 0;
     }
 }
